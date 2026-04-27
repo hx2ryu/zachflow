@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bash script syntax check
+        run: |
+          for f in scripts/*.sh scripts/lib/*.sh; do
+            bash -n "$f" && echo "OK: $f"
+          done
+
+      - name: ZZEM-leak scan
+        run: |
+          if grep -rE 'ZZEM|zzem-orchestrator|MemeApp|meme-api|meme-pr|zach-wrtn|wrtn\.io|zzem-kb' \
+            --exclude-dir=.git \
+            --exclude-dir=node_modules \
+            --exclude='CHANGELOG.md' \
+            --exclude='docs/roadmap.md' \
+            .; then
+            echo "FAIL: ZZEM literals leaked into zachflow"
+            exit 1
+          fi
+          echo "PASS: clean of ZZEM literals"

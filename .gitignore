@@ -1,0 +1,25 @@
+# Worktree directories created by setup-sprint.sh
+.worktrees/
+backend/
+app/
+tokens/
+
+# Per-project zachflow state (KB embedded data is tracked, but instance-specific runs may be ignored at user discretion)
+# runs/  ← keep tracked by default; uncomment to ignore
+
+# Tool/editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Logs
+*.log
+firebase-debug.log
+
+# OS
+Thumbs.db

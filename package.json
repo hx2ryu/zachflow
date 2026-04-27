@@ -1,0 +1,17 @@
+{
+  "name": "zachflow",
+  "version": "0.1.0",
+  "description": "Harness-driven sprint orchestration for AI coding agents.",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "agentic",
+    "claude-code",
+    "ai-coding",
+    "sprint",
+    "harness"
+  ]
+}
