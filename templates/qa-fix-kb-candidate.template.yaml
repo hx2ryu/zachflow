@@ -1,0 +1,38 @@
+# QA-Fix KB Candidate (P0/P1 only)
+# Stage 5 step 3 — Sprint Lead extracts a KB pattern candidate from each P0/P1 fix.
+# Approved candidates are merged into KB via zachflow-kb:write-pattern in Retro.
+# Path: runs/<sprint-id>/qa-fix/kb-candidates/<TICKET-ID>.yaml
+#
+# Field naming intentionally matches zachflow-kb:write-pattern inputs to enable
+# direct conversion in Retro without re-mapping.
+
+ticket: "PROJ-123"
+priority: "P0"  # P0 | P1 (P2/P3 skip candidate extraction)
+
+candidate_type: "pattern_gap"  # pattern_gap | pattern_violation | new_pattern
+related_existing_pattern: "<existing-kb-id-or-none>"  # e.g. "correctness-001" or "none"
+
+# zachflow-kb:write-pattern direct mapping fields:
+proposed_pattern:
+  category: "correctness"  # correctness | completeness | integration | edge_case | code_quality | design_proto | design_spec
+  severity: "major"        # critical | major | minor
+  title: "<≤120 chars — what the pattern enforces>"
+  source_sprint: "<sprint-id>"
+  source_group: "group-<N>"
+  description: "<≥10 chars — what this pattern is>"
+  detection: "<≥10 chars — how to detect a violation (lint rule, test, code-review checklist)>"
+  prevention: "<≥10 chars — how to prevent the violation in future code>"
+  contract_clause: "<≥10 chars — exact line to inject into Sprint Contract Done Criteria>"
+  example:
+    bad: |
+      <code snippet — the buggy pattern>
+    good: |
+      <code snippet — the fixed pattern>
+
+# Audit trail — preserved even when status=rejected.
+hypothesis: |
+  <one paragraph — which pattern's absence/violation caused this bug>
+fix_pr: "<URL>"
+
+status: "pending"  # pending | approved | rejected | duplicate
+review_notes: ""   # User decision rationale (filled in Retro)

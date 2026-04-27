@@ -1,0 +1,110 @@
+# Context Engine Template (v1)
+#
+# Schema for Design Engineer Step A output. Real instances live at
+#   runs/{sprint-id}/prototypes/context/context-engine.yaml
+# This file is the schema reference; placeholder values use {curly-brace} markers.
+#
+# 3-layer structure: WHY / WHAT / HOW + assets layer (added in v1)
+
+meta:
+  sprint_id: "{sprint-id}"
+  task_id: "{task-id}"
+  generated_at: "{ISO8601}"
+  schema_version: "1.0"
+
+# ─────────────────────────────
+# Layer 1: WHY (Business Intent)
+# ─────────────────────────────
+why:
+  product_intent: "{user problem this feature solves}"
+  target_user: "{primary user type}"
+  success_metric: "{success metric stated in the PRD}"
+  user_stories:
+    - id: "US-{N}"
+      as_a: "{user}"
+      i_want: "{action}"
+      so_that: "{expected effect}"
+  acceptance_criteria:
+    - id: "AC-{N}"
+      given: "{precondition}"
+      when: "{action}"
+      then: "{result}"
+      ui_impact: "{summary of UI impact, or null}"
+
+# ─────────────────────────────
+# Layer 2: WHAT (Design System)
+# ─────────────────────────────
+what:
+  tokens_needed:
+    colors: ["{semantic.xxx}"]
+    typography: ["{heading/h2}", "{body/body1}"]
+    spacing: ["{4}", "{8}", "{16}"]
+    radius: ["{sm}", "{md}"]
+  components_needed:
+    - name: "{ComponentName}"
+      category: "{navigation | content | input | feedback | layout}"
+  patterns_needed:
+    - name: "{PatternName}"
+      description: "{pattern description}"
+
+# ─────────────────────────────
+# Layer 3: HOW (Orchestration)
+# ─────────────────────────────
+how:
+  composition_rules:
+    - rule: "{composition rule}"
+      applies_to: ["{ScreenName}"]
+  conditional_rendering:
+    - condition: "{branching condition}"
+      variant_a: "{content A}"
+      variant_b: "{content B}"
+  constraints:
+    - "{constraint 1}"
+  priority_order:
+    - "{top-priority element}"
+
+# ─────────────────────────────
+# Layer 4: ASSETS (Imagery Sources, added in v1)
+# ─────────────────────────────
+# Honesty principle:
+#   - Only record assets whose actual src path is confirmed (no guessing).
+#   - If the source is unknown, omit the key and have DE stop-and-ask the Sprint Lead.
+#   - needs_real_content: true is a "no placeholder allowed" declaration.
+#
+# Per-category fallback order (left = preferred):
+#   avatar         : user-provided > KB sample > project asset pack > ask
+#   feed_thumb     : user-provided > Figma node screenshot > ask
+#   content_image  : user-provided > KB sample_image > ask
+#   icon           : project icon library inline SVG > text placeholder (←, ⋮, ♡)
+#   hero_banner    : user-provided > ask (no placeholder allowed)
+#
+# kind classification (required per slot):
+#   real-image       : photo / rendered bitmap. <img src> required. Subject to needs_real_content.
+#   gradient-token   : tokenised gradient (e.g. --banner-purple). When the colour is defined in
+#                      design-tokens, needs_real_content: false is allowed (intentional design).
+#   illustration     : per-category SVG / abstract illustration. OK if part of the design system.
+assets:
+  avatars:
+    kind: real-image
+    source: "{path glob or asset pack reference}"
+    count: "{N}"
+    license: "{internal-test | public-domain | user-provided}"
+    needs_real_content: false   # When true, Pass 6 #6 fails on placeholder-image.
+  feed_thumbnails:
+    kind: real-image            # Or gradient-token (token-driven card style).
+    source: "{path glob}"
+    license: "{internal-test | ...}"
+    needs_real_content: true
+  content_images:
+    kind: real-image
+    source: "{path or null}"
+    license: "{...}"
+    needs_real_content: true
+  icons:
+    kind: illustration
+    source: "{icon library reference or inline SVG file}"
+    fallback: "text-placeholder"
+  hero_banners:
+    kind: real-image            # Or gradient-token (brand-campaign banner style).
+    source: "{path or null}"
+    needs_real_content: true

@@ -107,10 +107,10 @@ TaskCreate:
 
     Task: tasks/app/{task-id}.md
     Assumption Preview output: runs/{sprint-id}/prototypes/app/{task-id}/{ScreenName}.intent.md
-    Preview template: templates/assumption-preview-template.md
-    Screen Spec template: templates/screen-spec-template.md
-    HTML template: templates/html-prototype-template.html
-    Context Engine template: templates/context-engine-template.yaml
+    Preview template: templates/assumption-preview.template.md
+    Screen Spec template: templates/screen-spec.template.md
+    HTML template: templates/html-prototype.template.html
+    Context Engine template: templates/context-engine.template.yaml
     Archetype hint (optional): the Sprint Lead can specify an archetype inferred from PRD analysis — e.g., archetype: feed
       → If unspecified, the DE classifies in B.1.1 from PRD/task content.
       → 7 enum values: feed | detail | onboarding | form | modal | empty_state | nav_list
@@ -194,7 +194,7 @@ Tasks that forked into variants mode in §3.2 Step 2 go through this gate after 
 **Sprint Lead actions**:
 
 1. Present the auto-generated `variants/_comparison.png` (3 frames horizontally) to the user.
-2. Fill `templates/variant-comparison-template.md` and save as `variants/comparison.md`.
+2. Fill `templates/variant-comparison.template.md` and save as `variants/comparison.md`.
 3. Summarize for the user (3-5 sentences):
    ```
    [{ScreenName}] 3-variant comparison
@@ -396,7 +396,7 @@ Phase 3.4 skipped: no revisions occurred — PRD amendment not needed
 5. Generate `prd-amendment.md` and save to `runs/{sprint-id}/prototypes/prd-amendment.md`.
 6. Present a summary to the user + confirm apply per amendment.
 
-**Output artifact**: `runs/{sprint-id}/prototypes/prd-amendment.md` (template: `templates/prd-amendment-template.md`)
+**Output artifact**: `runs/{sprint-id}/prototypes/prd-amendment.md` (template: `templates/prd-amendment.template.md`)
 
 **User actions** (per amendment):
 

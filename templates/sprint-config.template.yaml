@@ -1,0 +1,79 @@
+# Sprint Configuration Template
+# Copy to runs/{sprint-id}/sprint-config.yaml and fill in.
+
+sprint_id: "{sprint-id}"
+
+# Sprint type. Optional (default: "standard").
+#   standard — 6-Phase pipeline (Init → Spec → Prototype → Build → PR → Retro)
+#   qa-fix   — Integration QA-Fix sprint. Phase 1~3 skipped, Phase QA-Fix runs directly.
+type: "standard"
+
+# QA-Fix configuration. Required when type=qa-fix; optional otherwise (used by --phase=qa-fix on a standard sprint).
+qa_fix:
+  jql: ""                      # default JQL when --jql is omitted on the CLI
+  jira_base_url: ""            # e.g. "https://your-org.atlassian.net/browse/" — used in jira-snapshot.yaml ticket URLs
+  ready_for_qa_transition: "Ready for QA"  # exact Jira transition name targeted in Stage 5
+
+# Branch prefix for sprint work branches. Optional (default: "sprint").
+# e.g. branch_prefix="sprint" + sprint_id="ai-webtoon" → branch name "sprint/ai-webtoon"
+branch_prefix: "sprint"
+
+# Repository role map.
+# Key = role name (backend, app, tokens, ...). Also used as directory name
+# under the orchestrator root and as tasks/{role}/ path.
+#
+# Fields:
+#   source: absolute path (or ~) to the main checkout of the repo.
+#           setup-sprint.sh uses this as the `git worktree add` target.
+#   base:   base branch to branch off (used when creating new sprint branches).
+#   mode:   "worktree" (default) | "symlink".
+#           worktree = independent HEAD via git worktree. Editable.
+#           symlink  = read-only / shared repo (e.g. design tokens).
+repositories:
+  backend:
+    source: ~/dev/work/<example-backend-repo>
+    base: "main"
+    mode: worktree
+  app:
+    source: ~/dev/work/<example-app-repo>
+    base: "main"
+    mode: worktree
+  tokens:
+    source: ~/dev/work/<example-tokens-repo>
+    base: "main"
+    mode: symlink
+
+# Fallback base branch for unspecified projects
+defaults:
+  base: "main"
+
+# Agent Teams (Harness Design v4)
+team:
+  teammates:
+    - be-engineer            # .claude/teammates/be-engineer.md (Generator)
+    - fe-engineer            # .claude/teammates/fe-engineer.md (Generator)
+    - design-engineer        # .claude/teammates/design-engineer.md (Prototype)
+    - evaluator              # .claude/teammates/evaluator.md (Evaluator)
+  settings:
+    eval_retry_limit: 2        # Max iterations for the evaluation fix loop
+    max_parallel_tasks: 4      # Max concurrent tasks
+
+# Knowledge Base configuration. Defaults to embedded mode (KB lives in this repo).
+kb:
+  mode: embedded
+
+# Gallery display metadata (optional — consumed by sprint-gallery)
+display:
+  title: "Human-readable sprint title"
+  startDate: "YYYY-MM-DD"
+  endDate: "YYYY-MM-DD"
+  status: "in-progress"  # in-progress | completed | archived
+  tags: []
+  summary: ""            # optional 1–2 line override; if empty, PRD.md first paragraph is used
+  prototypes:
+    # Optional per-prototype overrides. Entries match folder names under prototypes/app/.
+    # Example:
+    # - id: "app-001"
+    #   title: "Main flow"
+    #   hero: true
+    #   thumbnail: "screenshots/default.png"  # path relative to prototype folder

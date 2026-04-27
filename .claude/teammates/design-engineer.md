@@ -16,7 +16,7 @@ The work is split into three steps:
 - **Screen Spec output**: `runs/{sprint-id}/prototypes/app/{task-id}/`
 - **Prototype output**: same directory (spec and result share a path)
 - **Design tokens source**: `{{DESIGN_TOKENS_PATH}}` (project's design tokens directory)
-- **Screen Spec template**: `templates/screen-spec-template.md`
+- **Screen Spec template**: `templates/screen-spec.template.md`
 - **Context Engine output**: `runs/{sprint-id}/prototypes/context/`
 
 ## Design System Reference
@@ -51,7 +51,7 @@ If the task Description contains a `--- FROZEN SNAPSHOT ---` block:
 - Do **not** Read `docs/designs/README.md` + foundations/components MDX separately — included in snapshot
 - Do **not** Read KB design patterns separately — included in snapshot
 - Read `{{DESIGN_TOKENS_PATH}}` JSON directly (needed to generate tokens.css)
-- Read `screen-spec-template.md` directly (needed for structure)
+- Read `screen-spec.template.md` directly (needed for structure)
 
 **No snapshot** (fallback — compatibility):
 Follow the original protocol and Read each file directly:
@@ -323,7 +323,7 @@ Declaring `feed_thumbnails.kind: gradient-token` exempts Pass 6 #6 (placeholder-
 
 **Storage path**: `assets:` block in `runs/{sprint-id}/prototypes/context/context-engine.yaml`.
 
-**Template reference**: `templates/context-engine-template.yaml` `assets` section.
+**Template reference**: `templates/context-engine.template.yaml` `assets` section.
 
 **Zero-Contamination**: only filesystem-verified asset paths. Do not write virtual / future / "to-be-filled" paths to `source:`.
 
@@ -346,7 +346,7 @@ For each screen, set `screen_spec.yaml > Meta.screen_archetype` to one of 7 enum
 
 **Classification flow**:
 
-1. Reference the classification guide table in `screen-spec-template.md` `Meta` section
+1. Reference the classification guide table in `screen-spec.template.md` `Meta` section
 2. Pick the dominant pattern (for composite screens, use the visually largest area)
 3. If ambiguous, ask the Sprint Lead — do not default
 4. Inline the persona file for the chosen archetype into working memory until Step C starts (if phase-prototype.md section 3.2 step 1 already inlined it, no re-Read needed)
@@ -396,7 +396,7 @@ For each screen, set `screen_spec.yaml > Meta.screen_archetype` to one of 7 enum
 
 ### B.2 Write Screen Spec
 
-Following `templates/screen-spec-template.md`, generate **one file per screen**.
+Following `templates/screen-spec.template.md`, generate **one file per screen**.
 
 **Storage path**: `runs/{sprint-id}/prototypes/app/{task-id}/{ScreenName}.spec.md`
 
@@ -542,7 +542,7 @@ To allow Sprint Lead early-review before Step C, produce `intent.md`. **Required
 - task Description has `preview_required: true`
 - 2 or more new components (`(new)` marks)
 
-**Template**: `templates/assumption-preview-template.md`
+**Template**: `templates/assumption-preview.template.md`
 
 **Storage path**:
 `runs/{sprint-id}/prototypes/app/{task-id}/{ScreenName}.intent.md`
@@ -627,7 +627,7 @@ Apply the remaining passes at once on top of prototype-alpha.html.
 ### C.1 Pre-flight
 
 1. **Read `tokens.css`** — `runs/{sprint-id}/prototypes/context/tokens.css`
-2. **HTML template reference** — `templates/html-prototype-template.html`
+2. **HTML template reference** — `templates/html-prototype.template.html`
 3. **Read context-engine.yaml** — confirm composition_rules in HOW layer
 4. **Read all Screen Specs** — every `{ScreenName}.spec.md` for this task
 
@@ -960,7 +960,7 @@ How the Design Engineer handles revision tasks from the Sprint Lead.
 - **Screen-unit work**: 1 spec per Screen/View/BottomSheet, 1 prototype.html per task
 - **Spec always preserved**: `.spec.md` is always saved regardless of HTML generation success (reproducibility)
 - **No prose**: no narrative sentences in spec files. Use YAML/tables/trees only
-- **HTML template reference**: build from `templates/html-prototype-template.html` as the base
+- **HTML template reference**: build from `templates/html-prototype.template.html` as the base
 - **tokens.css required**: inline-include the tokens.css generated in Step A
 - **Self-Contained**: the HTML stands alone with no external dependencies (the `{{PRIMARY_FONT}}` web-font CDN is the sole exception)
 - **Honor design tokens**: apply actual values from `{{DESIGN_TOKENS_PATH}}` JSON precisely

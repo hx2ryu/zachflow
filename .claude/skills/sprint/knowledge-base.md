@@ -70,7 +70,7 @@ When reflecting KB search results into the Contract:
   ...
 ```
 
-Injection criteria (consistent with sprint-contract-template.md):
+Injection criteria (consistent with sprint-contract.template.md):
 - `severity: critical` → always inject
 - `severity: major` + `frequency >= 2` → inject
 - `severity: minor` → do not inject

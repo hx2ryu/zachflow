@@ -276,7 +276,7 @@ if new_patterns_count >= 2:
 if any pattern.frequency >= 3:
     To user: "⚠ Pattern '{title}' has recurred across {N} sprints.
     Recommend permanent inclusion in the Sprint Contract template."
-    → On user approval, add the clause to sprint-contract-template.md
+    → On user approval, add the clause to sprint-contract.template.md
 ```
 
 **Append to output** (within the existing Phase 6 Output block):

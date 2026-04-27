@@ -144,7 +144,7 @@ TaskCreate:
     --- END SNAPSHOT ---
 
     Task detail: see {task-id}
-    Screen Spec template: templates/screen-spec-template.md
+    Screen Spec template: templates/screen-spec.template.md
 ```
 
 **Forbidden**:

@@ -1,0 +1,32 @@
+# QA-Fix Jira Snapshot
+# Stage 1 output — preserves the JQL + result for reproducibility.
+# Produced by Sprint Lead in Stage 1 (Fetch & Triage).
+# Path: runs/<sprint-id>/qa-fix/jira-snapshot.yaml
+
+snapshot_at: "YYYY-MM-DDTHH:MM:SS+00:00"  # ISO 8601 with offset
+sprint_id: "<sprint-id>"
+entry_path: "per-sprint"  # per-sprint | integration
+
+jira:
+  jql: |
+    <the exact JQL string used>
+  base_url: "https://<your-jira-domain>/browse/"  # for ticket URL construction
+  fetched_count: <number>
+
+# All fetched tickets — full triage classification happens in triage.md.
+tickets:
+  - key: "PROJ-123"
+    summary: "<one-line>"
+    priority: "P0"  # P0 | P1 | P2 | P3
+    type: "Bug"     # Bug | UX | Perf | Copy | Other
+    status: "<Jira status name>"
+    reporter: "<account>"
+    assignee: "<account or null>"
+    labels: []
+    components: []
+    fix_versions: []
+    created: "YYYY-MM-DDTHH:MM:SS+00:00"
+    description_excerpt: |
+      <first ~500 chars — full body fetched on demand by Sprint Lead>
+    repro_steps: |
+      <if present in description, extracted here>

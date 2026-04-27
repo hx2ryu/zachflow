@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TASK_ID}} Prototype</title>
+  <style>
+    /* === Design Tokens (tokens.css content inlined here) === */
+    :root {
+      /* {{TOKENS_CSS}} */
+    }
+
+    /* === Reset === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    /* === Control Panel (for reviewers; outside the device frame) === */
+    .control-panel {
+      width: 390px;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      border-radius: 12px 12px 0 0;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .control-panel__row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-panel__label {
+      color: #888;
+      font-size: 11px;
+      min-width: 48px;
+    }
+
+    .control-panel select {
+      background: #2a2a3e;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      flex: 1;
+    }
+
+    .control-panel__states {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .control-panel__state-btn {
+      background: #2a2a3e;
+      color: #888;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .control-panel__state-btn.active {
+      background: var(--color-brand-primary, #8752FA);
+      color: #fff;
+      border-color: var(--color-brand-primary, #8752FA);
+    }
+
+    .control-panel__breadcrumb {
+      color: #666;
+      font-size: 11px;
+      font-family: monospace;
+    }
+
+    /* === Device Frame === */
+    .device-frame {
+      width: 390px;
+      height: 844px;
+      background: var(--color-bg-normal, #FFFFFF);
+      overflow: hidden;
+      position: relative;
+      border: 1px solid #ddd;
+      border-radius: 0 0 12px 12px;
+    }
+
+    /* === Screen === */
+    .screen {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* === Transitions === */
+    @keyframes slideLeftIn {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    @keyframes slideRightIn {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+
+    @keyframes slideUpIn {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideDownOut {
+      from { transform: translateY(0); }
+      to { transform: translateY(100%); }
+    }
+
+    .transition-slide-left { animation: slideLeftIn 0.3s ease-out; }
+    .transition-slide-right { animation: slideRightIn 0.3s ease-out; }
+    .transition-slide-up { animation: slideUpIn 0.3s ease-out; }
+    .transition-fade { animation: fadeIn 0.2s ease-out; }
+    .transition-slide-down { animation: slideDownOut 0.25s ease-in; }
+
+    /* === State Visibility === */
+    [data-state] {
+      display: none;
+    }
+
+    [data-state].state-active {
+      display: flex;
+    }
+
+    /* === Overlay === */
+    .overlay-backdrop {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+    }
+
+    .overlay-backdrop.active {
+      display: block;
+    }
+
+    .overlay-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 101;
+    }
+
+    /* === Placeholder (image / icon) === */
+    .placeholder-image {
+      background: var(--color-fill-neutral, #F0F1F3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-label-assistive, #8E9199);
+      font-size: 12px;
+      border-radius: var(--radius-md, 12px);
+    }
+
+    .placeholder-icon {
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-label-normal, #212228);
+      font-size: 18px;
+    }
+
+    /* === Skeleton === */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-shimmer 1.5s infinite;
+      border-radius: var(--radius-sm, 8px);
+    }
+
+    @keyframes skeleton-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* === Per-screen styles below (generated by Design Engineer) === */
+    /* {{SCREEN_STYLES}} */
+
+    /* Mobile fullscreen: reviewer panel out of the way, device-frame fills viewport */
+    @media (max-width: 480px) {
+      body { padding: 0; align-items: stretch; min-height: 100dvh; }
+      .control-panel { display: none; }
+      .device-frame {
+        width: 100dvw;
+        height: 100dvh;
+        border: none;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Control Panel -->
+  <div class="control-panel">
+    <div class="control-panel__row">
+      <span class="control-panel__label">Screen</span>
+      <select id="screen-select" onchange="navigateBySelect(this.value)">
+        <!-- {{SCREEN_OPTIONS}} -->
+      </select>
+    </div>
+    <div class="control-panel__row">
+      <span class="control-panel__label">State</span>
+      <div class="control-panel__states" id="state-toggles">
+        <!-- {{STATE_BUTTONS}} -->
+      </div>
+    </div>
+    <div class="control-panel__row">
+      <span class="control-panel__breadcrumb" id="breadcrumb"><!-- {{INITIAL_SCREEN}} --></span>
+    </div>
+  </div>
+
+  <!-- Device Frame -->
+  <div class="device-frame" id="device-frame">
+    <!-- {{SCREENS}} -->
+  </div>
+
+  <script>
+    // === State ===
+    let currentScreen = null;
+    let currentState = 'default';
+    const navHistory = [];
+
+    // === Navigation ===
+    function navigate(screenId, transition = 'slide-left') {
+      const target = document.getElementById(screenId);
+      if (!target || (currentScreen && currentScreen.id === screenId)) return;
+
+      if (currentScreen) {
+        navHistory.push(currentScreen.id);
+        currentScreen.classList.remove('active');
+        currentScreen.className = currentScreen.className.replace(/transition-\S+/g, '');
+      }
+
+      target.classList.add('active');
+      if (transition !== 'none') {
+        target.classList.add('transition-' + transition);
+        target.addEventListener('animationend', function handler() {
+          target.classList.remove('transition-' + transition);
+          target.removeEventListener('animationend', handler);
+        });
+      }
+
+      currentScreen = target;
+      currentState = 'default';
+      applyState(screenId, 'default');
+      updateControlPanel();
+    }
+
+    function goBack() {
+      if (navHistory.length === 0) return;
+      const prevId = navHistory.pop();
+      const target = document.getElementById(prevId);
+      if (!target) return;
+
+      if (currentScreen) {
+        currentScreen.classList.remove('active');
+      }
+
+      target.classList.add('active', 'transition-slide-right');
+      target.addEventListener('animationend', function handler() {
+        target.classList.remove('transition-slide-right');
+        target.removeEventListener('animationend', handler);
+      });
+
+      currentScreen = target;
+      currentState = 'default';
+      applyState(prevId, 'default');
+      updateControlPanel();
+    }
+
+    function navigateBySelect(screenId) {
+      navigate(screenId, 'fade');
+    }
+
+    // === State Toggle ===
+    function applyState(screenId, stateName) {
+      const screen = document.getElementById(screenId);
+      if (!screen) return;
+
+      screen.querySelectorAll('[data-state]').forEach(el => {
+        el.classList.toggle('state-active', el.dataset.state === stateName);
+      });
+
+      currentState = stateName;
+      updateStateButtons();
+    }
+
+    function toggleState(stateName) {
+      if (!currentScreen) return;
+      applyState(currentScreen.id, stateName);
+    }
+
+    // === Overlay ===
+    function openOverlay(overlayId, transition = 'slide-up') {
+      const backdrop = currentScreen.querySelector('.overlay-backdrop');
+      const overlay = document.getElementById(overlayId);
+      if (!backdrop || !overlay) return;
+
+      backdrop.classList.add('active');
+      overlay.classList.add('active');
+      if (transition !== 'none') {
+        overlay.classList.add('transition-' + transition);
+        overlay.addEventListener('animationend', function handler() {
+          overlay.classList.remove('transition-' + transition);
+          overlay.removeEventListener('animationend', handler);
+        });
+      }
+    }
+
+    function closeOverlay(transition = 'slide-down') {
+      if (!currentScreen) return;
+      const backdrop = currentScreen.querySelector('.overlay-backdrop');
+      const activeOverlays = currentScreen.querySelectorAll('.overlay-content.active');
+
+      activeOverlays.forEach(el => {
+        if (transition !== 'none') {
+          el.classList.add('transition-' + transition);
+          el.addEventListener('animationend', function handler() {
+            el.classList.remove('active', 'transition-' + transition);
+            el.removeEventListener('animationend', handler);
+          });
+        } else {
+          el.classList.remove('active');
+        }
+      });
+
+      if (backdrop) {
+        // Small delay so overlay animates out before backdrop disappears
+        setTimeout(() => backdrop.classList.remove('active'), 200);
+      }
+    }
+
+    // === Control Panel ===
+    function updateControlPanel() {
+      if (!currentScreen) return;
+
+      // Update select
+      const select = document.getElementById('screen-select');
+      if (select) select.value = currentScreen.id;
+
+      // Update breadcrumb
+      const breadcrumb = document.getElementById('breadcrumb');
+      if (breadcrumb) {
+        const path = [...navHistory, currentScreen.id].join(' → ');
+        breadcrumb.textContent = path;
+      }
+
+      // Update state buttons
+      updateStateButtons();
+    }
+
+    function updateStateButtons() {
+      document.querySelectorAll('.control-panel__state-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.state === currentState);
+      });
+    }
+
+    // === Init ===
+    document.addEventListener('DOMContentLoaded', () => {
+      const firstScreen = document.querySelector('.screen');
+      if (firstScreen) {
+        firstScreen.classList.add('active');
+        currentScreen = firstScreen;
+        applyState(firstScreen.id, 'default');
+        updateControlPanel();
+      }
+    });
+
+    // === Event bindings (generated by Design Engineer from Screen Spec interactions) ===
+    // {{EVENT_BINDINGS}}
+  </script>
+
+</body>
+</html>

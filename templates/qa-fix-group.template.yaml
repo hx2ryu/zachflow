@@ -1,0 +1,28 @@
+# QA-Fix Group
+# Stage 2 output — bundles related in-scope tickets into one fix unit.
+# Path: runs/<sprint-id>/qa-fix/groups/group-<N>.yaml
+
+group_id: "group-<N>"
+created_at: "YYYY-MM-DDTHH:MM:SS+00:00"
+
+# Why these tickets are grouped together. Choose one primary axis; secondary optional.
+grouping_basis:
+  primary: "shared_module"  # shared_module | shared_endpoint | shared_root_cause
+  secondary: null           # optional — same enum as primary; leave null if not applicable
+  rationale: |
+    <one paragraph explaining why these tickets share a fix unit>
+
+tickets:
+  - key: "PROJ-123"
+    priority: "P0"
+    summary: "<one-line>"
+  - key: "PROJ-145"
+    priority: "P1"
+    summary: "<one-line>"
+
+# Files / modules expected to change (informational — confirmed in Contract).
+expected_scope:
+  app:
+    - "<path glob>"
+  backend:
+    - "<path glob>"
