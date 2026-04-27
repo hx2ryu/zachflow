@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # cleanup-sprint.sh — Remove sprint worktrees and optionally delete merged branches.
 #
 # Usage:

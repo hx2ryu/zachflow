@@ -1,6 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # sprint-monitor.sh — Real-time terminal dashboard for sprint status
 # Usage: ./scripts/sprint-monitor.sh <sprint-id>
+
+# Note: intentionally omits `set -euo pipefail` — this is a real-time dashboard
+# that must keep rendering even when individual sprint logs/evaluations are missing.
 
 ORCHESTRATOR_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SPRINTS_DIR="$ORCHESTRATOR_DIR/sprint-orchestrator/sprints"

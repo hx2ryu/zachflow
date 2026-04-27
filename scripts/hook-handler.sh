@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 ORCHESTRATOR_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -11,12 +11,13 @@ EVENT_NAME=$(echo "$INPUT" | jq -r '.hook_event_name // empty')
 
 ACTIVE_SPRINT=""
 if [ -d "$SPRINTS_DIR" ]; then
-  for dir in $(ls -rd "$SPRINTS_DIR"/*/  2>/dev/null); do
+  while IFS= read -r dir; do
+    [ -d "$dir" ] || continue
     if [ -f "$dir/sprint-config.yaml" ] && [ ! -f "$dir/retrospective/REPORT.md" ]; then
       ACTIVE_SPRINT="$dir"
       break
     fi
-  done
+  done < <(find "$SPRINTS_DIR" -maxdepth 1 -mindepth 1 -type d -print0 | xargs -0 ls -td 2>/dev/null)
 fi
 
 [ -z "$ACTIVE_SPRINT" ] && exit 0

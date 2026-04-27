@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # sync-repos.sh — Fetch base branches in source repos referenced by a sprint config.
 #
 # Usage:

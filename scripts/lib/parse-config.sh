@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # parse-config.sh — Shared helpers for reading sprint-config.yaml.
 #
 # Source this file (do not execute) and call:
@@ -9,6 +9,12 @@
 #   - scalar keys at root (sprint_id, branch_prefix, defaults.base)
 #   - nested map under `repositories:` with per-role {source, base, mode}
 # Values may be quoted ("..." or '...') or unquoted. ~ is expanded on source.
+
+# This file must be sourced, not executed
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+  echo "Error: ${BASH_SOURCE[0]} must be sourced, not executed directly." >&2
+  exit 1
+fi
 
 _parse_config_py() {
   python3 - "$1" "$2" <<'PY'

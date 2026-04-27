@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # setup-sprint.sh — Create git worktrees (or symlinks) for sprint source repos.
 #
 # Usage:
