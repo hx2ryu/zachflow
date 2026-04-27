@@ -25,7 +25,7 @@ For each AC in PRD:
   5. Classify root_cause: spec_ambiguity / technical_limit / dependency / scope_creep
 ```
 
-Save: `sprints/{sprint-id}/retrospective/gap-analysis.yaml`
+Save: `runs/{sprint-id}/retrospective/gap-analysis.yaml`
 
 ```yaml
 sprint_id: "{sprint-id}"
@@ -75,7 +75,7 @@ Cross-analyze every Evaluator report to extract systemic patterns.
 4. Derive systemic improvement proposals
 ```
 
-Save: `sprints/{sprint-id}/retrospective/pattern-digest.yaml`
+Save: `runs/{sprint-id}/retrospective/pattern-digest.yaml`
 
 ```yaml
 patterns:
@@ -101,7 +101,7 @@ metrics:
 
 Structure items from gap-analysis with `unfulfilled` or `partially_fulfilled`.
 
-Save: `sprints/{sprint-id}/retrospective/deferred-items.yaml`
+Save: `runs/{sprint-id}/retrospective/deferred-items.yaml`
 
 ```yaml
 deferred:
@@ -127,7 +127,7 @@ improvements:
 
 Integrate all retrospective artifacts and generate `REPORT.md`.
 
-Save: `sprints/{sprint-id}/REPORT.md`
+Save: `runs/{sprint-id}/REPORT.md`
 
 ```markdown
 # Sprint Report: {sprint-id}
@@ -203,9 +203,9 @@ If the sprint introduced new components, screens, or interaction patterns, revie
 
 - **Update triggers**: new component tokens, patterns that violate existing Do's/Don'ts, design system changes.
 - **Update method** (depending on whether DESIGN.md is present):
-  - `docs/designs/DESIGN.md` exists: run `/extract-design --update` → diff against existing DESIGN.md → apply after user confirmation.
+  - `docs/designs/DESIGN.md` exists: review the new sprint deltas against DESIGN.md, then manually update the affected sections after user confirmation.
   - Absent: directly add/update entries in `docs/designs/foundations/*.mdx` or `components/*.mdx` (Zod frontmatter — build verifies). New components require a `<key>.mdx` + `<key>.demo.html` pair.
-  - DESIGN.md can be generated later via `/extract-design` if needed.
+  - DESIGN.md can be authored later if the project decides it needs a single design source-of-truth.
 - **Skip condition**: skip when only existing components are used and there are no design system changes.
 
 ### 6.7 Knowledge Base Write (3-track promotion ritual)
@@ -386,7 +386,7 @@ For now, only tag matching items in Pattern Digest with `skill_candidate: true` 
 After the sprint is fully closed and all PRs are merged, clean up worktrees and the sprint branch. **Not auto-run** — the user runs it after confirming PR merges.
 
 ```bash
-./scripts/cleanup-sprint.sh --config sprint-orchestrator/sprints/{sprint-id}/sprint-config.yaml --delete-branch
+./scripts/cleanup-sprint.sh --config runs/{sprint-id}/sprint-config.yaml --delete-branch
 ```
 
 - Loops over the `repositories` map and removes each role directory (worktree/symlink).
@@ -413,8 +413,8 @@ Sprint Retrospective: {sprint-id}
   Patterns detected:     {N} systemic patterns
   Deferred items:        {N} ({N} critical, {N} high)
 
-  Retrospective saved: sprints/{sprint-id}/retrospective/
-  Sprint Report: sprints/{sprint-id}/REPORT.md
+  Retrospective saved: runs/{sprint-id}/retrospective/
+  Sprint Report: runs/{sprint-id}/REPORT.md
 
 → Recommendation: {context-aware next action}
 ```

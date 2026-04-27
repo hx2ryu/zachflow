@@ -17,7 +17,7 @@ When `--dry-run` is provided, all Jira write calls (comment posting, transition,
 ## Directory Layout
 
 ```
-sprints/<sprint-id>/qa-fix/
+runs/<sprint-id>/qa-fix/
 ├── jira-snapshot.yaml          # Stage 1
 ├── triage.md                   # Stage 1 (user approval gate)
 ├── groups/
@@ -58,7 +58,7 @@ Consistent with existing `phase-build.md` conventions. The Sprint Lead uses thes
 
 2. **Idempotency check**: If a result ticket already has `qa-fix/jira-comments/<key>.posted` marker = already closed. Auto-exclude.
 
-3. Write `qa-fix/jira-snapshot.yaml` (template: `sprint-orchestrator/templates/qa-fix-jira-snapshot-template.yaml`).
+3. Write `qa-fix/jira-snapshot.yaml` (template: `templates/qa-fix-jira-snapshot-template.yaml`).
 
    **Ticket `type` enum mapping:** The snapshot's `type` field uses a normalized enum (`Bug | UX | Perf | Copy | Other`) — not the raw Jira `issuetype.name`. Map as follows: Bug → `Bug`; Story/Task containing UI/visual concerns → `UX`; performance/load issues → `Perf`; copy/text/typo → `Copy`; everything else → `Other`. The triage and group templates use this same normalized enum.
 
@@ -72,7 +72,7 @@ Consistent with existing `phase-build.md` conventions. The Sprint Lead uses thes
 
    **Classification heuristics** are not deterministic — explicitly note the Sprint Lead's judgment. The user can promote/demote items in triage.md.
 
-5. Write `qa-fix/triage.md` (template: `sprint-orchestrator/templates/qa-fix-triage-template.md`).
+5. Write `qa-fix/triage.md` (template: `templates/qa-fix-triage-template.md`).
 
 6. **User approval gate** (before any destructive Jira write): present triage.md to the user. Wait until the marker `[x] **Approved by user** — proceed to Stage 2 (Grouping)` + timestamp is filled in. The user can edit the in-scope list (promote/demote/needs-info→in-scope/duplicate→in-scope, etc.).
 
@@ -107,7 +107,7 @@ Bundle the approved in-scope tickets into groups.
 
 Each group: 1~5 tickets. If there are too many groups (>5), suggest to the user that we proceed only with the top-N priority groups.
 
-For each group, write `qa-fix/groups/group-<N>.yaml` (template: `sprint-orchestrator/templates/qa-fix-group-template.yaml`).
+For each group, write `qa-fix/groups/group-<N>.yaml` (template: `templates/qa-fix-group-template.yaml`).
 
 **Gate**: every in-scope ticket must be assigned to exactly one group. Unassigned tickets move to deferred.
 
@@ -120,7 +120,7 @@ Differences:
 - The Verification Method must include each ticket's original repro steps.
 - KB pattern auto-injection is applied identically.
 
-Save: `qa-fix/contracts/group-<N>.md` (use the Phase 4.1 template directly — `sprint-orchestrator/templates/sprint-contract-template.md`).
+Save: `qa-fix/contracts/group-<N>.md` (use the Phase 4.1 template directly — `templates/sprint-contract-template.md`).
 
 ### Stage 4: Implement + Evaluate (per group)
 
@@ -143,7 +143,7 @@ For each PASSed ticket, **in order**:
 
 2. **Author comment body locally** (SSOT):
    - File: `qa-fix/jira-comments/<TICKET-ID>.md`
-   - Template: `sprint-orchestrator/templates/qa-fix-comment-template.md`
+   - Template: `templates/qa-fix-comment-template.md`
    - **Field rules**:
      - Root Cause: 1 paragraph, no "Unknown".
      - Fix Summary: 1 paragraph, no raw diffs pasted in.
@@ -153,7 +153,7 @@ For each PASSed ticket, **in order**:
 
 3. **Extract KB candidate** (priority ∈ {P0, P1} only):
    - File: `qa-fix/kb-candidates/<TICKET-ID>.yaml`
-   - Template: `sprint-orchestrator/templates/qa-fix-kb-candidate-template.yaml`
+   - Template: `templates/qa-fix-kb-candidate-template.yaml`
    - candidate_type classification:
      - `pattern_gap`: an area not in the existing KB.
      - `pattern_violation`: existing pattern violated.
@@ -210,7 +210,7 @@ Same as the existing Build Loop policy (`phase-build.md` Section "Budget Pressur
 
 After all groups close:
 
-1. Write `qa-fix/retro.md` (template: `sprint-orchestrator/templates/qa-fix-retro-template.md`).
+1. Write `qa-fix/retro.md` (template: `templates/qa-fix-retro-template.md`).
 
 2. **Pattern Digest auto-derivation**: category distribution across all processed fixes (including P2/P3). If the same pattern is violated 3+ times, automatically add a "Reinforcement needed" notice.
 

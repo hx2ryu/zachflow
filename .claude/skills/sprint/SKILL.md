@@ -65,7 +65,7 @@ As Sprint Lead, orchestrate the sprint with a Planner-Generator-Evaluator patter
 At every Phase/Group completion, save a structured summary under `checkpoints/`. Subsequent phases reference the **checkpoint instead of the original artifacts**.
 
 ```
-sprints/{sprint-id}/checkpoints/
+runs/{sprint-id}/checkpoints/
 ├── phase-2-summary.md      # Spec result: task list, endpoint list, key decisions
 ├── phase-3-summary.md      # Prototype result: approval status, revision summary, amendments
 ├── group-001-summary.md    # Build result: verdict, issues, lessons
@@ -144,7 +144,7 @@ TaskCreate:
     --- END SNAPSHOT ---
 
     Task detail: see {task-id}
-    Screen Spec template: sprint-orchestrator/templates/screen-spec-template.md
+    Screen Spec template: templates/screen-spec-template.md
 ```
 
 **Forbidden**:

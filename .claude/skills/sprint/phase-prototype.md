@@ -43,13 +43,8 @@ Before creating the first Design Engineer task, read and assemble the snapshot:
 4. `zachflow-kb:read type=asset category=sample_image` (if present)
    → Returns a list of reusable sample assets (feed thumbnails, avatars, etc.)
    → Use as a fallback source candidate for the `context-engine.yaml assets:` layer
-5. (If the Sprint Lead specified an archetype hint in the task description, or B.1.1 produced a pre-classification result) `cat .claude/teammates/design-engineer-archetypes/{archetype}.md`
-   → Inline the persona rule file into the Snapshot
-   → For tasks with no archetype, skip Step 5 — the DE classifies in B.1.1 and reads the persona file directly
-6. `pnpm --silent --filter sprint-gallery exemplar:lookup --archetype={task screen_archetype} --exclude-sprint={current sprint-id} --limit=2 --format=md`
-   → Returns the top-2 valid exemplars of the same archetype (markdown format)
-   → Inline into the snapshot's `## Exemplar References` section
-   → If 0 results (first instance of this archetype) — omit the section, log `exemplars_none`
+5. (Optional persona hint) If the project maintains design personas (e.g., `.claude/teammates/personas/{archetype}.md`) and the Sprint Lead specified an archetype hint, inline that persona file into the Snapshot. Sprint 0 ships without a fixed persona system — skip this step if no persona library exists.
+6. (Optional exemplar lookup) If the project maintains an exemplar/pattern library (e.g., a sprint gallery or design archive), inline the top-2 valid exemplars of the same archetype into the snapshot's `## Exemplar References` section. If no library exists or 0 results — omit the section, log `exemplars_none`.
 ```
 
 This snapshot is **included identically in every Design Engineer task**.
@@ -111,18 +106,18 @@ TaskCreate:
     - If this screen comes too close to the exemplar, the DE self-flags → quality-report `exemplar_drift_warning: true`.
 
     Task: tasks/app/{task-id}.md
-    Assumption Preview output: sprints/{sprint-id}/prototypes/app/{task-id}/{ScreenName}.intent.md
-    Preview template: sprint-orchestrator/templates/assumption-preview-template.md
-    Screen Spec template: sprint-orchestrator/templates/screen-spec-template.md
-    HTML template: sprint-orchestrator/templates/html-prototype-template.html
-    Context Engine template: sprint-orchestrator/templates/context-engine-template.yaml
+    Assumption Preview output: runs/{sprint-id}/prototypes/app/{task-id}/{ScreenName}.intent.md
+    Preview template: templates/assumption-preview-template.md
+    Screen Spec template: templates/screen-spec-template.md
+    HTML template: templates/html-prototype-template.html
+    Context Engine template: templates/context-engine-template.yaml
     Archetype hint (optional): the Sprint Lead can specify an archetype inferred from PRD analysis — e.g., archetype: feed
-      → If unspecified, the DE classifies in B.1.1 and reads the persona file directly.
+      → If unspecified, the DE classifies in B.1.1 from PRD/task content.
       → 7 enum values: feed | detail | onboarding | form | modal | empty_state | nav_list
-      → persona directory: .claude/teammates/design-engineer-archetypes/
+      → If the project maintains a persona library, point the DE at it via the task description; otherwise the DE relies on the project's design system / brand guidelines.
     Design tokens: tokens/  (symlink → external tokens repo)
-    Context output: sprints/{sprint-id}/prototypes/context/
-    Prototype output: sprints/{sprint-id}/prototypes/app/{task-id}/
+    Context output: runs/{sprint-id}/prototypes/context/
+    Prototype output: runs/{sprint-id}/prototypes/app/{task-id}/
   Owner: Design Engineer
 ```
 
@@ -176,7 +171,7 @@ Record the user's choice in quality-report's `prd_copy_conflict.resolution` (or 
 |--------|--------|
 | **proceed** | Tell the DE "preview approved, proceed to Step C". Keep `TaskUpdate: in_progress`. |
 | **adjust** | Append the user's directives to the DE task Description as a `### Preview Adjustments` block. The DE updates the Screen Spec → regenerates intent.md → rerun this gate. |
-| **stop** | `TaskUpdate: blocked`. Record a PRD gap in `sprints/{sprint-id}/prototypes/prd-gaps.md`. The item is auto-included in Phase 3.4 Amendment extraction. |
+| **stop** | `TaskUpdate: blocked`. Record a PRD gap in `runs/{sprint-id}/prototypes/prd-gaps.md`. The item is auto-included in Phase 3.4 Amendment extraction. |
 
 **Auto-skip conditions**:
 - DE log contains `phase: preview_skipped` → treat as gate-passed (DE skipped at its own discretion).
@@ -194,12 +189,12 @@ Record the user's choice in quality-report's `prd_copy_conflict.resolution` (or 
 
 Tasks that forked into variants mode in §3.2 Step 2 go through this gate after all 3 variants complete.
 
-**Inputs**: `sprints/{sprint-id}/prototypes/app/{task-id}/variants/{A,B,C}/prototype.html` + each variant's spec/quality-report.
+**Inputs**: `runs/{sprint-id}/prototypes/app/{task-id}/variants/{A,B,C}/prototype.html` + each variant's spec/quality-report.
 
 **Sprint Lead actions**:
 
 1. Present the auto-generated `variants/_comparison.png` (3 frames horizontally) to the user.
-2. Fill `sprint-orchestrator/templates/variant-comparison-template.md` and save as `variants/comparison.md`.
+2. Fill `templates/variant-comparison-template.md` and save as `variants/comparison.md`.
 3. Summarize for the user (3-5 sentences):
    ```
    [{ScreenName}] 3-variant comparison
@@ -264,7 +259,7 @@ When the user picks `revise`, the Sprint Lead automatically classifies the size 
 When entering revise, preserve pre-edit screenshots for before/after comparisons.
 
 ```
-sprints/{sprint-id}/prototypes/app/{task-id}/
+runs/{sprint-id}/prototypes/app/{task-id}/
 ├── prototype.html
 ├── screenshots/                 # latest (after edits)
 └── baseline/                    # pre-edit (auto-created on revise)
@@ -302,7 +297,7 @@ sprints/{sprint-id}/prototypes/app/{task-id}/
 ```
 1. Preserve baseline (rule 3.3.2)
 2. Start a local server:
-   python3 -m http.server 8080 --directory sprints/{sprint-id}/prototypes/app/{task-id}/
+   python3 -m http.server 8080 --directory runs/{sprint-id}/prototypes/app/{task-id}/
    Tell the user: http://localhost:8080/prototype.html
 3. Assign a fix task to the Design Engineer:
    TaskCreate:
@@ -398,10 +393,10 @@ Phase 3.4 skipped: no revisions occurred — PRD amendment not needed
 2. Extract feedback items from each revision task's Description.
 3. Classify feedback into PRD gap types (table above).
 4. Cross-check against the original PRD AC and produce amendment items.
-5. Generate `prd-amendment.md` and save to `sprints/{sprint-id}/prototypes/prd-amendment.md`.
+5. Generate `prd-amendment.md` and save to `runs/{sprint-id}/prototypes/prd-amendment.md`.
 6. Present a summary to the user + confirm apply per amendment.
 
-**Output artifact**: `sprints/{sprint-id}/prototypes/prd-amendment.md` (template: `sprint-orchestrator/templates/prd-amendment-template.md`)
+**Output artifact**: `runs/{sprint-id}/prototypes/prd-amendment.md` (template: `templates/prd-amendment-template.md`)
 
 **User actions** (per amendment):
 
@@ -475,7 +470,7 @@ Phase 3.5 skipped: all prototypes approved without revision — PRD refinement n
    - **unchanged**: matches the original PRD
 6. Present the diff summary to the user + confirm reflection.
 
-**Output artifact**: `sprints/{sprint-id}/prototypes/refined-prd.md`
+**Output artifact**: `runs/{sprint-id}/prototypes/refined-prd.md`
 
 ```markdown
 # Refined PRD: {sprint-id}

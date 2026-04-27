@@ -147,7 +147,7 @@ The Sprint Lead drafts the contract for the group:
 - {Business rules to verify}
 ```
 
-Save: `sprints/{sprint-id}/contracts/group-{N}.md`
+Save: `runs/{sprint-id}/contracts/group-{N}.md`
 
 ### KB Pattern Auto-Injection
 
@@ -300,7 +300,7 @@ The Evaluator performs **Active Evaluation**:
 - Actively probe edge cases.
 - Skepticism: "assume there is a bug, find it".
 
-Evaluation report: `sprints/{sprint-id}/evaluations/group-{N}.md`
+Evaluation report: `runs/{sprint-id}/evaluations/group-{N}.md`
 
 Verdict:
 | Verdict | Condition | Next Step |

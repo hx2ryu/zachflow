@@ -99,7 +99,7 @@ Add to the existing Init:
 
 Add to the directory:
 ```
-sprints/{new-sprint-id}/
+runs/{new-sprint-id}/
 ├── ... (existing structure)
 └── follow-up-context.yaml       # links back to previous sprint
 ```
@@ -258,7 +258,7 @@ Events are recorded in `logs/events.jsonl`, alongside existing manual agent logg
 
 ### Log Parsing
 
-Parse JSONL files in `sprint-orchestrator/sprints/{sprint-id}/logs/`:
+Parse JSONL files in `runs/{sprint-id}/logs/`:
 
 1. For each agent file (`be-engineer.jsonl`, `fe-engineer.jsonl`, `design-engineer.jsonl`, `evaluator.jsonl`), read the **last line**.
 2. Parse JSON to extract `task`, `phase`, `message`, `ts`.

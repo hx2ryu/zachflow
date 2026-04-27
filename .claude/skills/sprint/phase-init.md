@@ -10,7 +10,7 @@ Initialize the sprint directory.
 
    **type=standard (default)**:
    ```
-   sprint-orchestrator/sprints/{sprint-id}/
+   runs/{sprint-id}/
    ├── PRD.md
    ├── sprint-config.yaml
    ├── tasks/
@@ -25,7 +25,7 @@ Initialize the sprint directory.
 
    **type=qa-fix**:
    ```
-   sprint-orchestrator/sprints/{sprint-id}/
+   runs/{sprint-id}/
    ├── sprint-config.yaml       # type=qa-fix, qa_fix.jql required
    ├── qa-fix/
    │   ├── groups/.gitkeep
@@ -44,25 +44,25 @@ Initialize the sprint directory.
    - `qa_fix.jql` (required) — ask the user for the JQL.
    - `qa_fix.jira_base_url` (required)
    - `qa_fix.ready_for_qa_transition` (optional, default "Ready for QA")
-6. **Create repository worktrees**: run `./scripts/setup-sprint.sh --config sprint-orchestrator/sprints/{sprint-id}/sprint-config.yaml`. The script loops over the sprint-config `repositories` map; for each role:
+6. **Create repository worktrees**: run `./scripts/setup-sprint.sh --config runs/{sprint-id}/sprint-config.yaml`. The script loops over the sprint-config `repositories` map; for each role:
    - `mode: worktree` → create a git worktree in `{role}/` and check out branch `{branch_prefix}/{sprint-id}` (forked from `origin/{base}`).
    - `mode: symlink` → create a symbolic link from `{role}/` to the source path.
 
    The main checkout in each source repo is left untouched (HEAD/working tree preserved). Show the script output to the user; on errors, resolve the cause (e.g., a missing source path) and rerun.
 
-7. **Repository sync (optional)**: run `./scripts/sync-repos.sh --config sprint-orchestrator/sprints/{sprint-id}/sprint-config.yaml`. This only runs `git fetch origin {base}` in each source repo (sprint branches are not touched). Skip if the network is unavailable or you're in a read-only environment.
+7. **Repository sync (optional)**: run `./scripts/sync-repos.sh --config runs/{sprint-id}/sprint-config.yaml`. This only runs `git fetch origin {base}` in each source repo (sprint branches are not touched). Skip if the network is unavailable or you're in a read-only environment.
 
 ## Gate → Next Phase
 
 **type=standard → Phase 2**:
-- [ ] `sprints/{sprint-id}/` directory layout complete (PRD.md, sprint-config.yaml, tasks/, contracts/, evaluations/, checkpoints/, logs/)
+- [ ] `runs/{sprint-id}/` directory layout complete (PRD.md, sprint-config.yaml, tasks/, contracts/, evaluations/, checkpoints/, logs/)
 - [ ] PRD.md contains the original PRD link + scope summary
 - [ ] sprint-config.yaml has `repositories` (role → {source, base, mode}) + `branch_prefix`
 - [ ] `setup-sprint.sh` ran successfully and each role directory was created (`{role}/.git` or symlink)
 - [ ] (Optional) repository fetch complete
 
 **type=qa-fix → Phase QA-Fix** (Phase 2~3 auto-skipped):
-- [ ] `sprints/{sprint-id}/` directory layout complete (sprint-config.yaml, qa-fix/, checkpoints/, logs/)
+- [ ] `runs/{sprint-id}/` directory layout complete (sprint-config.yaml, qa-fix/, checkpoints/, logs/)
 - [ ] sprint-config.yaml has `type: qa-fix` + `qa_fix.jql` + `qa_fix.jira_base_url`
 - [ ] sprint-config.yaml has `repositories` + `branch_prefix`
 - [ ] `setup-sprint.sh` ran successfully and each role directory was created
@@ -77,7 +77,7 @@ When the Gate passes:
 
 ```
 Sprint initialized: {sprint-id}
-  Directory: sprint-orchestrator/sprints/{sprint-id}/
+  Directory: runs/{sprint-id}/
   PRD: {prd-file}
   Repositories: (role → branch)
     backend → {branch_prefix}/{sprint-id} (base: {base})
@@ -93,7 +93,7 @@ Sprint initialized: {sprint-id}
 
 ```
 Sprint initialized: {sprint-id} (type=qa-fix)
-  Directory: sprint-orchestrator/sprints/{sprint-id}/
+  Directory: runs/{sprint-id}/
   JQL: {qa_fix.jql}
   Repositories: (role → branch)
     backend → {branch_prefix}/{sprint-id} (base: {base})
