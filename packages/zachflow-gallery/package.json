@@ -1,0 +1,19 @@
+{
+  "name": "zachflow-gallery",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Auto-indexed gallery for zachflow sprint prototype outputs (Astro shell).",
+  "license": "MIT",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "bash scripts/copy-prototypes.sh && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^4.16.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

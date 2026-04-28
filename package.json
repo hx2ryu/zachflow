@@ -13,5 +13,13 @@
     "ai-coding",
     "sprint",
     "harness"
-  ]
+  ],
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "gallery:dev": "npm run dev --workspace=packages/zachflow-gallery",
+    "gallery:build": "npm run build --workspace=packages/zachflow-gallery",
+    "gallery:preview": "npm run preview --workspace=packages/zachflow-gallery"
+  }
 }
