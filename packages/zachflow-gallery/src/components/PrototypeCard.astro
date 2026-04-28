@@ -1,0 +1,61 @@
+---
+interface Props {
+  run: string;
+  prototype: string;
+  title?: string;
+}
+const { run, prototype, title } = Astro.props;
+const href = `/${run}/${prototype}/`;
+const iframeSrc = `/prototypes/${run}/${prototype}.html`;
+---
+
+<a href={href} class="card">
+  <div class="thumb">
+    <iframe src={iframeSrc} sandbox="allow-same-origin" loading="lazy" tabindex="-1" />
+  </div>
+  <div class="meta">
+    <strong>{title ?? prototype}</strong>
+    <span class="run">{run}</span>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: block;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    color: inherit;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+  .thumb {
+    height: 240px;
+    overflow: hidden;
+    pointer-events: none;
+    position: relative;
+    background: #050508;
+  }
+  .thumb iframe {
+    border: 0;
+    width: 200%;
+    height: 200%;
+    transform: scale(0.5);
+    transform-origin: top left;
+  }
+  .meta {
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .run {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+</style>
