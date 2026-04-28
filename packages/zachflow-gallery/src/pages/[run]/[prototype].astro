@@ -1,0 +1,65 @@
+---
+import Layout from '../../components/Layout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+export function getStaticPaths() {
+  const projectRoot = path.resolve('../..');
+  const runsDir = path.join(projectRoot, 'runs', 'sprint');
+  const paths: { params: { run: string; prototype: string } }[] = [];
+
+  if (fs.existsSync(runsDir)) {
+    const runs = fs.readdirSync(runsDir, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+
+    for (const run of runs) {
+      const protoDir = path.join(runsDir, run, 'prototypes');
+      if (!fs.existsSync(protoDir)) continue;
+
+      const walk = (dir: string, prefix = '') => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+          const full = path.join(dir, entry.name);
+          const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+          if (entry.isDirectory()) {
+            walk(full, rel);
+          } else if (entry.name.endsWith('.html')) {
+            const proto = rel.replace(/\.html$/, '');
+            paths.push({ params: { run, prototype: proto } });
+          }
+        }
+      };
+      walk(protoDir);
+    }
+  }
+  return paths;
+}
+
+const { run, prototype } = Astro.params;
+const iframeSrc = `/prototypes/${run}/${prototype}.html`;
+---
+
+<Layout title={`${prototype} — ${run}`}>
+  <p class="back"><a href="/">← Back to gallery</a></p>
+  <h1>{prototype}</h1>
+  <p class="run-label"><code>{run}</code></p>
+  <iframe src={iframeSrc} class="full" sandbox="allow-same-origin" />
+</Layout>
+
+<style>
+  .back {
+    margin-bottom: 1rem;
+  }
+  .run-label {
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+  .full {
+    display: block;
+    width: 100%;
+    height: 80vh;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    background: #050508;
+  }
+</style>

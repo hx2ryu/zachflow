@@ -1,0 +1,74 @@
+---
+import Layout from '../components/Layout.astro';
+import PrototypeCard from '../components/PrototypeCard.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Discover prototypes from <project-root>/runs/sprint/<run-id>/prototypes/**/*.html
+// (this Astro app lives at packages/zachflow-gallery/, so project root is ../..)
+const projectRoot = path.resolve('../..');
+const runsDir = path.join(projectRoot, 'runs', 'sprint');
+
+let prototypes: { run: string; prototype: string }[] = [];
+
+if (fs.existsSync(runsDir)) {
+  const runs = fs.readdirSync(runsDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
+
+  for (const run of runs) {
+    const protoDir = path.join(runsDir, run, 'prototypes');
+    if (!fs.existsSync(protoDir)) continue;
+
+    const walk = (dir: string, prefix = '') => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+        if (entry.isDirectory()) {
+          walk(full, rel);
+        } else if (entry.name.endsWith('.html')) {
+          const proto = rel.replace(/\.html$/, '');
+          prototypes.push({ run, prototype: proto });
+        }
+      }
+    };
+    walk(protoDir);
+  }
+}
+
+prototypes.sort((a, b) => {
+  if (a.run !== b.run) return a.run.localeCompare(b.run);
+  return a.prototype.localeCompare(b.prototype);
+});
+---
+
+<Layout title="zachflow gallery">
+  <h1>Prototypes</h1>
+  {prototypes.length === 0 ? (
+    <p>
+      No prototypes found in <code>runs/sprint/&lt;run-id&gt;/prototypes/*.html</code>.
+      Once your sprint produces prototype HTML files, they'll appear here automatically on the next build.
+    </p>
+  ) : (
+    <>
+      <p class="count">{prototypes.length} prototype{prototypes.length === 1 ? '' : 's'} across {new Set(prototypes.map((p) => p.run)).size} run{new Set(prototypes.map((p) => p.run)).size === 1 ? '' : 's'}.</p>
+      <div class="grid">
+        {prototypes.map(({ run, prototype }) => (
+          <PrototypeCard run={run} prototype={prototype} />
+        ))}
+      </div>
+    </>
+  )}
+</Layout>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .count {
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+</style>
