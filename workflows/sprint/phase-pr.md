@@ -2,6 +2,9 @@
 
 Create a PR from the sprint branch to the base branch.
 
+For agent role definitions, see `workflows/_shared/agent-team.md` § Sprint Lead.
+For worktree branch-naming + cleanup, see `workflows/_shared/worktree.md` (the sprint branch follows `{branch_prefix}/{sprint-id}`).
+
 ## Workflow
 
 1. **Pre-check**: review changes on the sprint branch in each role worktree.

@@ -2,6 +2,9 @@
 
 Generate self-contained HTML prototypes for app tasks and review them.
 
+For agent role definitions (Sprint Lead, Design Engineer), see `workflows/_shared/agent-team.md`.
+For KB sync/search protocol (`zachflow-kb:read type=pattern category=design_proto`, etc.), see `workflows/_shared/kb-integration.md`.
+
 ## Auto-Skip Conditions
 
 If any of the following apply, skip Phase 3 and go directly to Phase 4:
@@ -106,7 +109,7 @@ TaskCreate:
     - If this screen comes too close to the exemplar, the DE self-flags → quality-report `exemplar_drift_warning: true`.
 
     Task: tasks/app/{task-id}.md
-    Assumption Preview output: runs/{sprint-id}/prototypes/app/{task-id}/{ScreenName}.intent.md
+    Assumption Preview output: runs/sprint/{sprint-id}/prototypes/app/{task-id}/{ScreenName}.intent.md
     Preview template: templates/assumption-preview.template.md
     Screen Spec template: templates/screen-spec.template.md
     HTML template: templates/html-prototype.template.html
@@ -116,8 +119,8 @@ TaskCreate:
       → 7 enum values: feed | detail | onboarding | form | modal | empty_state | nav_list
       → If the project maintains a persona library, point the DE at it via the task description; otherwise the DE relies on the project's design system / brand guidelines.
     Design tokens: tokens/  (symlink → external tokens repo)
-    Context output: runs/{sprint-id}/prototypes/context/
-    Prototype output: runs/{sprint-id}/prototypes/app/{task-id}/
+    Context output: runs/sprint/{sprint-id}/prototypes/context/
+    Prototype output: runs/sprint/{sprint-id}/prototypes/app/{task-id}/
   Owner: Design Engineer
 ```
 
@@ -171,7 +174,7 @@ Record the user's choice in quality-report's `prd_copy_conflict.resolution` (or 
 |--------|--------|
 | **proceed** | Tell the DE "preview approved, proceed to Step C". Keep `TaskUpdate: in_progress`. |
 | **adjust** | Append the user's directives to the DE task Description as a `### Preview Adjustments` block. The DE updates the Screen Spec → regenerates intent.md → rerun this gate. |
-| **stop** | `TaskUpdate: blocked`. Record a PRD gap in `runs/{sprint-id}/prototypes/prd-gaps.md`. The item is auto-included in Phase 3.4 Amendment extraction. |
+| **stop** | `TaskUpdate: blocked`. Record a PRD gap in `runs/sprint/{sprint-id}/prototypes/prd-gaps.md`. The item is auto-included in Phase 3.4 Amendment extraction. |
 
 **Auto-skip conditions**:
 - DE log contains `phase: preview_skipped` → treat as gate-passed (DE skipped at its own discretion).
@@ -189,7 +192,7 @@ Record the user's choice in quality-report's `prd_copy_conflict.resolution` (or 
 
 Tasks that forked into variants mode in §3.2 Step 2 go through this gate after all 3 variants complete.
 
-**Inputs**: `runs/{sprint-id}/prototypes/app/{task-id}/variants/{A,B,C}/prototype.html` + each variant's spec/quality-report.
+**Inputs**: `runs/sprint/{sprint-id}/prototypes/app/{task-id}/variants/{A,B,C}/prototype.html` + each variant's spec/quality-report.
 
 **Sprint Lead actions**:
 
@@ -259,7 +262,7 @@ When the user picks `revise`, the Sprint Lead automatically classifies the size 
 When entering revise, preserve pre-edit screenshots for before/after comparisons.
 
 ```
-runs/{sprint-id}/prototypes/app/{task-id}/
+runs/sprint/{sprint-id}/prototypes/app/{task-id}/
 ├── prototype.html
 ├── screenshots/                 # latest (after edits)
 └── baseline/                    # pre-edit (auto-created on revise)
@@ -297,7 +300,7 @@ runs/{sprint-id}/prototypes/app/{task-id}/
 ```
 1. Preserve baseline (rule 3.3.2)
 2. Start a local server:
-   python3 -m http.server 8080 --directory runs/{sprint-id}/prototypes/app/{task-id}/
+   python3 -m http.server 8080 --directory runs/sprint/{sprint-id}/prototypes/app/{task-id}/
    Tell the user: http://localhost:8080/prototype.html
 3. Assign a fix task to the Design Engineer:
    TaskCreate:
@@ -393,10 +396,10 @@ Phase 3.4 skipped: no revisions occurred — PRD amendment not needed
 2. Extract feedback items from each revision task's Description.
 3. Classify feedback into PRD gap types (table above).
 4. Cross-check against the original PRD AC and produce amendment items.
-5. Generate `prd-amendment.md` and save to `runs/{sprint-id}/prototypes/prd-amendment.md`.
+5. Generate `prd-amendment.md` and save to `runs/sprint/{sprint-id}/prototypes/prd-amendment.md`.
 6. Present a summary to the user + confirm apply per amendment.
 
-**Output artifact**: `runs/{sprint-id}/prototypes/prd-amendment.md` (template: `templates/prd-amendment.template.md`)
+**Output artifact**: `runs/sprint/{sprint-id}/prototypes/prd-amendment.md` (template: `templates/prd-amendment.template.md`)
 
 **User actions** (per amendment):
 
@@ -470,7 +473,7 @@ Phase 3.5 skipped: all prototypes approved without revision — PRD refinement n
    - **unchanged**: matches the original PRD
 6. Present the diff summary to the user + confirm reflection.
 
-**Output artifact**: `runs/{sprint-id}/prototypes/refined-prd.md`
+**Output artifact**: `runs/sprint/{sprint-id}/prototypes/refined-prd.md`
 
 ```markdown
 # Refined PRD: {sprint-id}

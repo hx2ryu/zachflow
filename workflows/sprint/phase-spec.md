@@ -2,6 +2,9 @@
 
 Expand the PRD into a **deliverable-focused** specification.
 
+For agent role definitions, see `workflows/_shared/agent-team.md` § Sprint Lead.
+For KB sync/search/write protocol used here (`zachflow-kb:read`, etc.), see `workflows/_shared/kb-integration.md`.
+
 ## Planner Principles
 
 - **What, not How**: Specify what each feature must achieve. The Generator decides the implementation.

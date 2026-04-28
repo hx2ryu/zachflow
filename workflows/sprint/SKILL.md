@@ -47,6 +47,16 @@ As Sprint Lead, orchestrate the sprint with a Planner-Generator-Evaluator patter
 /sprint                                          # Auto-detect the most recent sprint
 ```
 
+## Legacy `/sprint --type=qa-fix` (deprecated)
+
+Calling `/sprint <id> --type=qa-fix --jql=...` is supported as a transitional alias but emits a deprecation warning:
+
+```
+⚠ /sprint --type=qa-fix is deprecated; use /qa-fix <id> directly. Will be removed in v2.0.
+```
+
+The Sprint Lead detects `--type=qa-fix` in the invocation args, prints the warning, then delegates to the `qa-fix` workflow (see `workflows/qa-fix/SKILL.md`). All other `--type=qa-fix` semantics are preserved during the deprecation window.
+
 ## Prerequisites
 
 - Agent Teams enabled: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
@@ -65,7 +75,7 @@ As Sprint Lead, orchestrate the sprint with a Planner-Generator-Evaluator patter
 At every Phase/Group completion, save a structured summary under `checkpoints/`. Subsequent phases reference the **checkpoint instead of the original artifacts**.
 
 ```
-runs/{sprint-id}/checkpoints/
+runs/sprint/{sprint-id}/checkpoints/
 ├── phase-2-summary.md      # Spec result: task list, endpoint list, key decisions
 ├── phase-3-summary.md      # Prototype result: approval status, revision summary, amendments
 ├── group-001-summary.md    # Build result: verdict, issues, lessons
@@ -114,45 +124,7 @@ These hints directly affect Engineer/Evaluator behavior:
 
 ### Frozen Snapshot Protocol
 
-> Ref: Hermes Agent — load the system prompt once at session start and freeze it. Optimized for Anthropic prompt caching.
-
-**Principle**: When Teammates are spawned, design system, pattern library, and KB references are **loaded once and never reloaded within the session**.
-
-**Snapshot targets** (loaded once when Teammate is spawned):
-
-| Target | File | Consumer |
-|--------|------|----------|
-| Design System (DESIGN.md) | `docs/designs/DESIGN.md` (if present) | Design Engineer |
-| Foundations + Components | `docs/designs/foundations/*.mdx` + `docs/designs/components/*.mdx` (Zod frontmatter SSOT) | Design Engineer |
-| Component Patterns Index | `docs/designs/README.md` | Design Engineer |
-| Design KB | result of `zachflow-kb:read type=pattern category=design_proto` (+ `design_spec`) | Design Engineer |
-| Code KB | result of `zachflow-kb:read type=pattern category=<relevant>` | Evaluator, Engineers |
-| API Contract (group scope) | `contracts/api-contract.yaml` (current group's endpoints) | Engineers, Evaluator |
-
-**How it's applied**:
-
-When the Sprint Lead calls TaskCreate for a Teammate, include the snapshot context **inline in the Description**. Teammates do not Read these files separately.
-
-```
-TaskCreate:
-  Subject: proto/app/{task-id}/{ScreenName}
-  Description: |
-    --- FROZEN SNAPSHOT ---
-    {DESIGN.md key sections excerpt — if present}
-    {foundations/*.mdx + components/*.mdx relevant frontmatter}
-    {relevant KB design patterns}
-    --- END SNAPSHOT ---
-
-    Task detail: see {task-id}
-    Screen Spec template: templates/screen-spec.template.md
-```
-
-**Forbidden**:
-- Teammates reading the snapshot source files directly (Sprint Lead has already provided them).
-- Sprint Lead rebuilding the snapshot mid-session (do it once).
-- Exception: `tokens.css` and `context-engine.yaml` are produced directly by the Design Engineer.
-
-**Cost effect**: Removes repeated loading of system prompt + reference files in a 4-agent × multi-call structure.
+See `workflows/_shared/build-loop.md` § Frozen Snapshot Protocol and `workflows/_shared/agent-team.md` § Frozen Snapshot Inclusion.
 
 ---
 
@@ -168,13 +140,13 @@ TaskCreate:
 | Phase 4: Build | `phase-build.md` | `--phase=build` or Phase 3 Gate passed |
 | Phase 5: PR | `phase-pr.md` | `--phase=pr` or Phase 4 Gate passed |
 | Phase 6: Retro | `phase-retro.md` | `--phase=retro` or Phase 5 complete |
-| Phase QA-Fix | `phase-qa-fix.md` | `--phase=qa-fix` (per-sprint), or Phase 1 Gate passed in a type=qa-fix sprint (integration) |
+| Phase QA-Fix | (delegated to `workflows/qa-fix/SKILL.md`) | `--phase=qa-fix` (per-sprint), or `--type=qa-fix` (deprecated alias — see "Legacy `/sprint --type=qa-fix`" above) |
 | Modes | `phase-modes.md` | `--continue`, `--follow-up`, `--status` |
 
-**How to execute**: Determine the current phase, then **Read the corresponding file from this skill directory** and follow the detailed workflow.
+**How to execute**: Determine the current phase, then **Read the corresponding file from this workflow directory** and follow the detailed workflow.
 
 ```
-Phase file path: .claude/skills/sprint/{phase-file}
+Phase file path: workflows/sprint/{phase-file}
 ```
 
 > **Important**: Do not Read phase files unrelated to the current phase. This is an intentional design for context window efficiency.
@@ -202,23 +174,7 @@ Phase file path: .claude/skills/sprint/{phase-file}
 
 ## Team Configuration
 
-### Teammate Files
-
-| Teammate | File | Role |
-|----------|------|------|
-| BE Engineer | `.claude/teammates/be-engineer.md` | Backend Generator |
-| FE Engineer | `.claude/teammates/fe-engineer.md` | Frontend Generator |
-| Design Engineer | `.claude/teammates/design-engineer.md` | HTML prototype |
-| Evaluator | `.claude/teammates/evaluator.md` | Active Evaluation |
-
-### Task Naming Convention
-
-| Phase | Subject pattern | Owner |
-|-------|----------------|-------|
-| Prototype | `proto/app/{task-id}/{ScreenName}` | Design Engineer |
-| Implementation | `impl/backend/{task-id}` | BE Engineer |
-| Implementation | `impl/app/{task-id}` | FE Engineer |
-| Evaluation | `eval/{project}/group-{N}` | Evaluator |
+See `workflows/_shared/agent-team.md` for full role definitions, dispatch protocol, and subject naming conventions.
 
 ## Constraints
 

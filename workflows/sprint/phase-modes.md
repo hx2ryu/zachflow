@@ -1,5 +1,8 @@
 # Sprint Modes: --continue, --follow-up, --status
 
+For agent role definitions, see `workflows/_shared/agent-team.md` § Sprint Lead.
+For KB sync/search protocol used in `--follow-up` Evaluator calibration, see `workflows/_shared/kb-integration.md`.
+
 ---
 
 ## --continue Mode (continue within the same sprint)
@@ -258,7 +261,7 @@ Events are recorded in `logs/events.jsonl`, alongside existing manual agent logg
 
 ### Log Parsing
 
-Parse JSONL files in `runs/{sprint-id}/logs/`:
+Parse JSONL files in `runs/sprint/{sprint-id}/logs/`:
 
 1. For each agent file (`be-engineer.jsonl`, `fe-engineer.jsonl`, `design-engineer.jsonl`, `evaluator.jsonl`), read the **last line**.
 2. Parse JSON to extract `task`, `phase`, `message`, `ts`.

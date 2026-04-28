@@ -2,6 +2,10 @@
 
 After PR creation, analyze sprint outcomes and produce structured artifacts for follow-up work.
 
+For agent role definitions, see `workflows/_shared/agent-team.md` § Sprint Lead.
+For KB sync/write protocol (pattern write/update, reflection, promote-rubric), see `workflows/_shared/kb-integration.md`.
+For worktree cleanup (final `cleanup-sprint.sh` step), see `workflows/_shared/worktree.md` § Cleanup.
+
 ## Auto-Trigger
 
 Runs automatically after Phase 5 completes. Can also be invoked standalone with `--phase=retro`.
@@ -25,7 +29,7 @@ For each AC in PRD:
   5. Classify root_cause: spec_ambiguity / technical_limit / dependency / scope_creep
 ```
 
-Save: `runs/{sprint-id}/retrospective/gap-analysis.yaml`
+Save: `runs/sprint/{sprint-id}/retrospective/gap-analysis.yaml`
 
 ```yaml
 sprint_id: "{sprint-id}"
@@ -75,7 +79,7 @@ Cross-analyze every Evaluator report to extract systemic patterns.
 4. Derive systemic improvement proposals
 ```
 
-Save: `runs/{sprint-id}/retrospective/pattern-digest.yaml`
+Save: `runs/sprint/{sprint-id}/retrospective/pattern-digest.yaml`
 
 ```yaml
 patterns:
@@ -101,7 +105,7 @@ metrics:
 
 Structure items from gap-analysis with `unfulfilled` or `partially_fulfilled`.
 
-Save: `runs/{sprint-id}/retrospective/deferred-items.yaml`
+Save: `runs/sprint/{sprint-id}/retrospective/deferred-items.yaml`
 
 ```yaml
 deferred:
@@ -127,7 +131,7 @@ improvements:
 
 Integrate all retrospective artifacts and generate `REPORT.md`.
 
-Save: `runs/{sprint-id}/REPORT.md`
+Save: `runs/sprint/{sprint-id}/REPORT.md`
 
 ```markdown
 # Sprint Report: {sprint-id}
@@ -386,7 +390,7 @@ For now, only tag matching items in Pattern Digest with `skill_candidate: true` 
 After the sprint is fully closed and all PRs are merged, clean up worktrees and the sprint branch. **Not auto-run** — the user runs it after confirming PR merges.
 
 ```bash
-./scripts/cleanup-sprint.sh --config runs/{sprint-id}/sprint-config.yaml --delete-branch
+./scripts/cleanup-sprint.sh --config runs/sprint/{sprint-id}/sprint-config.yaml --delete-branch
 ```
 
 - Loops over the `repositories` map and removes each role directory (worktree/symlink).
@@ -413,8 +417,8 @@ Sprint Retrospective: {sprint-id}
   Patterns detected:     {N} systemic patterns
   Deferred items:        {N} ({N} critical, {N} high)
 
-  Retrospective saved: runs/{sprint-id}/retrospective/
-  Sprint Report: runs/{sprint-id}/REPORT.md
+  Retrospective saved: runs/sprint/{sprint-id}/retrospective/
+  Sprint Report: runs/sprint/{sprint-id}/REPORT.md
 
 → Recommendation: {context-aware next action}
 ```
