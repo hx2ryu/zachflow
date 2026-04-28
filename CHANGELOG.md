@@ -13,6 +13,31 @@
 ### Notes
 - v1.0 ships after Sprints 1–4.
 
+## [0.4.0-sprint-3] — 2026-04-27
+
+### Added
+- `scripts/init-project.sh` — interactive (default) and non-interactive (`--from=init.config.yaml --non-interactive`) project bootstrap wizard. 7-step flow (project name, workflows, branch prefix, roles, teammate fills, KB mode, init KB).
+- `templates/teammates/{be,fe,design,evaluator}-engineer.template.md` — canonical placeholder templates the wizard reads from.
+- `templates/init.config.template.yaml` — annotated example for non-interactive mode.
+- `tests/init-project-smoke.sh` — CI smoke test for non-interactive wizard (fixture-based).
+- CI integration: `init-project.sh syntax check` + `init-project.sh non-interactive smoke` steps in `.github/workflows/ci.yml`.
+
+### Changed
+- `examples/README.md` — added wizard quick-start + non-interactive setup instructions.
+- `MANUAL.md` — Setup section expanded from Sprint 0 stub to full wizard usage docs (interactive + non-interactive + re-run + skip behavior).
+
+### Notes
+- `.claude/teammates/*.md` Sprint 0 placeholders remain as clone-and-go defaults. Wizard fills overwrite them (with confirm gate + `--force` flag for CI).
+- Wizard inserts an HTML comment marker (`<!-- zachflow init-project.sh wizard fill — <ISO 8601> -->`) at the top of filled teammate files for re-run detection.
+- Bash 3.2 compatible (no associative arrays — uses indexed array + dedup-by-string for teammate template iteration).
+- JSON fill data is base64-encoded for safe transport through bash variables.
+
+### Deferred to v1.x+
+- KB remote mode wizard.
+- Stack adapter examples catalog (external PRs).
+- Multi-stack mixing in single wizard run.
+- Template inheritance.
+
 ## [0.3.0-sprint-2] — 2026-04-27
 
 ### Added
