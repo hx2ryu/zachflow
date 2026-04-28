@@ -13,6 +13,35 @@
 ### Notes
 - v1.0 ships after Sprints 1–4.
 
+## [0.5.0-sprint-4a-plugins] — 2026-04-27
+
+### Added
+- `plugins/<name>/` directory pattern formalized as the optional, user-installable counterpart to `workflows/<name>/` (project-bundled).
+- `plugins/recall/` — first reference plugin, ported from upstream `zzem-orchestrator` PR #57 (11 files: README + ask/SKILL.md + 4 scripts + 2 config files + 3 tests).
+- `scripts/install-plugins.sh` — opt-in plugin installer (`bash scripts/install-plugins.sh <name>`). Symlinks `~/.claude/skills/<name> → plugins/<name>` (user-level).
+- `docs/plugin-authoring.md` — v1.0 plugin authoring guide with 10-step checklist + recall as worked example.
+- CI integration: `install-plugins.sh syntax check` + `recall plugin unit tests` (15 tests) added to `.github/workflows/ci.yml`.
+
+### Changed
+- `recall.example.yaml` schema: `sources.sprints` → `sources.runs.{path, workflows: [sprint, qa-fix]}` (zachflow's Sprint 2 directory structure).
+- `recall.example.yaml` KB: `~/.zzem/kb` (hardcoded) → `${KB_PATH:-./.zachflow/kb}` (env-var with embedded KB default).
+- `recall.example.yaml` domain enum: removed hardcoded ZZEM enum; recall now accepts any project-specific domain matching `^[a-z][a-z0-9-]*$`.
+- `recall.schema.json` `$id`: `https://zach-wrtn.github.io/...` → `https://zachflow.dev/...`.
+- `ask/SKILL.md` path discovery: scans `runs/{sprint,qa-fix}/<id>/` instead of `./sprint-orchestrator/sprints/`.
+- `docs/roadmap.md` Sprint 4 entry split into 4a (this sprint, complete) / 4b (gallery) / 4c (create-zachflow + v1.0 release).
+
+### Notes
+- Plugin install is **explicit** (user runs `bash scripts/install-plugins.sh recall`) — distinct from workflows which install automatically via `scripts/install-workflows.sh`.
+- Plugin namespace: skills inside a plugin use `<plugin>:<skill>` frontmatter (e.g., `recall:ask`). Avoids collision with core skill names.
+- Core does NOT depend on plugins. zachflow workflows + KB work without any plugin installed.
+
+### Deferred to Sprint 4b/4c
+
+- `zachflow-gallery` package — Sprint 4b
+- `create-zachflow` npm wrapper — Sprint 4c
+- README/CONTRIBUTING/v1.0 release polish — Sprint 4c
+- v1.0.0 final tag — Sprint 4c
+
 ## [0.4.0-sprint-3] — 2026-04-27
 
 ### Added
