@@ -1,0 +1,65 @@
+# templates/init.config.template.yaml
+# zachflow non-interactive init config
+#
+# Usage:
+#   cp templates/init.config.template.yaml init.config.yaml
+#   # Edit init.config.yaml with your project specifics
+#   bash scripts/init-project.sh --from=init.config.yaml --non-interactive
+#
+# All fields are required unless marked optional.
+# String patterns: lowercase-hyphen unless noted.
+
+# ─── Project metadata ────────────────────────────────────────────
+project_name: my-project           # ^[a-z][a-z0-9-]*$, 3+ chars
+workflows: both                    # one of: sprint | qa-fix | both
+branch_prefix: sprint              # ^[a-z][a-z0-9-]*$ (default 'run' if both, 'sprint' if sprint-only, 'qa' if qa-fix-only)
+
+# ─── Role definitions (≥1 required) ──────────────────────────────
+# Each role becomes a directory in {sprint-worktree}/{role-key}/ via
+# scripts/setup-sprint.sh. The 'teammate' field selects which template
+# from templates/teammates/ to fill for this role.
+
+roles:
+  - key: backend                          # role key (used as directory name and tasks/{role}/ prefix)
+    source: ~/dev/work/<your-be-repo>     # absolute path or ~ to your repo on disk
+    base: main                            # base branch for sprint runs
+    mode: worktree                        # one of: worktree | symlink
+    teammate: be-engineer                 # one of: be-engineer | fe-engineer | design-engineer | evaluator
+    fill:                                 # optional — omit any field to leave its {{...}} marker as-is
+      stack_description: |
+        Describe your backend stack here in 1-2 sentences (framework, language, key dependencies).
+      repo_layout: |
+        Brief description of top-level directory structure (3-5 lines).
+      build_cmd: |
+        # Commands to verify implementation
+        npm install
+        npm run typecheck
+        npm test
+      conventions: |
+        - Convention 1 specific to this codebase
+        - Convention 2
+        - Convention 3
+
+  # Uncomment to add a frontend role:
+  # - key: app
+  #   source: ~/dev/work/<your-fe-repo>
+  #   base: main
+  #   mode: worktree
+  #   teammate: fe-engineer
+  #   fill:
+  #     stack_description: |
+  #       React Native + TypeScript app...
+  #     repo_layout: |
+  #       src/...
+  #     build_cmd: |
+  #       npm install
+  #       npm run lint
+  #       npm test
+  #     conventions: |
+  #       - Use functional components only
+  #       - ...
+
+# ─── KB configuration ────────────────────────────────────────────
+kb:
+  mode: embedded                   # only 'embedded' supported in v1.0; 'remote' coming v1.1
+init_kb: true                      # bool — run scripts/kb-bootstrap.sh after wizard
