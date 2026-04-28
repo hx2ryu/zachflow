@@ -111,20 +111,22 @@ else: print(data)
 "
 }
 
-# Load roles list as JSON-ish lines via python3 — usage: yaml_roles FILE
+# Load roles list as base64-encoded JSON-ish lines via python3 — usage: yaml_roles FILE
 yaml_roles() {
   python3 -c "
-import yaml, json
+import yaml, json, base64
 data = yaml.safe_load(open('$1'))
 for role in data.get('roles', []):
     fill = role.get('fill', {}) or {}
+    fill_json = json.dumps(fill)
+    fill_b64 = base64.b64encode(fill_json.encode()).decode()
     print('|'.join([
         role.get('key', ''),
         role.get('source', ''),
         role.get('base', 'main'),
         role.get('mode', 'worktree'),
         role.get('teammate', 'be-engineer'),
-        json.dumps(fill).replace('|', '__PIPE__'),
+        fill_b64,
     ]))
 "
 }
@@ -353,13 +355,12 @@ for role_entry in "${ROLES[@]}"; do
 done
 
 for teammate in $unique_teammates; do
-  # Find last fill_json for this teammate
-  fill_json="{}"
+  # Find last fill_b64 for this teammate
+  fill_b64=""
   for role_entry in "${ROLES[@]}"; do
     IFS='|' read -ra parts <<< "$role_entry"
     if [ "${parts[4]}" = "$teammate" ]; then
-      candidate="${parts[5]:-{}}"
-      fill_json="${candidate//__PIPE__/|}"
+      fill_b64="${parts[5]:-}"
     fi
   done
 
@@ -381,10 +382,14 @@ for teammate in $unique_teammates; do
     fi
   fi
 
-  python3 - <<PYEOF
-import json, re, sys
-fill = json.loads('''$fill_json''')
-template = open('$template_file').read()
+  FILL_B64="$fill_b64" TEMPLATE_FILE="$template_file" OUTPUT_FILE="$output_file" python3 - <<'PYEOF'
+import json, base64, sys, os
+fill_b64 = os.environ.get('FILL_B64', '')
+if fill_b64:
+  fill = json.loads(base64.b64decode(fill_b64).decode())
+else:
+  fill = {}
+template = open(os.environ.get('TEMPLATE_FILE', '')).read()
 
 substitutions = {
     'STACK_DESCRIPTION': fill.get('stack_description', '').strip(),
@@ -404,8 +409,9 @@ now = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')
 marker = f"<!-- zachflow init-project.sh wizard fill — {now} -->\n"
 output = marker + output
 
-open('$output_file', 'w').write(output)
-print(f"wrote: $output_file")
+with open(os.environ.get('OUTPUT_FILE', ''), 'w') as f:
+  f.write(output)
+print(f"wrote: {os.environ.get('OUTPUT_FILE', '')}")
 PYEOF
 done
 
