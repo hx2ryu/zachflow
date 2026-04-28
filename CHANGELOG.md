@@ -13,6 +13,32 @@
 ### Notes
 - v1.0 ships after Sprints 1–4.
 
+## [0.6.0-sprint-4b-gallery] — 2026-04-27
+
+### Added
+- `packages/zachflow-gallery/` — Astro-based minimum viable gallery shell that auto-indexes `runs/sprint/<run-id>/prototypes/**/*.html`.
+- Astro components: `Layout.astro` (dark theme with CSS variables), `PrototypeCard.astro` (iframe-based thumbnail).
+- Astro pages: `index.astro` (auto-discovery home), `[run]/[prototype].astro` (dynamic detail route via `getStaticPaths`).
+- `packages/zachflow-gallery/scripts/copy-prototypes.sh` — bash build-time HTML copier (no TypeScript dep).
+- `.github/workflows/gallery.yml.example` — optional GitHub Pages deployment workflow (user opt-in via rename).
+- Root `package.json` workspaces (`packages/*`) + scripts (`gallery:dev`, `gallery:build`, `gallery:preview`).
+
+### Notes
+- Gallery is **shell only** — no ZZEM-specific content (exemplars, foundations, design tokens, archetype taxonomy). Users layer their own design system.
+- Build-time discovery via Astro's `getStaticPaths` — no runtime indexing.
+- iframe sandbox is `allow-same-origin` — blocks JS in prototypes by default. Users can relax in components if needed.
+- Gallery is **not** in the main CI workflow. Heavy npm install required; deferred to v1.x dedicated CI matrix.
+- Single dependency: `astro@^4.16.0`. No React, no MDX, no Playwright (those join in v1.x as needed).
+
+### Deferred to Sprint 4c / v1.x+
+
+- `npx zachflow-gallery init` (scaffold gallery into existing project) — Sprint 4c
+- `qa-fix` run rendering (`runs/qa-fix/<id>/` browsing) — v1.x
+- Token validation, exemplar management, archetype taxonomy — v1.x
+- Screenshot capture / visual baseline / dogfood verification — v1.x
+- Search palette, theme toggle, mobile-optimized navigation — v1.x
+- Tests (vitest + playwright) — v1.x
+
 ## [0.5.0-sprint-4a-plugins] — 2026-04-27
 
 ### Added
