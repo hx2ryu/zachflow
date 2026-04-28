@@ -40,3 +40,9 @@ jobs:
 
       - name: KB smoke check
         run: bash tests/kb-smoke.sh
+
+      - name: init-project.sh syntax check
+        run: bash -n scripts/init-project.sh
+
+      - name: init-project.sh non-interactive smoke
+        run: bash tests/init-project-smoke.sh
