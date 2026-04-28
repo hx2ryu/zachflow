@@ -1,8 +1,10 @@
-# Knowledge Base Search/Write Protocol
+# KB Integration Primitive
 
 > Protocol for the Sprint Lead to reference and update the Knowledge Base in each sprint phase.
 >
 > **All KB access must go through the `zachflow-kb:*` skills.** Direct filesystem reads/writes are forbidden.
+
+This file documents **how phase/stage files invoke KB skills**. For user-facing KB system reference (modes, schemas, lifecycle), see `docs/kb-system.md`. The two files have distinct audiences and overlapping content should be cross-referenced, not duplicated.
 
 ## KB Location
 
