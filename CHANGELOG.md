@@ -13,6 +13,36 @@
 ### Notes
 - v1.0 ships after Sprints 1–4.
 
+## [0.3.0-sprint-2] — 2026-04-27
+
+### Added
+- `workflows/{sprint,qa-fix,_shared}/` directory split — workflows are now first-class, separated from `.claude/skills/` (which becomes a platform-compatibility shim via symlinks).
+- `workflows/_shared/build-loop.md` — Build Loop primitive (Contract → Implement → Eval → Fix), referenced by `workflows/sprint/phase-build.md` and `workflows/qa-fix/{stage-3,stage-4}.md` instead of inline duplication.
+- `workflows/_shared/agent-team.md` — agent role definitions + TaskCreate dispatch protocol.
+- `workflows/_shared/worktree.md` — worktree isolation + branch naming.
+- `workflows/_shared/kb-integration.md` — phase-by-phase KB invocation patterns (relocated from `.claude/skills/sprint/knowledge-base.md`).
+- `workflows/qa-fix/` as 5 stage files + SKILL.md dispatcher (was 254-line monolith).
+- `/qa-fix <run-id>` first-class slash command.
+- `scripts/install-workflows.sh` — idempotent symlink installer for `.claude/skills/{sprint,qa-fix}`.
+- `runs/{sprint,qa-fix}/` workflow-type subdirectories.
+- `docs/workflow-authoring.md` — v1.0 guide for adding new workflows.
+
+### Changed
+- `runs/<id>/` paths in all phase/stage files updated to `runs/{sprint,qa-fix}/<id>/`.
+- `phase-build.md` (was ~427 lines) shrunk to ~203 lines as Build Loop primitive moved to `_shared/`.
+- `phase-qa-fix.md` (was 254 lines) split into 5 stage files + dispatcher SKILL.md.
+- `.github/workflows/ci.yml` — added `install-workflows.sh` step before other smoke steps.
+- `.claude/skills/sprint` and `.claude/skills/qa-fix` are now symlinks (mode 120000 in git) to `workflows/<name>/`.
+
+### Deprecated
+- `/sprint <id> --type=qa-fix` — emits deprecation warning, delegates to `/qa-fix <id>`. Will be removed in v2.0.
+
+### Deferred to v1.x+
+- Workflow yaml DSL (declarative workflow definitions) — v2.0 candidate.
+- Plugin lifecycle hook system — v2.0 candidate.
+- 3rd workflow (e.g., document-release, security-audit) — depends on N=3 abstraction validation.
+- Windows native symlink compatibility (v1.0 = macOS/Linux + WSL).
+
 ## [0.2.0-sprint-1] — 2026-04-27
 
 ### Added
