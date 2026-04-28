@@ -46,3 +46,11 @@ jobs:
 
       - name: init-project.sh non-interactive smoke
         run: bash tests/init-project-smoke.sh
+
+      - name: install-plugins.sh syntax check
+        run: bash -n scripts/install-plugins.sh
+
+      - name: recall plugin unit tests
+        run: |
+          bash plugins/recall/tests/test_config.sh
+          bash plugins/recall/tests/test_session.sh

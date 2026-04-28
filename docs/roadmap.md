@@ -6,7 +6,9 @@
 - [x] Sprint 1 — KB embedded mode + skill rename (`zzem-kb:*` → `zachflow-kb:*`)
 - [ ] Sprint 2 — Workflow split: `workflows/{sprint,qa-fix,_shared}/` + `/qa-fix` first-class
 - [ ] Sprint 3 — Stack adapter: placeholder templates + `init-project.sh` wizard
-- [ ] Sprint 4 — `zachflow-gallery` package + `plugins/<name>/` pattern + first reference plugin (`plugins/recall/` ported from upstream PR #57) + `create-zachflow` npm wrapper + `docs/plugin-authoring.md` + LICENSE/CI/release
+- [x] Sprint 4a — `plugins/<name>/` pattern + `plugins/recall/` ported + `docs/plugin-authoring.md`
+- [ ] Sprint 4b — `zachflow-gallery` package
+- [ ] Sprint 4c — `create-zachflow` npm wrapper + LICENSE/CI/v1.0 release
 
 **Ship gate:** Empty zachflow repo can bootstrap a working sprint runner on Claude Code, verified end-to-end. v1.0 also ships with one reference plugin (`recall:ask`) demonstrating the plugin authoring pattern.
 
