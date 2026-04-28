@@ -14,6 +14,12 @@
 
 set -euo pipefail
 
+# Defensive: warn if bash too old. Most modern features are fine, but the script
+# was tested with bash 3.2+ via dedup-without-associative-arrays.
+if [ -z "${BASH_VERSION:-}" ]; then
+  echo "Warning: this script assumes bash. Behavior on other shells is undefined." >&2
+fi
+
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
@@ -332,20 +338,31 @@ echo "wrote: sprint-config.yaml"
 
 # ─── Fill teammate templates ──────────────────────────────────────
 
-# For each unique teammate (across all roles), find the highest-priority fill data
-# (last role wins if multiple roles use the same teammate template) and write to .claude/teammates/
+# For each unique teammate (across all roles), find the LAST role's fill
+# (last-wins for shared teammates) and write to .claude/teammates/.
+# Bash 3.2-compatible: indexed array + string-search dedup, no associative arrays.
 
-declare -A teammate_fill_map  # teammate-name -> fill_json
+unique_teammates=""
 for role_entry in "${ROLES[@]}"; do
   IFS='|' read -ra parts <<< "$role_entry"
   teammate="${parts[4]}"
-  fill_json="${parts[5]:-{}}"
-  fill_json="${fill_json//__PIPE__/|}"
-  teammate_fill_map["$teammate"]="$fill_json"
+  case " $unique_teammates " in
+    *" $teammate "*) ;;  # already in list
+    *) unique_teammates="$unique_teammates $teammate" ;;
+  esac
 done
 
-for teammate in "${!teammate_fill_map[@]}"; do
-  fill_json="${teammate_fill_map[$teammate]}"
+for teammate in $unique_teammates; do
+  # Find last fill_json for this teammate
+  fill_json="{}"
+  for role_entry in "${ROLES[@]}"; do
+    IFS='|' read -ra parts <<< "$role_entry"
+    if [ "${parts[4]}" = "$teammate" ]; then
+      candidate="${parts[5]:-{}}"
+      fill_json="${candidate//__PIPE__/|}"
+    fi
+  done
+
   template_file="templates/teammates/$teammate.template.md"
   output_file=".claude/teammates/$teammate.md"
 
