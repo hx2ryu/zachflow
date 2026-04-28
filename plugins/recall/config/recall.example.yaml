@@ -1,0 +1,34 @@
+# plugins/recall/config/recall.example.yaml
+# zachflow recall plugin config — copy to your repo root as `.recall.yaml`
+# or set $RECALL_CONFIG to point at a custom path.
+#
+# Config search order (see plugins/recall/scripts/load-config.sh):
+#   1. $RECALL_CONFIG (if set, must point to existing file)
+#   2. <CWD>/.recall.yaml
+#   3. ~/.recall.yaml
+#   4. plugins/recall/config/recall.example.yaml (this file, as fallback)
+
+sources:
+  runs:
+    # zachflow workflow run instances live here (Sprint 2+ structure).
+    path: ./runs
+    workflows: [sprint, qa-fix]
+    artifact_layout:
+      always_read: [PRD.md, retrospective]
+      conditional_read: [evaluations, contracts, tasks]
+      skip_by_default: [prototypes, logs, checkpoints]
+
+  kb:
+    # zachflow embedded KB (Sprint 1).
+    # ${KB_PATH} env var overrides; default is the project's .zachflow/kb.
+    path: "${KB_PATH:-./.zachflow/kb}"
+    layout: zachflow-kb
+    # domain is project-specific. Recall accepts any string matching
+    # ^[a-z][a-z0-9-]*$ (matches reflection schema in schemas/learning/).
+    # No hardcoded enum.
+
+session:
+  # User-level session state (shared across projects on the same machine).
+  state_file: ~/.recall/session.yaml
+  idle_timeout_minutes: 30
+  stale_days: 7

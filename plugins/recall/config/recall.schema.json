@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zachflow.dev/plugins/recall/recall.schema.json",
+  "title": "zachflow recall plugin config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sources", "session"],
+  "properties": {
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runs", "kb"],
+      "properties": {
+        "runs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "workflows"],
+          "properties": {
+            "path": { "type": "string" },
+            "workflows": {
+              "type": "array",
+              "items": { "enum": ["sprint", "qa-fix"] },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "artifact_layout": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "always_read":      { "type": "array", "items": { "type": "string" } },
+                "conditional_read": { "type": "array", "items": { "type": "string" } },
+                "skip_by_default":  { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "kb": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "layout"],
+          "properties": {
+            "path":   { "type": "string" },
+            "layout": { "const": "zachflow-kb" }
+          }
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state_file", "idle_timeout_minutes", "stale_days"],
+      "properties": {
+        "state_file":           { "type": "string" },
+        "idle_timeout_minutes": { "type": "integer", "minimum": 1 },
+        "stale_days":           { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}
