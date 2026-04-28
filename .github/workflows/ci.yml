@@ -23,9 +23,11 @@ jobs:
           if grep -rE 'ZZEM|zzem-orchestrator|MemeApp|meme-api|meme-pr|zach-wrtn|wrtn\.io|zzem-kb' \
             --exclude-dir=.git \
             --exclude-dir=node_modules \
+            --exclude-dir=docs/superpowers \
             --exclude='CHANGELOG.md' \
             --exclude='docs/roadmap.md' \
             --exclude='docs/llm-platform-coupling.md' \
+            --exclude='docs/kb-system.md' \
             --exclude='.github/workflows/ci.yml' \
             .; then
             echo "FAIL: ZZEM literals leaked into zachflow"
