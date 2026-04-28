@@ -32,3 +32,6 @@ jobs:
             exit 1
           fi
           echo "PASS: clean of ZZEM literals"
+
+      - name: KB smoke check
+        run: bash tests/kb-smoke.sh
