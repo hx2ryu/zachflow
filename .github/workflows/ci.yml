@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install workflow symlinks
+        run: bash scripts/install-workflows.sh
+
       - name: Bash script syntax check
         run: |
           for f in scripts/*.sh scripts/lib/*.sh; do
