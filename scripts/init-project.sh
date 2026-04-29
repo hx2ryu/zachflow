@@ -236,10 +236,18 @@ else
       teammate="${parts[4]}"
       echo "  For role '$role_key' ($teammate):"
       stack_desc=""; repo_layout=""; build_cmd=""; conventions=""
+      design_tokens_path=""; primary_font=""; device_frame=""
       prompt stack_desc "    Stack description (1 line, blank to skip)" ""
       prompt repo_layout "    Repository layout summary (1 line, blank to skip)" ""
       prompt build_cmd "    Build & test commands (1 line, blank to skip)" ""
       prompt conventions "    Conventions summary (1 line, blank to skip)" ""
+
+      # design-engineer-only fields
+      if [ "$teammate" = "design-engineer" ]; then
+        prompt design_tokens_path "    Design tokens path (e.g. ~/dev/tokens, blank to skip)" ""
+        prompt primary_font       "    Primary font family (blank to skip)" ""
+        prompt device_frame       "    Device frame for prototypes (e.g. iPhone 15 Pro, blank to skip)" ""
+      fi
 
       # Build fill JSON
       fill_json=$(python3 -c "
@@ -249,6 +257,9 @@ print(json.dumps({
     'repo_layout': '''$repo_layout''',
     'build_cmd': '''$build_cmd''',
     'conventions': '''$conventions''',
+    'design_tokens_path': '''$design_tokens_path''',
+    'primary_font': '''$primary_font''',
+    'device_frame': '''$device_frame''',
 }).replace('|', '__PIPE__'))
 ")
       NEW_ROLES+=("${parts[0]}|${parts[1]}|${parts[2]}|${parts[3]}|${parts[4]}|$fill_json")
@@ -449,6 +460,12 @@ substitutions = {
     'REPO_LAYOUT': fill.get('repo_layout', '').strip(),
     'BUILD_CMD': fill.get('build_cmd', '').strip(),
     'CONVENTIONS': fill.get('conventions', '').strip(),
+    # design-engineer-only fields. Empty for non-design teammates;
+    # the substitution loop below leaves the {{...}} marker in place
+    # when the value is empty, so this is safe to define unconditionally.
+    'DESIGN_TOKENS_PATH': fill.get('design_tokens_path', '').strip(),
+    'PRIMARY_FONT': fill.get('primary_font', '').strip(),
+    'DEVICE_FRAME': fill.get('device_frame', '').strip(),
 }
 
 output = template

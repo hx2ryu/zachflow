@@ -59,6 +59,29 @@ roles:
   #       - Use functional components only
   #       - ...
 
+  # Uncomment to add a design role. design-engineer accepts three extra
+  # fill fields (design_tokens_path / primary_font / device_frame) on top
+  # of the four shared by all teammates. Omitted fields leave their
+  # {{...}} markers in place; fill them or hand-edit later.
+  # - key: design
+  #   source: ~/dev/work/<your-design-repo>
+  #   base: main
+  #   mode: symlink                  # design tokens are typically read-only
+  #   teammate: design-engineer
+  #   fill:
+  #     stack_description: |
+  #       Style Dictionary tokens published to npm.
+  #     repo_layout: |
+  #       tokens/   - source token JSON
+  #       build/    - generated platform outputs
+  #     build_cmd: |
+  #       npm install && npm run build
+  #     conventions: |
+  #       - Never edit build/ output directly.
+  #     design_tokens_path: ~/dev/work/<your-design-repo>/tokens
+  #     primary_font: Inter
+  #     device_frame: iPhone 15 Pro
+
 # ─── KB configuration ────────────────────────────────────────────
 kb:
   mode: embedded                   # only 'embedded' supported in v1.0; 'remote' coming v1.1
