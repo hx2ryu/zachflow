@@ -15,8 +15,18 @@ trap 'rm -rf "$TMPDIR"' EXIT
 
 # 1. Copy project tree to temp dir (excluding .git, .zachflow, node_modules).
 # tar pipe instead of rsync — rsync isn't preinstalled on Windows runners.
+# Excludes .claude/skills/{sprint,qa-fix} too: those are symlinks in the
+# source tree, but Windows tar materializes them as directory copies and
+# install-workflows.sh refuses to overwrite a non-empty directory. The
+# wizard recreates the symlinks fresh, which is what we're testing.
 echo "  [1/5] Stage project copy at $TMPDIR"
-(cd "$PROJECT_ROOT" && tar --exclude='./.git' --exclude='./.zachflow' --exclude='./node_modules' -cf - .) \
+(cd "$PROJECT_ROOT" && tar \
+  --exclude='./.git' \
+  --exclude='./.zachflow' \
+  --exclude='./node_modules' \
+  --exclude='./.claude/skills/sprint' \
+  --exclude='./.claude/skills/qa-fix' \
+  -cf - .) \
   | (cd "$TMPDIR" && tar -xf -)
 
 cd "$TMPDIR"
