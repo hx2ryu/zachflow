@@ -20,7 +20,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Python deps
-        run: python3 -m pip install --quiet pyyaml
+        # --break-system-packages: macos-latest ships a PEP 668 externally-
+        # managed Python; the runner is ephemeral so this is safe.
+        run: python3 -m pip install --quiet --break-system-packages pyyaml
 
       - name: Install workflow symlinks
         run: bash scripts/install-workflows.sh
