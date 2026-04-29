@@ -2,7 +2,11 @@
 
 ## [Unreleased]
 
-### Added
+### Changed
+- **`scripts/init-project.sh` now emits a full `sprint-config.yaml`** matching `templates/sprint-config.template.yaml`. Previously only `project_name`/`workflows`/`branch_prefix`/`repositories`/`kb` were written; `type:`, `qa_fix:`, `defaults:`, `team:` (with auto-derived teammates + always-on evaluator), and `display:` are now also scaffolded. No script consumed those missing blocks before, but template/output divergence was a UX trap surfaced during v1.0.1 verification.
+- Smoke test (`tests/init-project-smoke.sh`) extended to assert the new blocks.
+
+### Added (pre-v1.0)
 - Initial bootstrap from `zzem-orchestrator` (Sprint 0).
 - Sprint workflow skills (`/sprint`).
 - QA-Fix workflow skill (`/qa-fix` — currently invoked as `/sprint --type=qa-fix`; first-class entry point lands in Sprint 2).
