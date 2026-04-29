@@ -62,10 +62,20 @@ data = yaml.safe_load(open('sprint-config.yaml'))
 assert data['project_name'] == 'smoke-test', f'got {data[\"project_name\"]}'
 assert data['workflows'] == 'both'
 assert data['branch_prefix'] == 'sprint'
+assert data['type'] == 'standard', f'expected type=standard, got {data.get(\"type\")}'
+assert 'qa_fix' in data, 'qa_fix block missing'
+assert data['qa_fix']['ready_for_qa_transition'] == 'Ready for QA'
 assert 'backend' in data['repositories']
 assert data['repositories']['backend']['mode'] == 'worktree'
+assert data['defaults']['base'] == 'main', f'expected defaults.base=main, got {data[\"defaults\"][\"base\"]}'
+assert 'team' in data, 'team block missing'
+assert 'be-engineer' in data['team']['teammates'], f'be-engineer missing from teammates: {data[\"team\"][\"teammates\"]}'
+assert 'evaluator' in data['team']['teammates'], 'evaluator must always be present'
+assert data['team']['settings']['eval_retry_limit'] == 2
 assert data['kb']['mode'] == 'embedded'
-print('    sprint-config.yaml OK')
+assert 'display' in data, 'display block missing'
+assert data['display']['status'] == 'in-progress'
+print('    sprint-config.yaml OK (full template emit verified)')
 "
 
 echo "  [4/5] Verify .claude/teammates/be-engineer.md fill"

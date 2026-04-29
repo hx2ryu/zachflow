@@ -313,6 +313,26 @@ if [ -f "sprint-config.yaml" ]; then
   fi
 fi
 
+# ─── Compute teammate list for sprint-config team block ───────────
+# Roles' teammates (deduped, role order) + always-on evaluator. Used only
+# for the sprint-config team: emit. The fill-templates loop further down
+# uses its own roles-only list to avoid touching evaluator.template.md
+# (which has no placeholders).
+
+team_teammates=""
+for role_entry in "${ROLES[@]}"; do
+  IFS='|' read -ra parts <<< "$role_entry"
+  teammate="${parts[4]}"
+  case " $team_teammates " in
+    *" $teammate "*) ;;
+    *) team_teammates="$team_teammates $teammate" ;;
+  esac
+done
+case " $team_teammates " in
+  *" evaluator "*) ;;
+  *) team_teammates="$team_teammates evaluator" ;;
+esac
+
 # ─── Write sprint-config.yaml ─────────────────────────────────────
 
 {
@@ -323,6 +343,16 @@ fi
   echo "workflows: $WORKFLOWS"
   echo "branch_prefix: $BRANCH_PREFIX"
   echo
+  echo "# Sprint type. \"standard\" runs the 6-Phase pipeline; \"qa-fix\" runs the QA-Fix pipeline directly."
+  echo "type: standard"
+  echo
+  echo "# QA-Fix configuration. Required when type=qa-fix; also consumed by /sprint --phase=qa-fix."
+  echo "# Fill these before running /qa-fix."
+  echo "qa_fix:"
+  echo "  jql: \"\""
+  echo "  jira_base_url: \"\""
+  echo "  ready_for_qa_transition: \"Ready for QA\""
+  echo
   echo "repositories:"
   for role_entry in "${ROLES[@]}"; do
     IFS='|' read -ra parts <<< "$role_entry"
@@ -332,8 +362,31 @@ fi
     echo "    mode: ${parts[3]}"
   done
   echo
+  echo "# Fallback base branch for repositories without an explicit base."
+  echo "defaults:"
+  echo "  base: main"
+  echo
+  echo "# Agent Teams (Harness Design v4)."
+  echo "team:"
+  echo "  teammates:"
+  for tm in $team_teammates; do
+    echo "    - $tm"
+  done
+  echo "  settings:"
+  echo "    eval_retry_limit: 2"
+  echo "    max_parallel_tasks: 4"
+  echo
   echo "kb:"
   echo "  mode: $KB_MODE"
+  echo
+  echo "# Gallery display metadata (optional — consumed by sprint-gallery)."
+  echo "display:"
+  echo "  title: \"\""
+  echo "  startDate: \"\""
+  echo "  endDate: \"\""
+  echo "  status: in-progress"
+  echo "  tags: []"
+  echo "  summary: \"\""
 } > sprint-config.yaml
 
 echo "wrote: sprint-config.yaml"
