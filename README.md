@@ -3,29 +3,31 @@
 Harness-driven sprint orchestration for AI coding agents.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)]()
 
 zachflow is a workflow harness that brings explicit phase gates, file-based handoff, and contract-first development to long-running coding sessions on Claude Code's Agent Teams. It implements the **Planner–Generator–Evaluator** pattern with cross-session knowledge accumulation.
 
 ## Quick start
 
 ```bash
-npx create-zachflow my-project
+npx https://github.com/hx2ryu/zachflow/releases/download/v1.0.1/create-zachflow-1.0.1.tgz my-project --tag=v1.0.1
 cd my-project
 bash scripts/init-project.sh
 ```
 
-The interactive wizard takes ~5 minutes. After completion, you have a working sprint runner ready to run `/sprint <run-id>` in Claude Code.
+The bootstrap is zero-deps and clones the v1.0.1 template, strips dev artifacts, and re-inits git. The interactive wizard then takes ~5 minutes. After completion, you have a working sprint runner ready to run `/sprint <run-id>` in Claude Code.
 
 For non-interactive setup (CI):
 
 ```bash
-npx create-zachflow my-project
+npx https://github.com/hx2ryu/zachflow/releases/download/v1.0.1/create-zachflow-1.0.1.tgz my-project --tag=v1.0.1
 cd my-project
 cp templates/init.config.template.yaml init.config.yaml
 # Edit init.config.yaml
 bash scripts/init-project.sh --from=init.config.yaml --non-interactive
 ```
+
+> The `npx <tarball-url>` form works without an npm publish. A direct `npx create-zachflow` (no URL) is planned for a later release once the package is published to npm.
 
 ## Features
 

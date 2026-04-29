@@ -13,6 +13,21 @@
 ### Notes
 - v1.0 ships after Sprints 1–4.
 
+## [1.0.1] — 2026-04-29
+
+Post-release ops fixes discovered while verifying the v1.0.0 external bootstrap claim.
+
+### Fixed
+- **README quick-start no longer relies on an unpublished package.** v1.0.0 advertised `npx create-zachflow`, but the package is `private:true` and not on npm — external users could not install it. Quick-start now uses `npx <tarball-url>` against the release asset, which works without an npm publish.
+
+### Added
+- **Release workflow uploads `create-zachflow-<version>.tgz`** as a release asset (via `npm pack`). Enables the `npx <tarball-url>` bootstrap path.
+- **`workflow_dispatch` on release.yml** with a `tag` input — manual re-run if a tag-push trigger is missed.
+
+### Notes
+- A direct `npx create-zachflow` (no URL) still requires npm publish (tracked in `docs/roadmap.md` as a v1.x item).
+- Wizard-emitted `sprint-config.yaml` currently includes only `repositories:` and `kb:` blocks; `team:`, `qa_fix:`, `defaults:`, `display:` blocks from the template are not yet auto-scaffolded. No script consumes them today, but template/output divergence is a UX trap — slated for v1.1 review.
+
 ## [1.0.0] — 2026-04-29 🎉
 
 **zachflow v1.0.0 — initial release.**

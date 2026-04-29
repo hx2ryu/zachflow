@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g. v1.0.1). Must already exist on origin."
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -12,29 +18,45 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Resolve tag
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            tag="${{ inputs.tag }}"
+          else
+            tag="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "version=${tag#v}" >> $GITHUB_OUTPUT
+
+      - name: Checkout at tag
         uses: actions/checkout@v4
         with:
+          ref: ${{ steps.meta.outputs.tag }}
           fetch-depth: 0
 
       - name: Extract changelog section
-        id: changelog
         run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          version="${tag#v}"
+          version="${{ steps.meta.outputs.version }}"
           # Extract section from CHANGELOG.md between "## [<version>]" and the next "## ["
           awk -v v="\\[$version" '
             $0 ~ "^## " v { found=1; next }
             found && /^## \[/ { exit }
             found { print }
           ' CHANGELOG.md > /tmp/release_notes.md
-          echo "tag=$tag" >> $GITHUB_OUTPUT
+
+      - name: Build create-zachflow tarball
+        run: |
+          cd packages/create-zachflow
+          npm pack --pack-destination "$GITHUB_WORKSPACE"
+          ls -la "$GITHUB_WORKSPACE"/create-zachflow-*.tgz
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.changelog.outputs.tag }}
-          name: zachflow ${{ steps.changelog.outputs.tag }}
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: zachflow ${{ steps.meta.outputs.tag }}
           body_path: /tmp/release_notes.md
+          files: create-zachflow-*.tgz
           draft: false
           prerelease: false
