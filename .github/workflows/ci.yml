@@ -16,6 +16,11 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      # Windows git-bash: tell MSYS to create real NTFS symlinks instead of
+      # directory copies when `ln -s` runs. GitHub Actions Windows runners
+      # have Developer Mode enabled so this works without admin.
+      MSYS: winsymlinks:nativestrict
     steps:
       - uses: actions/checkout@v4
 
