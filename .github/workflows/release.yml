@@ -38,12 +38,15 @@ jobs:
       - name: Extract changelog section
         run: |
           version="${{ steps.meta.outputs.version }}"
-          # Extract section from CHANGELOG.md between "## [<version>]" and the next "## ["
-          awk -v v="\\[$version" '
-            $0 ~ "^## " v { found=1; next }
-            found && /^## \[/ { exit }
-            found { print }
+          # Extract the section between "## [<version>]" and the next "## [".
+          # Uses index/substr to avoid awk -v regex-escape pitfalls with `\[`.
+          awk -v prefix="## [$version]" '
+            index($0, prefix) == 1 { capture=1; next }
+            capture && substr($0, 1, 4) == "## [" { exit }
+            capture { print }
           ' CHANGELOG.md > /tmp/release_notes.md
+          echo "--- release notes ---"
+          cat /tmp/release_notes.md
 
       - name: Build create-zachflow tarball
         run: |
