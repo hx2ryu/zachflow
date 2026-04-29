@@ -50,3 +50,51 @@ In step 5/7, answer `n` to skip teammate filling entirely; or per-placeholder, l
 ```
 
 (Detailed stages live in `.claude/skills/sprint/phase-qa-fix.md` — moves to `workflows/qa-fix/` in Sprint 2.)
+
+## Installing Plugins
+
+zachflow ships one reference plugin (`recall`). To install:
+
+```bash
+bash scripts/install-plugins.sh recall
+```
+
+This symlinks `~/.claude/skills/recall → plugins/recall/`. Restart Claude Code to pick up the new skill.
+
+To list available plugins:
+
+```bash
+bash scripts/install-plugins.sh --list
+```
+
+After install, invoke the plugin's skill (recall's `ask`) via Claude Code's Skill tool or `/recall:ask`.
+
+To uninstall:
+
+```bash
+bash plugins/recall/scripts/uninstall.sh
+```
+
+See [`docs/plugin-authoring.md`](docs/plugin-authoring.md) for adding new plugins.
+
+## Running the Gallery
+
+To preview your sprint's prototype outputs locally:
+
+```bash
+npm run gallery:dev
+# or:
+cd packages/zachflow-gallery && npm install && npm run dev
+```
+
+Open http://localhost:4321. The gallery scans `runs/sprint/<run-id>/prototypes/**/*.html`.
+
+To build a static site for deployment:
+
+```bash
+npm run gallery:build
+```
+
+Output: `packages/zachflow-gallery/dist/`. Deploy to GitHub Pages (rename `.github/workflows/gallery.yml.example` to `gallery.yml`), Vercel, Netlify, or any static host.
+
+See [`packages/zachflow-gallery/README.md`](packages/zachflow-gallery/README.md) for customization.
