@@ -1,0 +1,44 @@
+# examples/nextjs-supabase/init.config.yaml
+# Single-role Next.js + Supabase configuration.
+# Copy to <project-root>/init.config.yaml, edit the `source:` path, then run:
+#   bash scripts/init-project.sh --from=init.config.yaml --non-interactive
+
+project_name: my-nextjs-supabase-app
+workflows: both
+branch_prefix: sprint
+
+roles:
+  - key: app
+    source: ~/dev/<your-nextjs-app>     # EDIT: path to your Next.js checkout
+    base: main
+    mode: worktree
+    teammate: fe-engineer
+    fill:
+      stack_description: |
+        Next.js 14+ App Router (TypeScript). Supabase for Postgres, Auth, and
+        Storage — accessed via `@supabase/supabase-js` on both server (RSC,
+        Route Handlers) and client. Edge functions, if any, live in
+        `supabase/functions/`. Tailwind CSS for styling.
+      repo_layout: |
+        app/                  - Next.js App Router routes (server components by default)
+        components/           - shared UI components
+        lib/supabase/         - server + browser Supabase client factories
+        supabase/migrations/  - SQL migrations applied via `supabase db push`
+        supabase/functions/   - Edge Functions (Deno)
+        public/               - static assets
+      build_cmd: |
+        # Verify implementation. Adjust to your package manager (pnpm/yarn/npm).
+        pnpm install --frozen-lockfile
+        pnpm typecheck
+        pnpm lint
+        pnpm test
+      conventions: |
+        - Server-first: prefer Server Components + Server Actions over client-side fetching.
+        - All Supabase queries go through `lib/supabase/server.ts` or `lib/supabase/client.ts` — never instantiate clients ad-hoc.
+        - Migrations are append-only — never edit a committed migration; add a new one.
+        - Row-Level Security policies are mandatory on every user-facing table.
+        - Types come from `supabase gen types typescript` — regenerate after schema changes.
+
+kb:
+  mode: embedded
+init_kb: true
