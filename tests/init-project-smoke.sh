@@ -13,10 +13,11 @@ echo "init-project smoke at: $PROJECT_ROOT"
 TMPDIR=$(mktemp -d -t zachflow-init-smoke-XXXXXX)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-# 1. Copy project tree to temp dir (excluding .git, .zachflow, node_modules)
+# 1. Copy project tree to temp dir (excluding .git, .zachflow, node_modules).
+# tar pipe instead of rsync — rsync isn't preinstalled on Windows runners.
 echo "  [1/5] Stage project copy at $TMPDIR"
-rsync -a --exclude='.git/' --exclude='.zachflow/' --exclude='node_modules/' \
-      "${PROJECT_ROOT}/" "${TMPDIR}/"
+(cd "$PROJECT_ROOT" && tar --exclude='./.git' --exclude='./.zachflow' --exclude='./node_modules' -cf - .) \
+  | (cd "$TMPDIR" && tar -xf -)
 
 cd "$TMPDIR"
 
