@@ -28,6 +28,7 @@ jobs:
             --exclude-dir=node_modules \
             --exclude-dir=docs/superpowers \
             --exclude='CHANGELOG.md' \
+            --exclude='CONTRIBUTING.md' \
             --exclude='docs/roadmap.md' \
             --exclude='docs/llm-platform-coupling.md' \
             --exclude='docs/kb-system.md' \

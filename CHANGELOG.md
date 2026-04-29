@@ -13,6 +13,45 @@
 ### Notes
 - v1.0 ships after Sprints 1–4.
 
+## [1.0.0] — 2026-04-29 🎉
+
+**zachflow v1.0.0 — initial release.**
+
+This is the first stable release of zachflow, a harness-driven sprint orchestration tool for AI coding agents on Claude Code Agent Teams. Built from `zzem-orchestrator` reference patterns, sanitized to be project-agnostic and OSS-portable.
+
+### Highlights (v1.0)
+
+- **Two first-class workflows**: `/sprint` (6-phase pipeline) and `/qa-fix` (5-stage Jira-driven pipeline)
+- **Build Loop primitive** (Contract → Implement → Evaluate → Fix) shared across workflows
+- **Embedded Knowledge Base** (`zachflow-kb:*` skills, 6 skills, JSON Schema validation) — no external repo required
+- **Stack-agnostic teammate templates** — placeholder-based BE/FE/Design/Evaluator role guides
+- **Interactive init wizard** (`scripts/init-project.sh`) — 7-step prompt-driven project setup, ~5 minutes
+- **Plugin system** with `recall:ask` reference plugin (interactive sprint/KB recall, 15 unit tests)
+- **Auto-indexed gallery** (`packages/zachflow-gallery/`) — Astro shell, GitHub Pages deployment template
+- **`npx create-zachflow`** wrapper — clone-and-strip bootstrap, 0 deps
+- **Worktree-isolated runs**, **Active Evaluation** (independent Evaluator agent), **Cross-session knowledge accumulation**
+- **bash 3.2+ compatibility** verified (macOS default `/bin/bash`)
+- **CI smoke tests**: KB schemas, init-project non-interactive smoke, plugin unit tests, ZZEM-leak scan
+
+### Sprint Build History
+
+v1.0 was built across 7 sprints (5 logical, 4 with sub-splits):
+
+- `v0.1.0-bootstrap` — Sprint 0: directory structure + sanitized core
+- `v0.2.0-sprint-1` — Sprint 1: KB embedded mode + skill rename
+- `v0.3.0-sprint-2` — Sprint 2: workflow split (`workflows/{sprint,qa-fix,_shared}/`)
+- `v0.4.0-sprint-3` — Sprint 3: stack adapter + init-project.sh wizard
+- `v0.5.0-sprint-4a-plugins` — Sprint 4a: plugin pattern + recall plugin port
+- `v0.6.0-sprint-4b-gallery` — Sprint 4b: zachflow-gallery package
+- **`v1.0.0`** — Sprint 4c: create-zachflow + docs polish + release CI 🎉
+
+### Roadmap
+
+See [`docs/roadmap.md`](docs/roadmap.md) for v1.x and v2.0+ plans:
+
+- v1.x: KB remote mode, multi-LLM platform support, additional plugins (Notion sync etc.), npm publish, qa-fix gallery rendering, theme toggle
+- v2.0: Workflow yaml DSL, plugin lifecycle hooks, plugin sandboxing
+
 ## [0.6.0-sprint-4b-gallery] — 2026-04-27
 
 ### Added
