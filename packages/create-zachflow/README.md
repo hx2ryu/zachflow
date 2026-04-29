@@ -25,7 +25,7 @@ bash scripts/init-project.sh
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--repo=<url>` | github.com/<your-org>/zachflow.git | Repo URL |
+| `--repo=<url>` | github.com/hx2ryu/zachflow.git | Repo URL |
 | `--branch=<name>` | `main` | Branch to clone |
 | `--tag=<tag>` | (none) | Tag to clone (e.g., `v1.0.0`) |
 | `--help`, `-h` | | Show help |
@@ -44,7 +44,7 @@ What stays: `workflows/`, `plugins/`, `scripts/`, `templates/`, `.claude/`, `sch
 
 ## v1.0 limitations
 
-- Not yet on npm registry (you can install via `npx github:<user>/zachflow#main packages/create-zachflow`).
+- Not yet on npm registry (you can install via `npx github:hx2ryu/zachflow#main packages/create-zachflow`).
 - v1.x will add npm publish + tarball release artifact for faster install.
 
 ## License

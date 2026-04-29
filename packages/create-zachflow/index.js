@@ -3,7 +3,7 @@
 //
 // Usage:
 //   npx create-zachflow my-project
-//   npx create-zachflow my-project --repo=https://github.com/<owner>/zachflow.git
+//   npx create-zachflow my-project --repo=https://github.com/hx2ryu/zachflow.git
 //   npx create-zachflow my-project --branch=v1.0.0
 //
 // Env vars:
@@ -15,7 +15,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const DEFAULT_REPO = process.env.ZACHFLOW_REPO_URL ||
-  'https://github.com/<your-org>/zachflow.git';  // placeholder — user overrides
+  'https://github.com/hx2ryu/zachflow.git';
 const DEFAULT_REF = process.env.ZACHFLOW_REF || 'main';
 
 const STRIP_LIST = [

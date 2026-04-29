@@ -5,7 +5,7 @@ This directory is for **stack adapter examples** — concrete configurations sho
 ## Quick start (using the wizard)
 
 ```bash
-git clone https://github.com/<org>/zachflow.git my-project
+git clone https://github.com/hx2ryu/zachflow.git my-project
 cd my-project
 bash scripts/init-project.sh
 ```
