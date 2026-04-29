@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- **`examples/nextjs-supabase/`** — first first-party stack adapter. Single-role (`app`) Next.js + Supabase reference with filled `fe-engineer` teammate guide and an `sprint-config.example.yaml` to diff wizard output against. Replaces the previously-empty `examples/` directory. Demonstrates the minimum viable wizard config.
+
 ### Added (pre-v1.0)
 - Initial bootstrap from `zzem-orchestrator` (Sprint 0).
 - Sprint workflow skills (`/sprint`).
