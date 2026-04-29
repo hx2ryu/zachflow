@@ -48,6 +48,34 @@ zachflow ships **embedded KB by default** — `.zachflow/kb/` is created in the 
 
 For team sharing, KB can be migrated to an external git repo via `zachflow kb migrate --remote=<url>` (v1.1+).
 
+## Plugin System (Sprint 4a)
+
+Plugins live under `plugins/<name>/` and provide optional, user-installable extensions to zachflow. Distinct from workflows:
+
+- **Workflows** (sprint, qa-fix) are core — auto-installed via `scripts/install-workflows.sh`, project-bundled
+- **Plugins** (recall, future: notion-sync, slack-notify) are optional — user-installed via `bash scripts/install-plugins.sh <name>`, system-wide via `~/.claude/skills/`
+
+v1.0 ships `plugins/recall/` as the reference plugin (`recall:ask` skill — interactive sprint/KB recall). See [`docs/plugin-authoring.md`](docs/plugin-authoring.md) for the 10-step checklist to author a new plugin.
+
+The plugin-core boundary is one-way: plugins MAY depend on core (workflows/_shared/, schemas/, KB), core MUST NOT depend on plugins.
+
+## Gallery Package (Sprint 4b)
+
+`packages/zachflow-gallery/` is an Astro-based shell that auto-indexes `runs/sprint/<run-id>/prototypes/**/*.html` from a zachflow project. Build-time discovery via Astro's `getStaticPaths` — no runtime indexing.
+
+Live at `packages/*` monorepo workspace. Run via:
+
+```bash
+cd packages/zachflow-gallery
+npm install
+npm run dev      # Astro dev server
+npm run build    # static site to dist/
+```
+
+Gallery is **shell only** — design system content (foundations, components, exemplars) stays in user projects. v1.0 ships an empty content layer; users layer their own design.
+
+Optional GitHub Pages deployment via `.github/workflows/gallery.yml.example` (rename to enable). Other hosts (Vercel, Netlify, Cloudflare Pages) work via native Astro integrations.
+
 ## LLM Platform
 
 v1.0 runs on Claude Code's Agent Teams. The bulk of zachflow (workflow markdown, templates, scripts) is platform-agnostic — porting to other agentic LLM CLIs is welcome. See [`docs/llm-platform-coupling.md`](docs/llm-platform-coupling.md).
