@@ -16,8 +16,12 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "Running KB smoke check at: $PROJECT_ROOT"
 
+# Use relative paths so Python's native cwd resolution works on Windows
+# git-bash too (where bash sees /d/a/... but Python wants D:\a\...).
+cd "$PROJECT_ROOT"
+
 # 1. Schema files are valid JSON
-for f in "${PROJECT_ROOT}"/schemas/learning/*.json; do
+for f in schemas/learning/*.json; do
   python3 -c "import json; json.load(open('$f'))" || {
     echo "FAIL: $f is not valid JSON"
     exit 1
@@ -26,7 +30,7 @@ done
 echo "  [1/3] schemas/learning/*.json — valid JSON"
 
 # 2. Schemas declare draft 2020-12
-for f in "${PROJECT_ROOT}"/schemas/learning/*.json; do
+for f in schemas/learning/*.json; do
   python3 -c "
 import json
 data = json.load(open('$f'))
@@ -36,8 +40,9 @@ assert data['\$schema'].endswith('draft/2020-12/schema'), 'wrong dialect: ' + da
 done
 echo "  [2/3] schemas/learning/*.json — draft 2020-12"
 
-# 3. KB skill SKILL.md frontmatter
-for f in "${PROJECT_ROOT}"/.claude/skills/zachflow-kb/*/SKILL.md; do
+# 3. KB skill SKILL.md frontmatter (requires PyYAML; CI installs it
+# explicitly on macos/windows where it isn't preinstalled).
+for f in .claude/skills/zachflow-kb/*/SKILL.md; do
   python3 -c "
 import yaml
 content = open('$f').read()

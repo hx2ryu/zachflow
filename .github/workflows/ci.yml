@@ -19,6 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Python deps
+        run: python3 -m pip install --quiet pyyaml
+
       - name: Install workflow symlinks
         run: bash scripts/install-workflows.sh
 
