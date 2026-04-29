@@ -5,7 +5,7 @@ Bootstrap a new zachflow project. Zero runtime dependencies — uses only `git` 
 ## Usage
 
 ```bash
-npx https://github.com/hx2ryu/zachflow/releases/download/v1.0.1/create-zachflow-1.0.1.tgz my-project --tag=v1.0.1
+npx https://github.com/hx2ryu/zachflow/releases/download/v1.1.0/create-zachflow-1.1.0.tgz my-project --tag=v1.1.0
 ```
 
 This:
@@ -27,7 +27,7 @@ bash scripts/init-project.sh
 |------|---------|-------------|
 | `--repo=<url>` | github.com/hx2ryu/zachflow.git | Repo URL |
 | `--branch=<name>` | `main` | Branch to clone |
-| `--tag=<tag>` | (none) | Tag to clone (e.g., `v1.0.1`) |
+| `--tag=<tag>` | (none) | Tag to clone (e.g., `v1.1.0`) |
 | `--help`, `-h` | | Show help |
 
 Env vars: `ZACHFLOW_REPO_URL`, `ZACHFLOW_REF`.
@@ -45,7 +45,7 @@ What stays: `workflows/`, `plugins/`, `scripts/`, `templates/`, `.claude/`, `sch
 ## v1.0 limitations
 
 - Not yet on npm registry. Install today by pointing `npx` at the release tarball URL above. A direct `npx create-zachflow` form is planned for a v1.x publish.
-- Alternative: `git clone --depth 1 --branch v1.0.1 https://github.com/hx2ryu/zachflow.git zachflow-template && node zachflow-template/packages/create-zachflow/index.js my-project --tag=v1.0.1`.
+- Alternative: `git clone --depth 1 --branch v1.1.0 https://github.com/hx2ryu/zachflow.git zachflow-template && node zachflow-template/packages/create-zachflow/index.js my-project --tag=v1.1.0`.
 
 ## License
 

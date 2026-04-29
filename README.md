@@ -3,14 +3,14 @@
 Harness-driven sprint orchestration for AI coding agents.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)]()
 
 zachflow is a workflow harness that brings explicit phase gates, file-based handoff, and contract-first development to long-running coding sessions on Claude Code's Agent Teams. It implements the **Planner–Generator–Evaluator** pattern with cross-session knowledge accumulation.
 
 ## Quick start
 
 ```bash
-npx https://github.com/hx2ryu/zachflow/releases/download/v1.0.1/create-zachflow-1.0.1.tgz my-project --tag=v1.0.1
+npx https://github.com/hx2ryu/zachflow/releases/download/v1.1.0/create-zachflow-1.1.0.tgz my-project --tag=v1.1.0
 cd my-project
 bash scripts/init-project.sh
 ```
@@ -20,7 +20,7 @@ The bootstrap is zero-deps and clones the v1.0.1 template, strips dev artifacts,
 For non-interactive setup (CI):
 
 ```bash
-npx https://github.com/hx2ryu/zachflow/releases/download/v1.0.1/create-zachflow-1.0.1.tgz my-project --tag=v1.0.1
+npx https://github.com/hx2ryu/zachflow/releases/download/v1.1.0/create-zachflow-1.1.0.tgz my-project --tag=v1.1.0
 cd my-project
 cp templates/init.config.template.yaml init.config.yaml
 # Edit init.config.yaml
