@@ -22,9 +22,13 @@ bash scripts/init-project.sh --from=init.config.yaml --non-interactive
 
 ## Stack adapter examples
 
-v1.0 ships with the directory empty. External contributions welcome — see [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+| Example | Stack | Roles | When to use |
+|---------|-------|-------|-------------|
+| [`nextjs-supabase/`](nextjs-supabase/) | Next.js (App Router, TS) + Supabase (Postgres, Auth, Storage) | 1 (`app`) | Single-app project with hosted backend; demonstrates minimum viable wizard config. |
 
-(Sprint 4 lands `plugins/recall/` as the first reference plugin example.)
+External contributions welcome — see [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+
+(`plugins/recall/` is the first reference plugin example.)
 
 ## What an example contains
 
