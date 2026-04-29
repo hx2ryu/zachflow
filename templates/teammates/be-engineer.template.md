@@ -16,34 +16,31 @@ Implements tasks assigned by the Sprint Lead inside a worktree and reports compl
 
 ## Stack
 
+<!-- Wizard fills from init.config.yaml fill.stack_description.
+     Hand-edit form: 1-2 sentences on framework, language, database, key libs. -->
 {{STACK_DESCRIPTION}}
-
-(Sprint 3 init wizard fills this. Until then, manually edit with your backend stack: framework, language, database, key libs.)
 
 ## Repository Layout
 
+<!-- Wizard fills from init.config.yaml fill.repo_layout.
+     Hand-edit form: 3-5 lines describing top-level directory structure. -->
 {{REPO_LAYOUT}}
-
-(3-5 lines describing top-level directory structure of your backend repo.)
 
 ## Build & Test Commands
 
+<!-- Wizard fills from init.config.yaml fill.build_cmd.
+     Hand-edit form: shell commands the Engineer runs to verify implementation, e.g.
+       pnpm install
+       pnpm tsc --noEmit
+       pnpm test
+       pnpm lint -->
 {{BUILD_CMD}}
-
-(Commands the Engineer will run to verify implementation. Example:
-```
-pnpm install
-pnpm tsc --noEmit
-pnpm test
-pnpm lint
-```
-)
 
 ## Conventions
 
+<!-- Wizard fills from init.config.yaml fill.conventions.
+     Hand-edit form: 3-5 bullets of project-specific rules (error handling, naming, commit format). -->
 {{CONVENTIONS}}
-
-(3-5 bullets of project-specific conventions: error handling, naming, commit format, etc.)
 
 ## Task Execution Protocol
 

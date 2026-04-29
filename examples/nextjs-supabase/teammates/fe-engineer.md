@@ -1,4 +1,4 @@
-<!-- zachflow init-project.sh wizard fill — 2026-04-29T08:09:53+00:00 -->
+<!-- zachflow init-project.sh wizard fill — 2026-04-29T08:19:22+00:00 -->
 # FE Engineer — Sprint Team
 
 ## Role
@@ -17,15 +17,17 @@ Implements tasks assigned by the Sprint Lead inside a worktree, using HTML proto
 
 ## Stack
 
+<!-- Wizard fills from init.config.yaml fill.stack_description.
+     Hand-edit form: 1-2 sentences on framework, language, state management, key libs. -->
 Next.js 14+ App Router (TypeScript). Supabase for Postgres, Auth, and
 Storage — accessed via `@supabase/supabase-js` on both server (RSC,
 Route Handlers) and client. Edge functions, if any, live in
 `supabase/functions/`. Tailwind CSS for styling.
 
-(Sprint 3 init wizard fills this. Until then, manually edit with your frontend/app stack: framework, language, state management, key libs.)
-
 ## Repository Layout
 
+<!-- Wizard fills from init.config.yaml fill.repo_layout.
+     Hand-edit form: 3-5 lines describing top-level directory structure. -->
 app/                  - Next.js App Router routes (server components by default)
 components/           - shared UI components
 lib/supabase/         - server + browser Supabase client factories
@@ -33,34 +35,29 @@ supabase/migrations/  - SQL migrations applied via `supabase db push`
 supabase/functions/   - Edge Functions (Deno)
 public/               - static assets
 
-(3-5 lines describing top-level directory structure of your app repo.)
-
 ## Build & Test Commands
 
+<!-- Wizard fills from init.config.yaml fill.build_cmd.
+     Hand-edit form: shell commands the Engineer runs to verify implementation, e.g.
+       pnpm install
+       pnpm tsc --noEmit
+       pnpm test
+       pnpm lint -->
 # Verify implementation. Adjust to your package manager (pnpm/yarn/npm).
 pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm lint
 pnpm test
 
-(Commands the Engineer will run to verify implementation. Example:
-```
-pnpm install
-pnpm tsc --noEmit
-pnpm test
-pnpm lint
-```
-)
-
 ## Conventions
 
+<!-- Wizard fills from init.config.yaml fill.conventions.
+     Hand-edit form: 3-5 bullets of project-specific rules (architecture layering, state management, naming, commit format). -->
 - Server-first: prefer Server Components + Server Actions over client-side fetching.
 - All Supabase queries go through `lib/supabase/server.ts` or `lib/supabase/client.ts` — never instantiate clients ad-hoc.
 - Migrations are append-only — never edit a committed migration; add a new one.
 - Row-Level Security policies are mandatory on every user-facing table.
 - Types come from `supabase gen types typescript` — regenerate after schema changes.
-
-(3-5 bullets of project-specific conventions: architecture layering, state management, naming, commit format, etc.)
 
 ## Task Execution Protocol
 

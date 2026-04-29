@@ -5,6 +5,9 @@
 ### Added
 - **`examples/nextjs-supabase/`** — first first-party stack adapter. Single-role (`app`) Next.js + Supabase reference with filled `fe-engineer` teammate guide and an `sprint-config.example.yaml` to diff wizard output against. Replaces the previously-empty `examples/` directory. Demonstrates the minimum viable wizard config.
 
+### Changed
+- **`templates/teammates/{be,fe}-engineer.template.md` post-substitution hints converted to HTML comments.** The old `(Sprint 3 init wizard fills this. Until then...)` parentheticals appeared after the wizard already filled the placeholder, leaving stale prose in every generated guide. Comments now sit above each `{{...}}` and are invisible in markdown rendering, so wizard output reads cleanly while raw-template readers still see what each section expects.
+
 ### Added (pre-v1.0)
 - Initial bootstrap from `zzem-orchestrator` (Sprint 0).
 - Sprint workflow skills (`/sprint`).
