@@ -8,6 +8,9 @@
 ### Changed
 - **`templates/teammates/{be,fe}-engineer.template.md` post-substitution hints converted to HTML comments.** The old `(Sprint 3 init wizard fills this. Until then...)` parentheticals appeared after the wizard already filled the placeholder, leaving stale prose in every generated guide. Comments now sit above each `{{...}}` and are invisible in markdown rendering, so wizard output reads cleanly while raw-template readers still see what each section expects.
 
+### Fixed
+- **`design-engineer` teammate placeholders are now substituted by the wizard.** `{{DESIGN_TOKENS_PATH}}`, `{{PRIMARY_FONT}}`, and `{{DEVICE_FRAME}}` previously survived into the wizard output as literal markers because the substitution code only handled the four shared keys. They now read three new optional `fill.*` fields (`design_tokens_path`, `primary_font`, `device_frame`) from `init.config.yaml`; the interactive wizard prompts for them when the role's teammate is `design-engineer`. Empty values still leave the marker in place (matches existing skip behavior). `templates/init.config.template.yaml` documents the new fields with a commented-out design role.
+
 ### Added (pre-v1.0)
 - Initial bootstrap from `zzem-orchestrator` (Sprint 0).
 - Sprint workflow skills (`/sprint`).
