@@ -5,6 +5,7 @@
 ### Changed
 - **`scripts/init-project.sh` now emits a full `sprint-config.yaml`** matching `templates/sprint-config.template.yaml`. Previously only `project_name`/`workflows`/`branch_prefix`/`repositories`/`kb` were written; `type:`, `qa_fix:`, `defaults:`, `team:` (with auto-derived teammates + always-on evaluator), and `display:` are now also scaffolded. No script consumed those missing blocks before, but template/output divergence was a UX trap surfaced during v1.0.1 verification.
 - Smoke test (`tests/init-project-smoke.sh`) extended to assert the new blocks.
+- **CI smoke job runs on a `ubuntu-latest` / `macos-latest` / `windows-latest` matrix** (was ubuntu-only). Verified: bash 3.2 (macOS), bash 5.x (Linux + Windows git-bash), `ln -s` symlink creation under `MSYS=winsymlinks:nativestrict`, tar staging without rsync, PEP 668 PyYAML install on macOS. All ten smoke steps pass on each platform.
 
 ### Added (pre-v1.0)
 - Initial bootstrap from `zzem-orchestrator` (Sprint 0).
