@@ -1,41 +1,73 @@
 # zachflow
 
-Harness-driven sprint orchestration for AI coding agents. Built on the Planner–Generator–Evaluator pattern: explicit `Sprint Contract` consensus before code, parallel `Generator` teammates for implementation, independent `Evaluator` for active evaluation, with `Knowledge Base` feedback for cross-session learning.
+Harness-driven sprint orchestration for AI coding agents.
 
-> **Status:** v1.0 ships on Claude Code Agent Teams. Multi-LLM platform support (Codex, Aider, Cursor, etc.) is on the v1.x roadmap — see [`docs/llm-platform-coupling.md`](docs/llm-platform-coupling.md).
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)]()
 
-## Why zachflow
+zachflow is a workflow harness that brings explicit phase gates, file-based handoff, and contract-first development to long-running coding sessions on Claude Code's Agent Teams. It implements the **Planner–Generator–Evaluator** pattern with cross-session knowledge accumulation.
 
-Long-running coding sessions tend to drift. Self-evaluation is unreliable. Solo agents accumulate context until they lose the thread. zachflow is a **harness** — explicit phase gates, structured file-based handoff, contract-first development, and an Evaluator that does not write code.
-
-Reference: ["Harness Design for Long-Running Agentic Applications"](https://www.anthropic.com/engineering) (Anthropic Engineering).
-
-## Quick Start
+## Quick start
 
 ```bash
-# Coming with v1.0 release:
 npx create-zachflow my-project
 cd my-project
-# Wizard configures your stack, then:
-/sprint my-first-sprint
+bash scripts/init-project.sh
 ```
 
-(Sprint 0 ships the scaffold — `create-zachflow` wrapper lands in Sprint 4.)
+The interactive wizard takes ~5 minutes. After completion, you have a working sprint runner ready to run `/sprint <run-id>` in Claude Code.
 
-## Workflows
+For non-interactive setup (CI):
 
-zachflow ships two first-class workflows:
+```bash
+npx create-zachflow my-project
+cd my-project
+cp templates/init.config.template.yaml init.config.yaml
+# Edit init.config.yaml
+bash scripts/init-project.sh --from=init.config.yaml --non-interactive
+```
 
-| Workflow | Slash command | Use case |
-|---------|---------------|----------|
-| Sprint | `/sprint <id>` | New feature implementation: PRD → Spec → Prototype → Build → PR → Retro |
-| QA-Fix | `/qa-fix <id>` | Bulk Jira ticket triage and fix orchestration |
+## Features
 
-Both share the **Build Loop primitive** (`Contract → Implement → Evaluate → Fix`) — see [`ARCHITECTURE.md`](ARCHITECTURE.md).
+- **Two first-class workflows**: `/sprint` (PRD → Spec → Prototype → Build → PR → Retro) and `/qa-fix` (Jira ticket triage and fix orchestration)
+- **Build Loop primitive** (Contract → Implement → Evaluate → Fix) shared across workflows
+- **Embedded Knowledge Base** (`zachflow-kb:*` skills) — patterns/rubrics/reflections in `.zachflow/kb/`, no external repo required
+- **Stack-agnostic teammate templates** — placeholder-based BE/FE/Design/Evaluator role guides, filled by interactive wizard
+- **Plugin system** — optional, user-installable extensions (v1.0 ships `recall:ask` for interactive sprint/KB recall)
+- **Auto-indexed gallery** — Astro shell that renders `runs/sprint/<id>/prototypes/` outputs (`packages/zachflow-gallery/`)
+- **Worktree-isolated sprints** — each sprint runs in dedicated git worktrees, no cross-sprint contamination
+- **Active Evaluation** — independent Evaluator agent traces logic + probes edge cases (not just static checks)
+
+## Architecture
+
+```
+.claude/skills/         # Claude Code workflow + KB skill registration
+workflows/              # platform-agnostic workflow content
+  ├── sprint/           # 6-phase sprint pipeline
+  ├── qa-fix/           # 5-stage QA fix pipeline
+  └── _shared/          # Build Loop, agent dispatch, worktree, KB integration primitives
+plugins/                # optional user-installable extensions
+  └── recall/           # interactive sprint/KB recall (reference plugin)
+packages/               # monorepo workspaces
+  ├── zachflow-gallery/ # Astro auto-indexed prototype gallery
+  └── create-zachflow/  # npm bootstrap wrapper
+templates/              # init wizard templates + sprint artifact templates
+schemas/                # JSON Schema for KB content (pattern, rubric, reflection)
+runs/                   # sprint instance directories (sprint/, qa-fix/)
+.zachflow/kb/           # embedded Knowledge Base (per-project)
+```
+
+See [`ARCHITECTURE.md`](ARCHITECTURE.md) for principles + Build Loop detail, [`MANUAL.md`](MANUAL.md) for operations, [`docs/`](docs/) for KB system, plugin authoring, workflow authoring, and roadmap.
 
 ## Status
 
-v0.1 — Sprint 0 bootstrap. Not yet usable end-to-end. Track v1.0 progress in [`docs/roadmap.md`](docs/roadmap.md).
+**v1.0.0** — released. Runs on Claude Code Agent Teams. Multi-LLM platform support is on the v1.x roadmap (see [`docs/llm-platform-coupling.md`](docs/llm-platform-coupling.md)).
+
+Track v1.x progress in [`docs/roadmap.md`](docs/roadmap.md).
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for issue reporting, PR conventions, and coding standards.
 
 ## License
 
