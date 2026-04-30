@@ -1,16 +1,18 @@
 # zachflow Manual
 
-> Sprint 0 placeholder. Sprint 2+3 fill in operations details. For now this is a stub — refer to [`README.md`](README.md) and [`ARCHITECTURE.md`](ARCHITECTURE.md).
+Operational guide for zachflow projects. For architecture and design rationale, see [`ARCHITECTURE.md`](ARCHITECTURE.md). For a high-level overview, see [`README.md`](README.md).
 
 ## Setup
 
 ### First-time setup
 
 ```bash
-git clone https://github.com/hx2ryu/zachflow.git my-project
+npx create-zachflow my-project
 cd my-project
 bash scripts/init-project.sh
 ```
+
+This bootstraps a new project from the matching tagged release of zachflow, then runs the interactive wizard. Alternative install paths (legacy GitHub Release tarball, repo clone) live in [`packages/create-zachflow/README.md`](packages/create-zachflow/README.md).
 
 The wizard takes ~5 minutes. After completion:
 - `sprint-config.yaml` defines your project's roles and base branches
@@ -41,7 +43,7 @@ In step 5/7, answer `n` to skip teammate filling entirely; or per-placeholder, l
 /sprint my-first-sprint --status          # dashboard
 ```
 
-(Detailed phase docs live in `.claude/skills/sprint/`.)
+(Detailed phase docs live in [`workflows/sprint/`](workflows/sprint/) — `.claude/skills/sprint/` is a symlink installed by `scripts/install-workflows.sh`.)
 
 ## Running QA-Fix
 
@@ -49,7 +51,7 @@ In step 5/7, answer `n` to skip teammate filling entirely; or per-placeholder, l
 /qa-fix qa-2026-04-27 --jql="project=ABC AND status='Ready for QA'"
 ```
 
-(Detailed stages live in `.claude/skills/sprint/phase-qa-fix.md` — moves to `workflows/qa-fix/` in Sprint 2.)
+(Detailed stages live in [`workflows/qa-fix/`](workflows/qa-fix/).)
 
 ## Installing Plugins
 

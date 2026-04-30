@@ -165,7 +165,7 @@ if [ $NON_INTERACTIVE -eq 1 ]; then
 # ─── Mode 2: Interactive ──────────────────────────────────────────
 
 else
-  echo "zachflow init wizard v1.0"
+  echo "zachflow init wizard"
   echo "─────────────────────────"
   echo
 
@@ -269,10 +269,10 @@ print(json.dumps({
 
   # Step 6: KB mode
   echo
-  echo "[6/7] KB mode (embedded only in v1.0; remote coming v1.1)"
+  echo "[6/7] KB mode (only 'embedded' is supported today; remote backend is on the v1.x roadmap)"
   prompt KB_MODE "  Mode" "embedded"
   if [ "$KB_MODE" != "embedded" ]; then
-    echo "  Warning: only 'embedded' is supported in v1.0; setting to 'embedded'"
+    echo "  Warning: only 'embedded' is supported; setting to 'embedded'"
     KB_MODE="embedded"
   fi
 
