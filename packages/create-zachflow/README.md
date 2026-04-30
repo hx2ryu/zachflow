@@ -26,11 +26,11 @@ bash scripts/init-project.sh
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--repo=<url>` | github.com/hx2ryu/zachflow.git | Repo URL |
-| `--branch=<name>` | `main` | Branch to clone |
-| `--tag=<tag>` | (none) | Tag to clone (e.g., `v1.1.1`) |
+| `--branch=<name>` | (none) | Branch to clone (e.g. `main`) |
+| `--tag=<tag>` | `v<pkg-version>` | Tag to clone. Defaults to this package's version, so `create-zachflow@X.Y.Z` clones zachflow at `vX.Y.Z`. |
 | `--help`, `-h` | | Show help |
 
-Env vars: `ZACHFLOW_REPO_URL`, `ZACHFLOW_REF`.
+Env vars: `ZACHFLOW_REPO_URL`, `ZACHFLOW_REF` (overrides the default ref).
 
 ## What gets stripped
 
