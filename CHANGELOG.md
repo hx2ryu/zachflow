@@ -2,7 +2,10 @@
 
 ## [Unreleased]
 
-## [1.2.0] — 2026-04-30
+### Changed
+- **First-time UX polish in `init-project.sh` wizard + `MANUAL.md`.** Two passes: stale text refresh (wizard banner dropped its hardcoded `v1.0` suffix; `MANUAL.md`'s "Sprint 0 placeholder / stub" disclaimer replaced with a real intro; first-time setup now shows `npx create-zachflow my-project` instead of the legacy `git clone`; KB-mode prompt's "remote coming v1.1" promise reframed as "v1.x roadmap"; stale workflow-paths links pointed at the canonical `workflows/sprint/` and `workflows/qa-fix/`) and substantive prompt-context additions (Step 4 "role" intro, source repo / base branch / mode / teammate prompts each gain inline context, fill prompts include concrete examples, MANUAL non-interactive section points at `examples/nextjs-supabase/init.config.yaml`).
+
+
 
 Minor release. The bootstrap one-liner finally sheds the tarball-URL indirection — `create-zachflow` is published to npm and `npx create-zachflow my-project` clones the matching zachflow tag automatically.
 
