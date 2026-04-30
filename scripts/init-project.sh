@@ -194,6 +194,10 @@ else
   # Step 4: Role definitions (loop)
   echo
   echo "[4/7] Role definitions (define ≥1 role)"
+  echo "  A 'role' is a code area that gets its own worktree/branch and teammate"
+  echo "  persona during a sprint (e.g., a 'backend' role pointing at your API repo"
+  echo "  with the be-engineer teammate). Most projects need 1 (monorepo) or 2"
+  echo "  (separate FE/BE repos). See examples/nextjs-supabase/init.config.yaml."
   while true; do
     if [ ${#ROLES[@]} -eq 0 ]; then
       add="y"
@@ -204,8 +208,10 @@ else
 
     role_key=""; role_source=""; role_base=""; role_mode=""; role_teammate=""
     prompt_required role_key "  Role key (e.g., backend, app)" '^[a-z][a-z0-9-]*$' "lowercase-hyphen"
-    prompt_required role_source "  Source repo path (~/dev/...)" '' "non-empty"
-    prompt role_base "  Base branch" "main"
+    prompt_required role_source "  Source repo — absolute path to the existing local repo this role works on (e.g., ~/dev/my-api)" '' "non-empty"
+    prompt role_base "  Base branch (the branch sprint runs are cut from)" "main"
+    echo "    Mode: 'worktree' creates a per-sprint git worktree (recommended — sprints stay isolated, parallelizable)."
+    echo "          'symlink' shares a single working copy across sprints (simpler, but only one sprint at a time)."
     while true; do
       prompt role_mode "  Mode (worktree/symlink)" "worktree"
       case "$role_mode" in
@@ -213,11 +219,14 @@ else
         *) echo "    Must be 'worktree' or 'symlink'" >&2 ;;
       esac
     done
+    echo "    Teammate templates: be-engineer (API/services), fe-engineer (web UI),"
+    echo "                        design-engineer (visual prototypes + tokens),"
+    echo "                        evaluator (auto-installed; rarely picked as a role's primary)."
     while true; do
       prompt role_teammate "  Teammate template (be-engineer/fe-engineer/design-engineer/evaluator)" "be-engineer"
       case "$role_teammate" in
         be-engineer|fe-engineer|design-engineer|evaluator) break ;;
-        *) echo "    Must be one of the 4 teammate names" >&2 ;;
+        *) echo "    Must be one of: be-engineer, fe-engineer, design-engineer, evaluator" >&2 ;;
       esac
     done
 
@@ -237,10 +246,10 @@ else
       echo "  For role '$role_key' ($teammate):"
       stack_desc=""; repo_layout=""; build_cmd=""; conventions=""
       design_tokens_path=""; primary_font=""; device_frame=""
-      prompt stack_desc "    Stack description (1 line, blank to skip)" ""
-      prompt repo_layout "    Repository layout summary (1 line, blank to skip)" ""
-      prompt build_cmd "    Build & test commands (1 line, blank to skip)" ""
-      prompt conventions "    Conventions summary (1 line, blank to skip)" ""
+      prompt stack_desc "    Stack — e.g. 'Node.js 20 + Express + PostgreSQL' (1 line, blank to skip)" ""
+      prompt repo_layout "    Repo layout — e.g. 'src/, tests/, docs/' (1 line, blank to skip)" ""
+      prompt build_cmd "    Build & test cmds — e.g. 'npm run build && npm test' (1 line, blank to skip)" ""
+      prompt conventions "    Conventions — e.g. 'TypeScript strict, ESLint, conventional commits' (1 line, blank to skip)" ""
 
       # design-engineer-only fields
       if [ "$teammate" = "design-engineer" ]; then

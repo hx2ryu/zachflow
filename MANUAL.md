@@ -23,9 +23,12 @@ The wizard takes ~5 minutes. After completion:
 
 ```bash
 cp templates/init.config.template.yaml init.config.yaml
-# Edit init.config.yaml
+# Edit init.config.yaml — see examples/nextjs-supabase/init.config.yaml for a
+# working reference (one role, fe-engineer teammate, fill block populated).
 bash scripts/init-project.sh --from=init.config.yaml --non-interactive
 ```
+
+The shape of `init.config.yaml` is documented inline in `templates/init.config.template.yaml`. After running, compare your generated `sprint-config.yaml` against `examples/nextjs-supabase/sprint-config.example.yaml` to sanity-check the wizard output.
 
 ### Re-running the wizard
 
