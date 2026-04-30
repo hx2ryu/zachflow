@@ -5,11 +5,11 @@ Bootstrap a new zachflow project. Zero runtime dependencies — uses only `git` 
 ## Usage
 
 ```bash
-npx https://github.com/hx2ryu/zachflow/releases/download/v1.1.1/create-zachflow-1.1.1.tgz my-project --tag=v1.1.1
+npx create-zachflow my-project
 ```
 
 This:
-1. Shallow-clones the zachflow repo to `my-project/`
+1. Shallow-clones the zachflow repo to `my-project/` at the tag matching this package's version (`create-zachflow@X.Y.Z` → `git clone --branch vX.Y.Z`)
 2. Strips development artifacts (`.git/`, `docs/superpowers/`, etc.)
 3. Re-initializes git with a fresh first commit
 4. Prints next steps (run the wizard)
@@ -42,10 +42,19 @@ The following are removed from the cloned repo:
 
 What stays: `workflows/`, `plugins/`, `scripts/`, `templates/`, `.claude/`, `schemas/`, `tests/`, `packages/`, all root docs (README, MANUAL, ARCHITECTURE, CONTRIBUTING, CHANGELOG, LICENSE).
 
-## v1.0 limitations
+## Alternative install paths
 
-- Not yet on npm registry. Install today by pointing `npx` at the release tarball URL above. A direct `npx create-zachflow` form is planned for a v1.x publish.
-- Alternative: `git clone --depth 1 --branch v1.1.1 https://github.com/hx2ryu/zachflow.git zachflow-template && node zachflow-template/packages/create-zachflow/index.js my-project --tag=v1.1.1`.
+If you can't use npm directly:
+
+- **GitHub Release tarball** (legacy bootstrap path, still maintained):
+  ```bash
+  npx https://github.com/hx2ryu/zachflow/releases/download/vX.Y.Z/create-zachflow-X.Y.Z.tgz my-project --tag=vX.Y.Z
+  ```
+- **Repo clone**:
+  ```bash
+  git clone --depth 1 --branch vX.Y.Z https://github.com/hx2ryu/zachflow.git zachflow-template
+  node zachflow-template/packages/create-zachflow/index.js my-project --tag=vX.Y.Z
+  ```
 
 ## License
 

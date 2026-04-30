@@ -3,31 +3,32 @@
 Harness-driven sprint orchestration for AI coding agents.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)]()
+[![npm](https://img.shields.io/npm/v/create-zachflow.svg)](https://www.npmjs.com/package/create-zachflow)
 
 zachflow is a workflow harness that brings explicit phase gates, file-based handoff, and contract-first development to long-running coding sessions on Claude Code's Agent Teams. It implements the **Planner–Generator–Evaluator** pattern with cross-session knowledge accumulation.
 
 ## Quick start
 
 ```bash
-npx https://github.com/hx2ryu/zachflow/releases/download/v1.1.1/create-zachflow-1.1.1.tgz my-project --tag=v1.1.1
+npx create-zachflow my-project
 cd my-project
 bash scripts/init-project.sh
 ```
 
-The bootstrap is zero-deps and clones the v1.0.1 template, strips dev artifacts, and re-inits git. The interactive wizard then takes ~5 minutes. After completion, you have a working sprint runner ready to run `/sprint <run-id>` in Claude Code.
+The bootstrap is zero-deps. `create-zachflow@X.Y.Z` clones zachflow at `vX.Y.Z` (currently `v1.2.0`) so CLI version and template version stay in lockstep, strips dev artifacts, and re-inits git. The interactive wizard then takes ~5 minutes. After completion, you have a working sprint runner ready to run `/sprint <run-id>` in Claude Code.
 
 For non-interactive setup (CI):
 
 ```bash
-npx https://github.com/hx2ryu/zachflow/releases/download/v1.1.1/create-zachflow-1.1.1.tgz my-project --tag=v1.1.1
+npx create-zachflow my-project
 cd my-project
 cp templates/init.config.template.yaml init.config.yaml
 # Edit init.config.yaml
 bash scripts/init-project.sh --from=init.config.yaml --non-interactive
 ```
 
-> The `npx <tarball-url>` form works without an npm publish. A direct `npx create-zachflow` (no URL) is planned for a later release once the package is published to npm.
+To pin a specific zachflow tag, pass `--tag=vX.Y.Z` (defaults to the matching CLI version). To track main, pass `--branch=main`. The legacy GitHub Release tarball one-liner — `npx https://github.com/hx2ryu/zachflow/releases/download/vX.Y.Z/create-zachflow-X.Y.Z.tgz my-project --tag=vX.Y.Z` — still works as a backup install path.
 
 ## Features
 
@@ -63,7 +64,7 @@ See [`ARCHITECTURE.md`](ARCHITECTURE.md) for principles + Build Loop detail, [`M
 
 ## Status
 
-**v1.0.0** — released. Runs on Claude Code Agent Teams. Multi-LLM platform support is on the v1.x roadmap (see [`docs/llm-platform-coupling.md`](docs/llm-platform-coupling.md)).
+**v1.2.0** — published to npm. Runs on Claude Code Agent Teams. Multi-LLM platform support is on the v1.x roadmap (see [`docs/llm-platform-coupling.md`](docs/llm-platform-coupling.md)).
 
 Track v1.x progress in [`docs/roadmap.md`](docs/roadmap.md).
 
