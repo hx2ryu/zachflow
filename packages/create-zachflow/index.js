@@ -4,19 +4,23 @@
 // Usage:
 //   npx create-zachflow my-project
 //   npx create-zachflow my-project --repo=https://github.com/hx2ryu/zachflow.git
-//   npx create-zachflow my-project --branch=v1.0.0
+//   npx create-zachflow my-project --branch=main
 //
 // Env vars:
 //   ZACHFLOW_REPO_URL — override default repo URL
-//   ZACHFLOW_REF — override default branch/tag (main)
+//   ZACHFLOW_REF — override default ref (defaults to v${this package's version})
 
 const { execSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const PKG_VERSION = require('./package.json').version;
+
 const DEFAULT_REPO = process.env.ZACHFLOW_REPO_URL ||
   'https://github.com/hx2ryu/zachflow.git';
-const DEFAULT_REF = process.env.ZACHFLOW_REF || 'main';
+// Default ref tracks this package's own version: when create-zachflow@X.Y.Z runs,
+// it clones the zachflow repo at vX.Y.Z. Pass --branch=main or --tag=<other> to override.
+const DEFAULT_REF = process.env.ZACHFLOW_REF || `v${PKG_VERSION}`;
 
 const STRIP_LIST = [
   '.git',
@@ -114,17 +118,18 @@ function printHelp() {
 Options:
   --repo=<url>       Override default zachflow repo URL
                      (default: ${DEFAULT_REPO})
-  --branch=<name>    Clone a specific branch (default: main)
-  --tag=<tag>        Clone a specific tag (e.g., v1.0.0)
+  --branch=<name>    Clone a specific branch (e.g. main)
+  --tag=<tag>        Clone a specific tag (default: v${PKG_VERSION} — this package's version)
   --help, -h         Show this message
 
 Env vars:
   ZACHFLOW_REPO_URL  Override default repo URL
-  ZACHFLOW_REF       Override default branch/tag
+  ZACHFLOW_REF       Override default ref
 
 Examples:
-  npx create-zachflow my-project
-  npx create-zachflow my-project --tag=v1.0.0
+  npx create-zachflow my-project                      # clones v${PKG_VERSION}
+  npx create-zachflow my-project --branch=main        # clones latest main
+  npx create-zachflow my-project --tag=v1.0.0         # clones a specific tag
   ZACHFLOW_REPO_URL=https://github.com/me/zachflow.git npx create-zachflow my-project
 `);
 }
