@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- **Release pipeline now publishes `create-zachflow` to npm on tag push.** `packages/create-zachflow/package.json` drops `private: true` and gains `publishConfig.access: public` plus standard registry metadata (`repository`, `homepage`, `bugs`). `.github/workflows/release.yml` adds `actions/setup-node@v4` (registry auth via `NODE_AUTH_TOKEN` / `NPM_TOKEN` secret) and an `npm publish --access public` step that runs after the GitHub Release is created. From the next tag forward, external users can run `npx create-zachflow my-project` directly — no tarball URL indirection. Tarball asset upload is preserved as a backup.
+
 ### Added (pre-v1.0)
 - Initial bootstrap from `zzem-orchestrator` (Sprint 0).
 - Sprint workflow skills (`/sprint`).
@@ -12,6 +15,7 @@
 
 ### Notes
 - v1.0 ships after Sprints 1–4.
+- **NPM_TOKEN repo secret must be registered on `hx2ryu/zachflow` before the next tag is pushed**, otherwise the publish step will fail (Release + tarball still succeed). Set up via `gh secret set NPM_TOKEN --repo hx2ryu/zachflow` with an npm automation token scoped to `create-zachflow`.
 
 ## [1.1.1] — 2026-04-29
 

@@ -1,7 +1,6 @@
 {
   "name": "create-zachflow",
   "version": "1.1.1",
-  "private": true,
   "description": "Bootstrap a new zachflow project (clone-and-strip).",
   "license": "MIT",
   "bin": {
@@ -12,5 +11,17 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hx2ryu/zachflow.git",
+    "directory": "packages/create-zachflow"
+  },
+  "homepage": "https://github.com/hx2ryu/zachflow#readme",
+  "bugs": {
+    "url": "https://github.com/hx2ryu/zachflow/issues"
   }
 }
