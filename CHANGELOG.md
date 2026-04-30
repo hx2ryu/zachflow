@@ -2,21 +2,21 @@
 
 ## [Unreleased]
 
-### Changed
-- **Release pipeline now publishes `create-zachflow` to npm on tag push.** `packages/create-zachflow/package.json` drops `private: true` and gains `publishConfig.access: public` plus standard registry metadata (`repository`, `homepage`, `bugs`). `.github/workflows/release.yml` adds `actions/setup-node@v4` (registry auth via `NODE_AUTH_TOKEN` / `NPM_TOKEN` secret) and an `npm publish --access public` step that runs after the GitHub Release is created. From the next tag forward, external users can run `npx create-zachflow my-project` directly — no tarball URL indirection. Tarball asset upload is preserved as a backup.
-- **`create-zachflow` now defaults its `--tag` to the package's own version.** Previously omitting `--tag` defaulted to `main`, which silently put first-time users on unreleased code. Now `create-zachflow@X.Y.Z` clones zachflow at `vX.Y.Z` by default — versions stay in lockstep. `--branch=main` still tracks main explicitly; `--tag=<other>` still pins to any tag; `ZACHFLOW_REF` env still overrides everything. This is what makes the `npx create-zachflow my-project` one-liner safe to publish without forcing users to know the latest tag.
+## [1.2.0] — 2026-04-30
 
-### Added (pre-v1.0)
-- Initial bootstrap from `zzem-orchestrator` (Sprint 0).
-- Sprint workflow skills (`/sprint`).
-- QA-Fix workflow skill (`/qa-fix` — currently invoked as `/sprint --type=qa-fix`; first-class entry point lands in Sprint 2).
-- Embedded Knowledge Base scaffolding (`.zachflow/kb/`).
-- Placeholder teammate templates.
-- Sanitized templates and bash scripts.
+Minor release. The bootstrap one-liner finally sheds the tarball-URL indirection — `create-zachflow` is published to npm and `npx create-zachflow my-project` clones the matching zachflow tag automatically.
+
+### Changed
+- **Release pipeline now publishes `create-zachflow` to npm on tag push.** `packages/create-zachflow/package.json` drops `private: true` and gains `publishConfig.access: public` plus standard registry metadata (`repository`, `homepage`, `bugs`). `.github/workflows/release.yml` adds `actions/setup-node@v4` (registry auth via `NODE_AUTH_TOKEN` / `NPM_TOKEN` secret) and an `npm publish --access public` step that runs after the GitHub Release is created. Tarball asset upload to the GitHub Release is preserved as a backup so the legacy URL bootstrap path keeps working.
+- **`create-zachflow` defaults its `--tag` to the package's own version.** Previously omitting `--tag` defaulted to `main`, which silently put first-time users on unreleased code. Now `create-zachflow@X.Y.Z` clones zachflow at `vX.Y.Z` by default — versions stay in lockstep. `--branch=main` still tracks main explicitly; `--tag=<other>` still pins to any tag; `ZACHFLOW_REF` env still overrides everything.
 
 ### Notes
-- v1.0 ships after Sprints 1–4.
-- **NPM_TOKEN repo secret must be registered on `hx2ryu/zachflow` before the next tag is pushed**, otherwise the publish step will fail (Release + tarball still succeed). Set up via `gh secret set NPM_TOKEN --repo hx2ryu/zachflow` with an npm automation token scoped to `create-zachflow`.
+- New bootstrap one-liner:
+  ```
+  npx create-zachflow my-project
+  ```
+  Replaces the v1.1.x form `npx https://github.com/hx2ryu/zachflow/releases/download/v1.1.1/create-zachflow-1.1.1.tgz my-project --tag=v1.1.1`. The tarball URL form still resolves for v1.1.x and v1.2.0 (asset is uploaded to every Release).
+- README + `packages/create-zachflow/README` now reference the npm form.
 
 ## [1.1.1] — 2026-04-29
 
