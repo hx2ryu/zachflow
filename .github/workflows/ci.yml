@@ -27,7 +27,9 @@ jobs:
       - name: Install Python deps
         # --break-system-packages: macos-latest ships a PEP 668 externally-
         # managed Python; the runner is ephemeral so this is safe.
-        run: python3 -m pip install --quiet --break-system-packages pyyaml
+        # jsonschema is needed by tests/kb-smoke.sh steps 4–6 (user KB content
+        # validation against schemas/learning/*.schema.json).
+        run: python3 -m pip install --quiet --break-system-packages pyyaml jsonschema
 
       - name: Install workflow symlinks
         run: bash scripts/install-workflows.sh
