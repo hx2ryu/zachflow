@@ -1,0 +1,66 @@
+name: Diagnose NPM
+
+# Manually-dispatched, read-only diagnostic for the NPM_TOKEN secret.
+# Surfaces who the token authenticates as, its type, the npm account's
+# 2FA mode, and basic registry connectivity — without ever attempting
+# a publish, so it's safe to run repeatedly while iterating on the
+# token / 2FA configuration on npmjs.com.
+#
+# Background: release.yml's `npm publish --access public` step has
+# returned 403 Forbidden on both v1.2.0 (2026-04-30) and v1.3.0
+# (2026-05-13), while the same package publishes cleanly from a local
+# terminal. The hypothesis is one of:
+#   1. Token type is Granular (vs Classic Automation), missing the
+#      package in its allowed list.
+#   2. Token type is Classic Publish, which requires per-publish OTP
+#      that CI cannot provide.
+#   3. npm account 2FA mode is "Authorization and writes", which
+#      forces OTP even for Automation tokens.
+#   4. New-account email-verify gate.
+#
+# Outputs from `npm token list` + `npm profile get` settle this
+# without round-tripping through release.yml.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node (with npm registry auth)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: npm ping (registry connectivity)
+        run: npm ping
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: npm whoami (which account is this token for?)
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: npm token list (token type + OTP requirement)
+        # Lists the current token's metadata. Look for:
+        # - `readonly` column: false for publish-capable, true for read-only
+        # - `automation` column: true means Classic Automation (no OTP required)
+        # - `cidr_whitelist`: if non-empty, restricts which IPs can use it
+        run: npm token list
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: npm profile get (account 2FA mode + email verified)
+        # The relevant field is `tfa`. Possible values:
+        #   "auth-only"   → Automation tokens can publish without OTP
+        #   "auth-and-writes" → every publish needs OTP (CI cannot supply)
+        # Also surfaces email + email verification status.
+        run: npm profile get
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
