@@ -98,12 +98,11 @@ Invoke with a throwaway `clause_id` and a dummy sprint id. Verify:
 - Promotion Log table of active rubric gains exactly one new row.
 - `git log -1 --stat` shows a single-file change.
 
-## Follow-up (not implemented by this skill)
+## Follow-up — `zachflow-kb:bump-rubric`
 
-**Version bump** (v{N} → v{N+1}): when the Promotion Log hits 2+ accumulated rows, a new rubric file should be created with:
-- All existing v{N} clauses preserved,
-- Full bodies of the promoted clauses added to the `## Clauses` section,
-- A fresh empty Promotion Log,
-- v{N} marked `status: superseded`, `superseded_by: N+1`.
+**Version bump is now automated.** When the Promotion Log accumulates ≥2 non-baseline rows, run `zachflow-kb:bump-rubric` to:
+- Create `v(N+1).md` with existing clauses preserved + each promoted row's `source_pattern.contract_clause` inlined verbatim into the new `## Clauses` section,
+- Re-seed a fresh empty Promotion Log,
+- Mark `v(N).md` as `status: superseded`, `superseded_by: N+1`.
 
-This is currently a manual process because it requires the full clause body (markdown content) which is NOT stored by this skill — only the short title is logged. A future `zachflow-kb:bump-rubric` skill could accept a `clauses` array (each with body) and perform the migration; design is deferred until the promotion cadence justifies the tooling.
+The bump derives clause bodies from the pattern KB (`zachflow-kb:write-pattern` output), so a pattern referenced in the log must already be captured. If you promote a clause before its pattern is written, the bump will error with `pattern file missing` and name the offender.

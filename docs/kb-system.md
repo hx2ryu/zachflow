@@ -44,7 +44,8 @@ Rules:
 | `zachflow-kb:write-pattern` | Create a new pattern YAML at `learning/patterns/{category}-{NNN}.yaml`. Auto-numbers within category. |
 | `zachflow-kb:update-pattern` | Increment `frequency`, refresh `last_seen` on an existing pattern. |
 | `zachflow-kb:write-reflection` | Record a sprint-end reflection (markdown + frontmatter) at `learning/reflections/{sprint_id}.md`. |
-| `zachflow-kb:promote-rubric` | Append a Promotion Log row to the active rubric. Version-bump remains manual. |
+| `zachflow-kb:promote-rubric` | Append a Promotion Log row to the active rubric. Lightweight bookkeeping. |
+| `zachflow-kb:bump-rubric` | Bump v(N) → v(N+1): consolidate Promotion Log into Clauses, supersede the prior version. |
 | `zachflow-kb:sync` | Embedded mode: no-op. Remote mode (v1.1+): `git pull --ff-only` from KB remote. |
 
 Each skill's `SKILL.md` (under `.claude/skills/zachflow-kb/<op>/SKILL.md`) is the authoritative protocol; agents invoke them via the Skill tool.
@@ -90,7 +91,7 @@ Per zachflow's embedded-mode philosophy, user KB is local to your project — bu
 | 2 (Spec) | `zachflow-kb:read type=pattern` | Load prior patterns to inform task decomposition. |
 | 4.1 (Contract) | `zachflow-kb:read` | Auto-inject critical patterns' contract_clause into Done Criteria. |
 | 4.4 (Evaluate) | `zachflow-kb:read type=rubric` | Load active rubric clauses for evaluation criteria. |
-| 6 (Retro) | `zachflow-kb:write-pattern`, `update-pattern`, `write-reflection`, `promote-rubric` | Record new patterns, bump frequencies, log reflection, promote rubric clauses. |
+| 6 (Retro) | `zachflow-kb:write-pattern`, `update-pattern`, `write-reflection`, `promote-rubric`, `bump-rubric` | Record new patterns, bump frequencies, log reflection, promote rubric clauses, and (when the Promotion Log threshold is met) bump the rubric version. |
 
 ## External integrations (plugins)
 
