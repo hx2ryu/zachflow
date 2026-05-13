@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
+# Claude Code hook → append a SHA-256-chained record to the active
+# sprint's logs/events.jsonl. Each line carries prev_hash + hash; see
+# scripts/lib/jsonl-append.py for the chain protocol.
+
 set -euo pipefail
 
 ORCHESTRATOR_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SPRINTS_DIR="$ORCHESTRATOR_DIR/sprint-orchestrator/sprints"
+APPEND="$ORCHESTRATOR_DIR/scripts/lib/jsonl-append.py"
 
 INPUT=$(cat)
 
@@ -32,25 +37,38 @@ case "$EVENT_NAME" in
   SubagentStart)
     AGENT_ID=$(echo "$INPUT" | jq -r '.agent_id // "unknown"')
     AGENT_TYPE=$(echo "$INPUT" | jq -r '.agent_type // "unknown"')
-    echo "{\"ts\":\"$TS\",\"event\":\"subagent_start\",\"agent_id\":\"$AGENT_ID\",\"agent_type\":\"$AGENT_TYPE\"}" >> "$EVENTS_FILE"
+    PAYLOAD=$(jq -nc --arg ts "$TS" --arg id "$AGENT_ID" --arg type "$AGENT_TYPE" \
+      '{ts:$ts, event:"subagent_start", agent_id:$id, agent_type:$type}')
     ;;
   SubagentStop)
     AGENT_ID=$(echo "$INPUT" | jq -r '.agent_id // "unknown"')
     AGENT_TYPE=$(echo "$INPUT" | jq -r '.agent_type // "unknown"')
-    echo "{\"ts\":\"$TS\",\"event\":\"subagent_stop\",\"agent_id\":\"$AGENT_ID\",\"agent_type\":\"$AGENT_TYPE\"}" >> "$EVENTS_FILE"
+    PAYLOAD=$(jq -nc --arg ts "$TS" --arg id "$AGENT_ID" --arg type "$AGENT_TYPE" \
+      '{ts:$ts, event:"subagent_stop", agent_id:$id, agent_type:$type}')
     ;;
   TaskCreated)
     TASK_ID=$(echo "$INPUT" | jq -r '.task_id // "unknown"')
     SUBJECT=$(echo "$INPUT" | jq -r '.task_subject // ""')
     TEAMMATE=$(echo "$INPUT" | jq -r '.teammate_name // "unknown"')
-    echo "{\"ts\":\"$TS\",\"event\":\"task_created\",\"task_id\":\"$TASK_ID\",\"subject\":\"$SUBJECT\",\"teammate\":\"$TEAMMATE\"}" >> "$EVENTS_FILE"
+    PAYLOAD=$(jq -nc --arg ts "$TS" --arg id "$TASK_ID" --arg subj "$SUBJECT" --arg tm "$TEAMMATE" \
+      '{ts:$ts, event:"task_created", task_id:$id, subject:$subj, teammate:$tm}')
     ;;
   TaskCompleted)
     TASK_ID=$(echo "$INPUT" | jq -r '.task_id // "unknown"')
     SUBJECT=$(echo "$INPUT" | jq -r '.task_subject // ""')
     TEAMMATE=$(echo "$INPUT" | jq -r '.teammate_name // "unknown"')
-    echo "{\"ts\":\"$TS\",\"event\":\"task_completed\",\"task_id\":\"$TASK_ID\",\"subject\":\"$SUBJECT\",\"teammate\":\"$TEAMMATE\"}" >> "$EVENTS_FILE"
+    PAYLOAD=$(jq -nc --arg ts "$TS" --arg id "$TASK_ID" --arg subj "$SUBJECT" --arg tm "$TEAMMATE" \
+      '{ts:$ts, event:"task_completed", task_id:$id, subject:$subj, teammate:$tm}')
+    ;;
+  *)
+    exit 0
     ;;
 esac
+
+# Best-effort append. If the chain refuses (e.g. legacy un-chained
+# events.jsonl present from a pre-hash-chain sprint), surface to stderr
+# but never block the originating Claude Code hook — the hook handler
+# must remain idempotent and non-fatal to the agent flow.
+python3 "$APPEND" "$EVENTS_FILE" "$PAYLOAD" 2>&1 | sed 's/^/[hook-handler] /' >&2 || true
 
 exit 0

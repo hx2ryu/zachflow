@@ -69,6 +69,9 @@ jobs:
       - name: sprint-fleet-status unit tests
         run: bash tests/sprint-fleet-status-test.sh
 
+      - name: jsonl-hash-chain unit tests
+        run: bash tests/jsonl-hash-chain-test.sh
+
       - name: init-project.sh syntax check
         run: bash -n scripts/init-project.sh
 
