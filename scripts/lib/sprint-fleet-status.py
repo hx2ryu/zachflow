@@ -24,6 +24,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Windows-native Python defaults stdout to cp1252, which fails on the
+# box-drawing characters in the dashboard. Reconfigure once at import.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 
 PHASE_FALLBACK = "phase-1 (init)"
 
