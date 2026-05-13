@@ -6,9 +6,11 @@
 #   2. All schemas declare $schema as draft 2020-12.
 #   3. All .claude/skills/zachflow-kb/*/SKILL.md have valid YAML frontmatter
 #      with name: zachflow-kb:<op>.
+#   4. .zachflow/kb/learning/patterns/*.yaml match pattern.schema.json.
+#   5. .zachflow/kb/learning/rubrics/v*.md frontmatter matches rubric.schema.json.
+#   6. .zachflow/kb/learning/reflections/*.md frontmatter matches reflection.schema.json.
 #
-# Does NOT validate user KB content (.zachflow/kb/) — that's user-space per
-# embedded-mode philosophy. Extend if your project wants stricter checks.
+# Requires Python 3 with pyyaml + jsonschema. CI installs both explicitly.
 
 set -euo pipefail
 
@@ -27,7 +29,7 @@ for f in schemas/learning/*.json; do
     exit 1
   }
 done
-echo "  [1/3] schemas/learning/*.json — valid JSON"
+echo "  [1/6] schemas/learning/*.json — valid JSON"
 
 # 2. Schemas declare draft 2020-12
 for f in schemas/learning/*.json; do
@@ -38,7 +40,7 @@ assert '\$schema' in data, '\$schema missing in $f'
 assert data['\$schema'].endswith('draft/2020-12/schema'), 'wrong dialect: ' + data['\$schema']
 " || { echo "FAIL: $f"; exit 1; }
 done
-echo "  [2/3] schemas/learning/*.json — draft 2020-12"
+echo "  [2/6] schemas/learning/*.json — draft 2020-12"
 
 # 3. KB skill SKILL.md frontmatter (requires PyYAML; CI installs it
 # explicitly on macos/windows where it isn't preinstalled).
@@ -54,6 +56,95 @@ assert 'name' in fm, '$f missing name'
 assert fm['name'].startswith('zachflow-kb:'), '$f wrong name prefix: ' + fm['name']
 " || { echo "FAIL: $f"; exit 1; }
 done
-echo "  [3/3] zachflow-kb/*/SKILL.md — frontmatter OK"
+echo "  [3/6] zachflow-kb/*/SKILL.md — frontmatter OK"
+
+# Steps 4–6: validate user KB content under .zachflow/kb/ against schemas.
+# Skipped when the KB directory is absent (e.g. running smoke in a clean repo
+# clone before bootstrap). Empty subdirs are also OK — only present files
+# are validated.
+
+KB_LEARNING=".zachflow/kb/learning"
+
+if [ -d "$KB_LEARNING" ]; then
+  # 4. patterns/*.yaml validate against pattern.schema.json
+  count=0
+  if [ -d "$KB_LEARNING/patterns" ]; then
+    for f in "$KB_LEARNING"/patterns/*.yaml; do
+      [ -f "$f" ] || continue  # no glob match → skip
+      python3 - "$f" <<'PY' || exit 1
+import json, sys, yaml, jsonschema
+path = sys.argv[1]
+with open(path) as fp:
+    data = yaml.safe_load(fp)
+with open('schemas/learning/pattern.schema.json') as fp:
+    schema = json.load(fp)
+try:
+    jsonschema.validate(data, schema)
+except jsonschema.ValidationError as e:
+    sys.exit(f"FAIL: {path}: {e.message}")
+PY
+      count=$((count + 1))
+    done
+  fi
+  echo "  [4/6] $KB_LEARNING/patterns/*.yaml — $count file(s) schema-valid"
+
+  # 5. rubrics/v*.md frontmatter validate against rubric.schema.json
+  count=0
+  if [ -d "$KB_LEARNING/rubrics" ]; then
+    for f in "$KB_LEARNING"/rubrics/v*.md; do
+      [ -f "$f" ] || continue
+      python3 - "$f" <<'PY' || exit 1
+import json, sys, yaml, jsonschema
+path = sys.argv[1]
+content = open(path).read()
+if not content.startswith('---'):
+    sys.exit(f"FAIL: {path}: no YAML frontmatter")
+end = content.find('---', 3)
+if end < 0:
+    sys.exit(f"FAIL: {path}: unterminated frontmatter")
+fm = yaml.safe_load(content[3:end])
+with open('schemas/learning/rubric.schema.json') as fp:
+    schema = json.load(fp)
+try:
+    jsonschema.validate(fm, schema)
+except jsonschema.ValidationError as e:
+    sys.exit(f"FAIL: {path}: {e.message}")
+PY
+      count=$((count + 1))
+    done
+  fi
+  echo "  [5/6] $KB_LEARNING/rubrics/v*.md — $count file(s) schema-valid"
+
+  # 6. reflections/*.md frontmatter validate against reflection.schema.json
+  count=0
+  if [ -d "$KB_LEARNING/reflections" ]; then
+    for f in "$KB_LEARNING"/reflections/*.md; do
+      [ -f "$f" ] || continue
+      python3 - "$f" <<'PY' || exit 1
+import json, sys, yaml, jsonschema
+path = sys.argv[1]
+content = open(path).read()
+if not content.startswith('---'):
+    sys.exit(f"FAIL: {path}: no YAML frontmatter")
+end = content.find('---', 3)
+if end < 0:
+    sys.exit(f"FAIL: {path}: unterminated frontmatter")
+fm = yaml.safe_load(content[3:end])
+with open('schemas/learning/reflection.schema.json') as fp:
+    schema = json.load(fp)
+try:
+    jsonschema.validate(fm, schema)
+except jsonschema.ValidationError as e:
+    sys.exit(f"FAIL: {path}: {e.message}")
+PY
+      count=$((count + 1))
+    done
+  fi
+  echo "  [6/6] $KB_LEARNING/reflections/*.md — $count file(s) schema-valid"
+else
+  echo "  [4/6] $KB_LEARNING absent — skipping user-content checks"
+  echo "  [5/6] $KB_LEARNING absent — skipping user-content checks"
+  echo "  [6/6] $KB_LEARNING absent — skipping user-content checks"
+fi
 
 echo "PASS: KB smoke check"

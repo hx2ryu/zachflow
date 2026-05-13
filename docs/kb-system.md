@@ -77,11 +77,11 @@ zachflow runs **two layers** of validation:
 
 1. **Skill-inline** — each KB skill's protocol includes a `python3` snippet that parses the file post-write and verifies required keys + basic patterns. Catches malformed output before commit.
 
-2. **CI smoke** (`tests/kb-smoke.sh`) — runs in CI on every push. Verifies:
-   - All schema files in `schemas/learning/` are valid JSON Schema (draft 2020-12).
-   - All KB SKILL.md files have correct YAML frontmatter and `name: zachflow-kb:*` prefix.
+2. **CI smoke** (`tests/kb-smoke.sh`) — runs in CI on every push. Six steps:
+   - Steps 1–3 (always): schemas in `schemas/learning/` are valid JSON, declare draft 2020-12, KB SKILL.md frontmatter is correct.
+   - Steps 4–6 (when `.zachflow/kb/` is present): user KB content under `learning/{patterns,rubrics,reflections}/` is validated against the corresponding schema via `jsonschema`. Empty subdirs and absent KB directories are skipped — only present files are checked.
 
-zachflow does NOT validate user KB content (`.zachflow/kb/`) in CI by default — that's user-space, embedded-mode philosophy. If you want stricter validation, you can extend `tests/kb-smoke.sh` to walk `.zachflow/kb/` (forward-compatible).
+Per zachflow's embedded-mode philosophy, user KB is local to your project — but a broken KB file silently breaks Sprint Contracts and the Evaluator's rubric injection, so the CI catch is worth the cost.
 
 ## Lifecycle integration with Sprint workflow
 
