@@ -304,25 +304,14 @@ if any pattern.frequency >= 3:
    (the skill handles row insertion + `validate:content` + rebase-retry push + cumulative-count nudge)
 3. Branch on the skill's nudge result:
    - **Cumulative `< 2`**: only append. The clause is not yet inlined into the body, but next sprint prioritizes evaluation if the same pattern recurs.
-   - **Cumulative `>= 2`**: create a new v(N+1) file (**currently a manual direct op** — see note below).
-     Write `$KB_PATH/learning/rubrics/v{N+1}.md`:
-     - Frontmatter: `version: N+1`, `status: active`, `superseded_by: null`, `schema_version: 1`
-     - Body: all clauses from v(N) + clauses from the cumulative Promotion Log inlined into the Clauses section
-     - Promotion Log: keep only the baseline row (empty otherwise)
-     - Update v(N) frontmatter to `status: superseded` + `superseded_by: N+1`
-     - `cd $KB_PATH && git add learning/rubrics/ && git commit -m "rubric: bump to vN+1 ({sprint-id})" && git pull --rebase origin main && git push`
+   - **Cumulative `>= 2`**: invoke `zachflow-kb:bump-rubric` to consolidate the accumulated log into v(N+1).
+     The skill writes `$KB_PATH/learning/rubrics/v{N+1}.md` with each promoted row's `source_pattern.contract_clause` inlined into the new Clauses section, marks v(N) superseded, and re-validates both files. Commit handling is the skill's responsibility.
 4. User nudge:
    ```
-   Rubric: keep v{N} (promotion log {N} accumulated) | create v{N+1} (inline {N} clauses)
+   Rubric: keep v{N} (promotion log {N} accumulated) | bump to v{N+1} (inline {N} clauses via zachflow-kb:bump-rubric)
    ```
 
 **Effect**: In the next sprint's Phase 4.4, the Evaluator auto-loads the latest vN → applies the accumulated criteria.
-
-> **Note (rubric version bump skill not yet provided)**: `zachflow-kb:promote-rubric` covers only
-> Promotion Log row insertion (records short `clause_title` text only). The v(N) → v(N+1) promotion
-> requires the full clause body, so no skill exists yet — perform via direct git op in step 3's
-> cumulative `>= 2` branch. A future `zachflow-kb:bump-rubric` (taking a clauses array as input
-> for body migration) is under consideration. When doing the direct op, rebase-retry is required.
 
 ### 6.7b Skill Promotion (Pattern → Reusable Code Skill)
 
