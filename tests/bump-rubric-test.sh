@@ -88,7 +88,7 @@ test -f "$TMPKB/learning/rubrics/v1.md" || { echo "FAIL: v1.md lost"; exit 1; }
 
 python3 - <<PY
 import yaml
-c = open('$TMPKB/learning/rubrics/v1.md').read()
+c = open('$TMPKB/learning/rubrics/v1.md', encoding='utf-8').read()
 fm = yaml.safe_load(c[3:c.find('---', 3)])
 assert fm['status'] == 'superseded', fm
 assert fm['superseded_by'] == 2, fm
@@ -97,7 +97,7 @@ PY
 
 python3 - <<PY
 import yaml
-c = open('$TMPKB/learning/rubrics/v2.md').read()
+c = open('$TMPKB/learning/rubrics/v2.md', encoding='utf-8').read()
 fm = yaml.safe_load(c[3:c.find('---', 3)])
 assert fm['version'] == 2, fm
 assert fm['status'] == 'active', fm
@@ -134,13 +134,13 @@ echo "=== Case 4: missing source_pattern → error ==="
 python3 - <<PY
 import yaml
 p = '$TMPKB/learning/rubrics/v2.md'
-c = open(p).read()
+c = open(p, encoding='utf-8').read()
 end = c.find('---', 3)
 fm = yaml.safe_load(c[3:end])
 fm['status'] = 'superseded'
 fm['superseded_by'] = 3
 out = '---\n' + yaml.safe_dump(fm, sort_keys=False).strip() + '\n---\n' + c[end+3:].lstrip()
-open(p, 'w').write(out)
+open(p, 'w', encoding='utf-8').write(out)
 PY
 
 cat > "$TMPKB/learning/rubrics/v3.md" <<'MD'

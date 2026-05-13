@@ -47,7 +47,7 @@ echo "  [2/6] schemas/learning/*.json — draft 2020-12"
 for f in .claude/skills/zachflow-kb/*/SKILL.md; do
   python3 -c "
 import yaml
-content = open('$f').read()
+content = open('$f', encoding='utf-8').read()
 assert content.startswith('---'), '$f no frontmatter'
 end = content.find('---', 3)
 assert end > 0, '$f unterminated frontmatter'
@@ -74,9 +74,9 @@ if [ -d "$KB_LEARNING" ]; then
       python3 - "$f" <<'PY' || exit 1
 import json, sys, yaml, jsonschema
 path = sys.argv[1]
-with open(path) as fp:
+with open(path, encoding='utf-8') as fp:
     data = yaml.safe_load(fp)
-with open('schemas/learning/pattern.schema.json') as fp:
+with open('schemas/learning/pattern.schema.json', encoding='utf-8') as fp:
     schema = json.load(fp)
 try:
     jsonschema.validate(data, schema)
@@ -96,14 +96,14 @@ PY
       python3 - "$f" <<'PY' || exit 1
 import json, sys, yaml, jsonschema
 path = sys.argv[1]
-content = open(path).read()
+content = open(path, encoding='utf-8').read()
 if not content.startswith('---'):
     sys.exit(f"FAIL: {path}: no YAML frontmatter")
 end = content.find('---', 3)
 if end < 0:
     sys.exit(f"FAIL: {path}: unterminated frontmatter")
 fm = yaml.safe_load(content[3:end])
-with open('schemas/learning/rubric.schema.json') as fp:
+with open('schemas/learning/rubric.schema.json', encoding='utf-8') as fp:
     schema = json.load(fp)
 try:
     jsonschema.validate(fm, schema)
@@ -123,14 +123,14 @@ PY
       python3 - "$f" <<'PY' || exit 1
 import json, sys, yaml, jsonschema
 path = sys.argv[1]
-content = open(path).read()
+content = open(path, encoding='utf-8').read()
 if not content.startswith('---'):
     sys.exit(f"FAIL: {path}: no YAML frontmatter")
 end = content.find('---', 3)
 if end < 0:
     sys.exit(f"FAIL: {path}: unterminated frontmatter")
 fm = yaml.safe_load(content[3:end])
-with open('schemas/learning/reflection.schema.json') as fp:
+with open('schemas/learning/reflection.schema.json', encoding='utf-8') as fp:
     schema = json.load(fp)
 try:
     jsonschema.validate(fm, schema)
