@@ -14,8 +14,18 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-TMPKB="$(mktemp -d)"
-trap "rm -rf '$TMPKB'" EXIT
+TMPKB_RAW="$(mktemp -d -t zachflow-bump-rubric-XXXXXX)"
+trap "rm -rf '$TMPKB_RAW'" EXIT
+
+# Windows git-bash returns MSYS-virtual paths like /tmp/tmp.XXX that
+# native-Windows Python cannot resolve. Convert to a mixed (C:/...) form
+# that both bash and Python understand. On Linux/macOS, cygpath is absent
+# and we keep the raw path.
+if command -v cygpath >/dev/null 2>&1; then
+  TMPKB="$(cygpath -m "$TMPKB_RAW")"
+else
+  TMPKB="$TMPKB_RAW"
+fi
 
 mkdir -p "$TMPKB/learning/rubrics"
 mkdir -p "$TMPKB/learning/patterns"
