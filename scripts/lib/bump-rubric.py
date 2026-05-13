@@ -42,7 +42,7 @@ def find_active_rubric(rubrics_dir: Path) -> tuple[Path, dict, str]:
     matches = []
     for p in sorted(rubrics_dir.glob("v*.md")):
         try:
-            fm, body = _split_frontmatter(p.read_text())
+            fm, body = _split_frontmatter(p.read_text(encoding="utf-8"))
         except ValueError:
             continue
         if fm.get("status") == "active" and fm.get("superseded_by") is None:
@@ -97,7 +97,7 @@ def load_pattern_clause(patterns_dir: Path, pattern_id: str) -> tuple[str, str]:
     p = patterns_dir / f"{pattern_id}.yaml"
     if not p.exists():
         sys.exit(f"Error: pattern file missing: {p}")
-    data = yaml.safe_load(p.read_text()) or {}
+    data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
     clause = data.get("contract_clause")
     if not clause or not clause.strip():
         sys.exit(f"Error: pattern {pattern_id} has no contract_clause")
@@ -149,18 +149,18 @@ def build_new_rubric(new_version: int, changelog: str, clauses_body: str) -> str
 
 
 def supersede(path: Path, new_version: int) -> None:
-    content = path.read_text()
+    content = path.read_text(encoding="utf-8")
     fm, body = _split_frontmatter(content)
     fm["status"] = "superseded"
     fm["superseded_by"] = new_version
     fm_yaml = yaml.safe_dump(fm, sort_keys=False, default_flow_style=False).strip()
-    path.write_text(f"---\n{fm_yaml}\n---\n\n{body}")
+    path.write_text(f"---\n{fm_yaml}\n---\n\n{body}", encoding="utf-8")
 
 
 def validate_rubric(path: Path, schema_path: Path) -> None:
-    content = path.read_text()
+    content = path.read_text(encoding="utf-8")
     fm, _ = _split_frontmatter(content)
-    schema = json.loads(schema_path.read_text())
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
     try:
         jsonschema.validate(fm, schema)
     except jsonschema.ValidationError as e:
@@ -210,7 +210,7 @@ def main() -> int:
         f"v{new_version} — promoted {len(promoted)} clause(s) from "
         f"v{current_version} Promotion Log."
     )
-    new_path.write_text(build_new_rubric(new_version, changelog, new_clauses))
+    new_path.write_text(build_new_rubric(new_version, changelog, new_clauses), encoding="utf-8")
     supersede(active_path, new_version)
 
     validate_rubric(new_path, schema_path)
