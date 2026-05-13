@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- **`docs/structural-review-2026-05.md`** — direction-setting review of zachflow against the "enterprise AI-native workflow" frame. Records the 2026-05-13 decision to consolidate solo/small-team strengths (option A) rather than build out an enterprise control plane (option B) or pursue partnership integration (option C). Includes Tier 1/2/3 gap analysis, skill inventory delta, failure-mode catalog, and a 4-item immediate-action punch list (KB smoke extension, promote-rubric auto version-bump, cross-sprint `--status` dashboard, append-only hash-chained `logs/*.jsonl`).
+
 ### Changed
 - **First-time UX polish in `init-project.sh` wizard + `MANUAL.md`.** Two passes: stale text refresh (wizard banner dropped its hardcoded `v1.0` suffix; `MANUAL.md`'s "Sprint 0 placeholder / stub" disclaimer replaced with a real intro; first-time setup now shows `npx create-zachflow my-project` instead of the legacy `git clone`; KB-mode prompt's "remote coming v1.1" promise reframed as "v1.x roadmap"; stale workflow-paths links pointed at the canonical `workflows/sprint/` and `workflows/qa-fix/`) and substantive prompt-context additions (Step 4 "role" intro, source repo / base branch / mode / teammate prompts each gain inline context, fill prompts include concrete examples, MANUAL non-interactive section points at `examples/nextjs-supabase/init.config.yaml`).
 
