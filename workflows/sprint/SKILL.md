@@ -43,7 +43,8 @@ As Sprint Lead, orchestrate the sprint with a Planner-Generator-Evaluator patter
 /sprint <new-id> --type=qa-fix --jql="..."       # New integration QA-Fix sprint (Path B)
 /sprint <sprint-id> --continue                   # Continue unfulfilled items inside the same sprint
 /sprint <sprint-id> --follow-up=<prev-sprint-id> # New follow-up sprint based on a previous one
-/sprint <sprint-id> --status                     # Status dashboard
+/sprint <sprint-id> --status                     # Per-sprint status dashboard
+/sprint --status                                 # Cross-sprint fleet dashboard (all in-flight)
 /sprint                                          # Auto-detect the most recent sprint
 ```
 

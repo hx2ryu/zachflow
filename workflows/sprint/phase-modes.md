@@ -234,6 +234,33 @@ You can still invoke `--status` manually:
 /sprint {sprint-id} --status
 ```
 
+### Cross-Sprint Mode (no sprint-id)
+
+When `/sprint --status` is invoked **without** a sprint-id, route to the fleet
+dashboard instead of the per-sprint one. This is the entry point for "what's
+running across all my sprints right now."
+
+```bash
+python3 scripts/lib/sprint-fleet-status.py
+```
+
+The helper scans `runs/sprint/*/` and prints two tables:
+- **In flight** — sprint dirs without retrospective artifacts.
+- **Completed** — sprint dirs with a non-empty `retrospective/`.
+
+Columns: `sprint-id`, inferred `phase` (coarse — same artifact-presence logic as
+the Phase Determination Logic in `workflows/sprint/SKILL.md`), `groups`
+(PASS / total), `fix-loops` (sum across evaluations, or `—` if none), and
+`last activity` (max mtime under `logs/`, `checkpoints/`, `evaluations/`,
+`contracts/`, `tasks/`, `qa-fix/`).
+
+Directories without `sprint-config.yaml` are silently ignored — bare scratch
+dirs do not show up as sprints. An absent `runs/sprint/` exits 0 with a "no
+sprint runs found" line.
+
+For deep detail on any one sprint, drop back into the per-sprint mode:
+`/sprint {sprint-id} --status`.
+
 ### Hook-Based Event Capture
 
 `scripts/hook-handler.sh` records the following events automatically via Claude Code Hooks:

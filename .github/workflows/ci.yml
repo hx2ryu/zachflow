@@ -66,6 +66,9 @@ jobs:
       - name: bump-rubric unit tests
         run: bash tests/bump-rubric-test.sh
 
+      - name: sprint-fleet-status unit tests
+        run: bash tests/sprint-fleet-status-test.sh
+
       - name: init-project.sh syntax check
         run: bash -n scripts/init-project.sh
 
