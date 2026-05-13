@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+(nothing yet — staging area for post-v1.3.0 work)
+
+## [1.3.0] — 2026-05-13
+
+Minor release. Captures the **option-A structural decision** (`docs/structural-review-2026-05.md`) and **ships the 4-item punch list** that follows from it: KB validation hardening, rubric lifecycle automation, cross-sprint fleet status, and tamper-evident logs. zachflow's solo / small-team frame is now end-to-end consistent — every KB write that matters runs through schema and chain validation, the rubric loop closes itself, and the operator can see the whole sprint fleet at a glance.
+
 ### Added
 - **`docs/structural-review-2026-05.md`** — direction-setting review of zachflow against the "enterprise AI-native workflow" frame. Records the 2026-05-13 decision to consolidate solo/small-team strengths (option A) rather than build out an enterprise control plane (option B) or pursue partnership integration (option C). Includes Tier 1/2/3 gap analysis, skill inventory delta, failure-mode catalog, and a 4-item immediate-action punch list (KB smoke extension, promote-rubric auto version-bump, cross-sprint `--status` dashboard, append-only hash-chained `logs/*.jsonl`).
 - **`tests/kb-smoke.sh` validates user KB content under `.zachflow/kb/learning/`.** Steps 4–6 added: `patterns/*.yaml`, `rubrics/v*.md`, `reflections/*.md` are validated against the corresponding `schemas/learning/*.schema.json` via `jsonschema`. Empty subdirs and an absent KB directory are skipped — only present files are checked. CI dependency `jsonschema` joins `pyyaml` in `.github/workflows/ci.yml`. Closes the "KB validation hardening" roadmap item and the first action in the option-A punch list.
@@ -10,14 +16,21 @@
 - **`logs/*.jsonl` gains a SHA-256 hash chain for tamper detection.** Every line appended via `scripts/lib/jsonl-append.py` carries `prev_hash` + `hash` fields (`prev_hash` = previous line's hash or `"GENESIS"` for line 1; `hash` = sha256 of the canonical JSON including `prev_hash`). `scripts/lib/jsonl-verify.py` exits 1 with a line number + reason on the first break — edit, delete, or insert is detected. Legacy un-chained files report `"no chain (legacy)"` and pass; mixed-mode files fail. `scripts/hook-handler.sh` was rewritten to append via the helper instead of raw `echo >>`, with stderr-only error surfacing so a refused-append never blocks the originating Claude Code hook. `tests/jsonl-hash-chain-test.sh` covers six cases (sequential append, tamper, deletion, legacy, mixed-mode, append-to-legacy refusal) and runs in CI. New `docs/logs-hash-chain.md` documents the protocol, the "minimum floor not SOC2" framing, and the rotation procedure for legacy files. Action 4 of the option-A punch list — closes the loop.
 
 ### Changed
+- **First-time UX polish in `init-project.sh` wizard + `MANUAL.md`.** Two passes: stale text refresh (wizard banner dropped its hardcoded `v1.0` suffix; `MANUAL.md`'s "Sprint 0 placeholder / stub" disclaimer replaced with a real intro; first-time setup now shows `npx create-zachflow my-project` instead of the legacy `git clone`; KB-mode prompt's "remote coming v1.1" promise reframed as "v1.x roadmap"; stale workflow-paths links pointed at the canonical `workflows/sprint/` and `workflows/qa-fix/`) and substantive prompt-context additions (Step 4 "role" intro, source repo / base branch / mode / teammate prompts each gain inline context, fill prompts include concrete examples, MANUAL non-interactive section points at `examples/nextjs-supabase/init.config.yaml`).
 - **`docs/kb-system.md` validation section** now documents the 6-step smoke check (was 3-step) and removes the "user KB is not validated in CI" caveat.
 - **`.claude/skills/zachflow-kb/promote-rubric/SKILL.md` Follow-up section** points at `zachflow-kb:bump-rubric` instead of describing a manual process.
 - **`workflows/sprint/phase-retro.md` §6.7a** replaces the manual v(N+1) write block with a `zachflow-kb:bump-rubric` invocation; the "rubric version bump skill not yet provided" caveat is removed.
 
-### Changed
-- **First-time UX polish in `init-project.sh` wizard + `MANUAL.md`.** Two passes: stale text refresh (wizard banner dropped its hardcoded `v1.0` suffix; `MANUAL.md`'s "Sprint 0 placeholder / stub" disclaimer replaced with a real intro; first-time setup now shows `npx create-zachflow my-project` instead of the legacy `git clone`; KB-mode prompt's "remote coming v1.1" promise reframed as "v1.x roadmap"; stale workflow-paths links pointed at the canonical `workflows/sprint/` and `workflows/qa-fix/`) and substantive prompt-context additions (Step 4 "role" intro, source repo / base branch / mode / teammate prompts each gain inline context, fill prompts include concrete examples, MANUAL non-interactive section points at `examples/nextjs-supabase/init.config.yaml`).
+### Fixed
+- **Windows footgun triplet patched (3-OS CI hardening).** All three surfaced and were fixed during the punch list:
+  1. Python's default file encoding on Windows is cp1252; `tests/kb-smoke.sh` and `scripts/lib/bump-rubric.py` now pass `encoding="utf-8"` explicitly on every read/write.
+  2. `mktemp -d` returns MSYS-virtual paths (`/tmp/tmp.XXX`) under git-bash; native-Windows Python cannot resolve them. Test sandboxes now run the result through `cygpath -m` when available, falling back to the raw path elsewhere.
+  3. Python's default stdout encoding on Windows is cp1252 and chokes on the box-drawing characters in the fleet dashboard; `scripts/lib/sprint-fleet-status.py` calls `sys.stdout.reconfigure(encoding="utf-8")` at import.
 
+### Notes
+- The bootstrap one-liner is unchanged: `npx create-zachflow my-project`. After this lands and v1.3.0 is tagged + pushed, `release.yml` builds the tarball, creates the GitHub Release, and runs `npm publish --access public`. The v1.2.0 npm publish hit a 403 in CI but was unblocked manually; v1.3.0 will retry the automated path with the new chain in place.
 
+## [1.2.0] — 2026-04-30
 
 Minor release. The bootstrap one-liner finally sheds the tarball-URL indirection — `create-zachflow` is published to npm and `npx create-zachflow my-project` clones the matching zachflow tag automatically.
 
@@ -32,6 +45,7 @@ Minor release. The bootstrap one-liner finally sheds the tarball-URL indirection
   ```
   Replaces the v1.1.x form `npx https://github.com/hx2ryu/zachflow/releases/download/v1.1.1/create-zachflow-1.1.1.tgz my-project --tag=v1.1.1`. The tarball URL form still resolves for v1.1.x and v1.2.0 (asset is uploaded to every Release).
 - README + `packages/create-zachflow/README` now reference the npm form.
+- The automated `npm publish` step returned **403 Forbidden** on the v1.2.0 tag push despite a valid `NPM_TOKEN`. Worked around by running `npm publish --access public` locally; the package was live on npm by 2026-05-13. Root-cause diagnosis (token type / 2FA mode / new-account publish gate) deferred — `npx create-zachflow my-project` works end-to-end via the legacy tarball URL path while the automation is debugged.
 
 ## [1.1.1] — 2026-04-29
 
