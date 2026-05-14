@@ -2,7 +2,8 @@
 
 ## [Unreleased]
 
-(nothing yet — staging area for post-v1.3.0 work)
+### Changed
+- **`docs/design-principles.md` adds an explicit "Failure Modes" section.** Names the four LLM-agent failure modes the harness was designed against (drift, self-deception, context exhaustion, recurring regressions), defines each, and maps them to the nine principles + the concrete mechanisms in `workflows/` and `docs/kb-system.md`. Also adds a "What the harness does NOT do" subsection that pins the option-A/B boundary (no runtime enforcement, no verifier verification, no KB drift detection). §7 (Minimal harness) gains the missing "recurring regressions" item — the prior list of three failure modes was asymmetric with how the rest of the docs talked about the harness.
 
 ## [1.3.0] — 2026-05-13
 
