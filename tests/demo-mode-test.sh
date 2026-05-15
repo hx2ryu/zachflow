@@ -15,7 +15,20 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 echo "demo-mode test at: $PROJECT_ROOT"
 
+# git-bash returns MSYS paths from mktemp (/tmp/...), which Windows-native
+# python3 cannot resolve. Convert to mixed-mode (C:/.../tmp/...) so both
+# shell and native binaries accept the same string.
+_to_native_path() {
+  case "$(uname -s 2>/dev/null)" in
+    MINGW*|MSYS*|CYGWIN*)
+      command -v cygpath >/dev/null 2>&1 && cygpath -m "$1" || echo "$1"
+      ;;
+    *) echo "$1" ;;
+  esac
+}
+
 TMPDIR=$(mktemp -d -t zachflow-demo-test-XXXXXX)
+TMPDIR=$(_to_native_path "$TMPDIR")
 DEMO_SOURCE_PATHS=()
 cleanup() {
   rm -rf "$TMPDIR"
