@@ -61,7 +61,7 @@ The nine principles are not nine separate solutions — they form a distributed 
 ### What the harness does NOT do
 
 - It does not enforce. An agent that decides to ignore Done Criteria can — there is no runtime jailer. The Evaluator catches the result, not the intent.
-- It does not verify the verifier. If the Evaluator returns a wrong verdict (the meta-case of self-deception), nothing in the current harness flags it. Multi-LLM cross-evaluation belongs to a later phase (`docs/llm-platform-coupling.md`).
+- It partially verifies the verifier. After the standard Evaluator returns PASS, the Adversarial Evaluator (`.claude/teammates/evaluator-adversarial.md`) runs a single read-only second pass probing four spec-orthogonal surfaces — Security / Race / Malformed input / Resource exhaustion. This catches the *false-PASS* failure mode in those four categories. What it does not catch: a wrong ISSUES/FAIL verdict, or false PASS outside those four surfaces. Multi-LLM cross-evaluation for the full verdict surface still belongs to a later phase (`docs/llm-platform-coupling.md`).
 - It detects KB staleness partially. The pattern curator (`scripts/lib/curator.py` + `zachflow-kb:list-stale`) archives stable patterns whose `use_count` stays at zero past a TTL — so prose-stale patterns are eventually flushed. What it does *not* yet detect: a pattern whose content is *wrong* but still referenced (the high-cosine-similarity-for-bad-reasons case). Confidence-scored drift detection remains on the v1.x roadmap (see `docs/structural-review-2026-05.md` §T2-F and `docs/roadmap.md`).
 
 These limits are the boundary between option A (solo / small-team harness, where the current shape is correct) and option B (enterprise control plane, where verification needs verification).

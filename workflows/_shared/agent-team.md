@@ -81,6 +81,20 @@ TaskCreate:
 
 The Evaluator owns severity assignment and verdict (PASS / ISSUES / FAIL — see `_shared/build-loop.md` § Verdict Rules). Behavior detail: `.claude/teammates/evaluator.md`.
 
+### Adversarial Evaluator (Independent Red-Team)
+
+Runs once per group after the standard Evaluator returns PASS. Probes four spec-orthogonal surfaces — Security / Race & Concurrency / Malformed input / Resource exhaustion — that conformance-only review cannot see. Read-only and single-pass (does not re-spawn within a group, even if the Fix Loop iterates).
+
+Dispatched via:
+```
+TaskCreate:
+  Subject: eval-adversarial/{project}/group-{N}
+  Description: <Sprint Contract path + merged code path + path to evaluations/group-{N}.md>
+  Owner: Adversarial Evaluator
+```
+
+Verdict (Adversarial PASS / Adversarial ISSUES) governs whether the group advances or reenters the Fix Loop with a +1 budget cap. Full protocol: `.claude/teammates/evaluator-adversarial.md`; trigger and integration: `_shared/build-loop.md` §Adversarial Second Pass.
+
 ## Dispatch Protocol
 
 ### TaskCreate Pattern
@@ -111,6 +125,7 @@ The `description` field is short (used for tracking). The `prompt` field contain
 | Implementation | `impl/backend/{task-id}` | BE Engineer |
 | Implementation | `impl/app/{task-id}` | FE Engineer |
 | Evaluation | `eval/{project}/group-{N}` | Evaluator |
+| Adversarial Evaluation | `eval-adversarial/{project}/group-{N}` | Adversarial Evaluator |
 | Revision | `revise/{minor\|major}/app/{task-id}` | Design Engineer |
 | Contract Review | `contract-review/group-{N}` | Evaluator |
 
@@ -122,7 +137,7 @@ The full Frozen Snapshot Protocol — what each role's snapshot contains and the
 
 ## Read-only Constraint
 
-The Evaluator MUST NOT modify code. If the Evaluator detects an issue requiring code change, it surfaces in the verdict report — the workflow caller (Sprint Lead) dispatches a Fix subagent (BE/FE Engineer) to apply the change. This separation enforces the Planner-Generator-Evaluator pattern: self-evaluation is unreliable.
+The Evaluator and the Adversarial Evaluator MUST NOT modify code. If either detects an issue requiring code change, it surfaces in the verdict report — the workflow caller (Sprint Lead) dispatches a Fix subagent (BE/FE Engineer) to apply the change. This separation enforces the Planner-Generator-Evaluator pattern: self-evaluation is unreliable. Adversarial probes are *reasoned from the code*, not executed against running services.
 
 ## Cross-Task Communication
 
@@ -131,7 +146,8 @@ Agents communicate via files only — never via chat memory:
 - `tasks/<role>/<id>.md` — task assignment.
 - `contracts/group-<N>.md` — Sprint Contract output.
 - `evaluations/group-<N>.md` — Evaluator verdict.
+- `evaluations/group-<N>.adversarial.md` — Adversarial Evaluator verdict (when standard PASS).
 - `checkpoints/<phase>-summary.md` — phase/group transition state.
-- `logs/*.jsonl` — structured activity log.
+- `logs/*.jsonl` — structured activity log (Adversarial Evaluator writes `logs/evaluator-adversarial.jsonl`).
 
 A Teammate dispatched in iteration N+1 has no memory of iteration N's chat — only the files left behind. This is intentional: it makes the loop deterministic and resumable (`--resume` mid-run).

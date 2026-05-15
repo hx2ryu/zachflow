@@ -93,7 +93,7 @@ The workflow layer scores 7–8/10. The control plane scores 1–2/10. That is t
 |---|---|
 | **T2-A** PM tool single (Jira-only, qa-fix-scoped) | Linear/Asana/Notion users must write adapters themselves |
 | **T2-B** No PRD ingestion channel | Notion/Confluence/Google Docs PRDs are manually copy-pasted in |
-| **T2-C** Evaluator is single-pass | Adversarial / red-team / security review not part of Active Evaluation |
+| **T2-C** ✅ Evaluator is single-pass | Adversarial / red-team / security review not part of Active Evaluation. *Addressed v1.x — Adversarial Evaluator teammate runs auto-spawned second pass after standard PASS, probes Security / Race / Malformed / Resource exhaustion (see `.claude/teammates/evaluator-adversarial.md` + `workflows/_shared/build-loop.md` §Adversarial Second Pass).* |
 | **T2-D** No deploy/canary integration | Build Loop ends at sprint-branch merge. Deploy + rollback is a separate domain |
 | **T2-E** Workflow DSL is markdown + bash | Flexible but hard to validate/diff/version. YAML DSL is v2.0 only |
 | **T2-F** No KB drift detection | Patterns can go stale without surfacing |
@@ -148,8 +148,8 @@ GOVERNANCE
   └── secrets:rotate                      missing
 
 QUALITY GATES (Evaluator augmentation)
-  ├── eval:security-review                missing  (T2-C)
-  ├── eval:adversarial / red-team         missing
+  ├── eval:security-review                partial  (T2-C — covered by Adversarial Evaluator §Security)
+  ├── eval:adversarial / red-team         present  (T2-C — Adversarial Evaluator teammate)
   ├── eval:performance (N+1, mem, SLO)    missing
   └── eval:accessibility                  missing
 

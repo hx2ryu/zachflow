@@ -200,6 +200,29 @@ The Evaluator performs **Active Evaluation**:
 
 Evaluation report: `runs/{run-id}/evaluations/group-{N}.md`
 
+### Adversarial Second Pass (auto-spawn on standard PASS)
+
+If — and only if — the standard Evaluator returned **PASS**, the workflow caller immediately dispatches the Adversarial Evaluator for the same group:
+
+```
+TaskCreate:
+  Subject: eval-adversarial/{project}/group-{N}
+  Description: <Sprint Contract path + merged code path + path to evaluations/group-{N}.md>
+  Owner: Adversarial Evaluator
+```
+
+The Adversarial Evaluator probes four surfaces orthogonal to spec conformance — Security / Race & Concurrency / Malformed input / Resource exhaustion — and writes its verdict to `runs/{run-id}/evaluations/group-{N}.adversarial.md`. Full role detail: `.claude/teammates/evaluator-adversarial.md`.
+
+**Trigger rules** (workflow caller enforces):
+- Skip if standard verdict is ISSUES or FAIL (Fix Loop handles those first; adversarial runs once the spec is met).
+- Skip on Urgent budget pressure (`fix_loop_count >= 2` for this group). The pressure protocol already says minimum-only — adversarial probing is by definition non-minimum.
+- Run exactly once per group per sprint. Adversarial findings reentering the Fix Loop do **not** trigger a second adversarial pass.
+
+**Adversarial verdicts** (see `.claude/teammates/evaluator-adversarial.md` §Grading Calibration):
+- **Adversarial PASS** → group complete, advance to the next.
+- **Adversarial ISSUES** (1+ Critical/Major) → reenter the standard Fix Loop below with `fix_loop_count += 1` and the budget cap raised by exactly 1. On Fix Loop completion + standard PASS, advance to the next group — the adversarial pass is NOT re-dispatched.
+- **Spec drift** (adversarial flagged a Done Criterion the standard Evaluator missed) → return control to the standard Fix Loop with the missed criterion as a new ISSUE. Treat as if standard Evaluator had returned ISSUES.
+
 ## Fix Loop
 
 On ISSUES or FAIL:
@@ -213,7 +236,7 @@ On ISSUES or FAIL:
 5. Evaluator re-evaluates.
    - Caution: report Minor issues but they don't affect verdict (PASS possible).
    - Urgent: verify only Critical issues.
-6. **Maximum 2 iterations**; on the 3rd failure, mark FAILED and request user intervention (escalation).
+6. **Maximum 2 iterations** (3 if the trigger was Adversarial ISSUES — the budget cap raises by exactly 1 to absorb the second-pass finding); on exceeding the cap, mark FAILED and request user intervention (escalation).
 
 ## Budget Pressure Protocol
 
