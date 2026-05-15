@@ -104,6 +104,15 @@ TaskCreate:
 
 **Reflect prior-group lessons**: When drafting the Contract for Group 2+, review the previous group's checkpoint summary "Lessons for Next Group" and reinforce Done Criteria accordingly.
 
+### Failure-mode guard: regression (after Contract sign-off, before Implement)
+
+```bash
+python3 scripts/lib/guards/regression_guard.py \
+  --sprint-dir runs/sprint/{sprint-id} --group {N}
+```
+
+Verifies the Contract injected active-rubric clauses and contains the `--- FROZEN SNAPSHOT ---` block. Exit 0 = pass/warn (proceed; review warnings); exit 1 = block (requires `--strict`). See `docs/design-principles.md` §Failure Modes for the rationale and `scripts/lib/guards/regression_guard.py --help` for the full check list. Event lands in `logs/guards.jsonl`.
+
 ## Implement Phase Detail
 
 Dispatch only this group's tasks:
@@ -176,6 +185,16 @@ User pre-conditions: simulator/emulator running, dev build installed.
 
 **Rationale**: The Evaluator's active evaluation is subjective; obtain objective AC-coverage proof via e2e first, and let the Evaluator analyze *why* afterward.
 
+### Failure-mode guard: drift (after group merge, before Evaluate)
+
+```bash
+python3 scripts/lib/guards/drift_guard.py \
+  --sprint-dir runs/sprint/{sprint-id} --group {N} \
+  --base {base-ref} --repo {backend|app|.} [--check-scope]
+```
+
+Scans the group's commit messages on each touched repo for **admission phrases** ("while I'm here", "also fix", "drive-by", ...). One hit = exit 1 = hard-block; the workflow caller must NOT proceed to Evaluate until the offending commits are squashed/amended. Optional `--check-scope` adds a warn-level check on files changed outside paths the Contract names. Event lands in `logs/guards.jsonl`.
+
 ## Evaluate Phase Detail
 
 After all tasks in the group are merged, assign evaluation to the Evaluator:
@@ -199,6 +218,16 @@ The Evaluator performs **Active Evaluation**:
 - **Skepticism**: "assume there is a bug, find it".
 
 Evaluation report: `runs/{run-id}/evaluations/group-{N}.md`
+
+### Failure-mode guard: self-deception (after Evaluate report written)
+
+```bash
+python3 scripts/lib/guards/self_deception_guard.py \
+  --sprint-dir runs/sprint/{sprint-id} --group {N} \
+  --repo {project-root} --source-dirs backend app
+```
+
+Three heuristic signals — same-author for impl+eval, Evaluator commit touching source dirs, PASS verdict with zero `file:line` citations. All are warn-level (exit 0); pass `--strict` to escalate. The Evaluator's verdict still stands; this guard surfaces *how that verdict was reached*. Event lands in `logs/guards.jsonl`.
 
 ### Adversarial Second Pass (auto-spawn on standard PASS)
 
