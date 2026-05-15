@@ -62,6 +62,6 @@ The nine principles are not nine separate solutions — they form a distributed 
 
 - It does not enforce. An agent that decides to ignore Done Criteria can — there is no runtime jailer. The Evaluator catches the result, not the intent.
 - It does not verify the verifier. If the Evaluator returns a wrong verdict (the meta-case of self-deception), nothing in the current harness flags it. Multi-LLM cross-evaluation belongs to a later phase (`docs/llm-platform-coupling.md`).
-- It does not detect KB staleness. Patterns that captured a truth six months ago and no longer apply will still inject themselves into Contracts. Drift detection is an open gap (`docs/structural-review-2026-05.md` §T2-F).
+- It detects KB staleness partially. The pattern curator (`scripts/lib/curator.py` + `zachflow-kb:list-stale`) archives stable patterns whose `use_count` stays at zero past a TTL — so prose-stale patterns are eventually flushed. What it does *not* yet detect: a pattern whose content is *wrong* but still referenced (the high-cosine-similarity-for-bad-reasons case). Confidence-scored drift detection remains on the v1.x roadmap (see `docs/structural-review-2026-05.md` §T2-F and `docs/roadmap.md`).
 
 These limits are the boundary between option A (solo / small-team harness, where the current shape is correct) and option B (enterprise control plane, where verification needs verification).

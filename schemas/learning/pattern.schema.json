@@ -29,6 +29,11 @@
       "required": ["bad","good"],
       "properties": { "bad": {"type":"string"}, "good": {"type":"string"} }
     },
-    "schema_version":  { "const": 1 }
+    "state":              { "enum": ["draft","stable","archived"] },
+    "pinned":             { "type": "boolean" },
+    "created_by":         { "enum": ["human","agent"] },
+    "use_count":          { "type": "integer", "minimum": 0 },
+    "last_referenced_at": { "type": ["string","null"], "format": "date-time" },
+    "schema_version":  { "const": 2 }
   }
 }
