@@ -19,11 +19,17 @@ TMPDIR=$(mktemp -d -t zachflow-cz-smoke-XXXXXX)
 trap 'rm -rf "$TMPDIR"' EXIT
 
 BARE_REPO="$TMPDIR/zachflow.git"
-HEAD_REF=$(git -C "$PROJECT_ROOT" symbolic-ref --short HEAD)
+SMOKE_REF="ci-smoke-head"
 
 # 1. Make a local bare clone so --repo= and --branch= can target it offline.
-echo "  [1/3] Build local bare clone (branch=$HEAD_REF)"
+# Detached-HEAD-safe: in PR builds, actions/checkout leaves HEAD detached, so
+# `git symbolic-ref HEAD` would fail. Instead we materialize a local branch
+# in the bare clone pointing at the current HEAD SHA — works for both detached
+# and attached checkouts.
+HEAD_SHA=$(git -C "$PROJECT_ROOT" rev-parse HEAD)
+echo "  [1/3] Build local bare clone (ref=$SMOKE_REF @ ${HEAD_SHA:0:8})"
 git clone --bare --quiet "$PROJECT_ROOT" "$BARE_REPO"
+git -C "$BARE_REPO" update-ref "refs/heads/$SMOKE_REF" "$HEAD_SHA"
 
 run_wrapper() {
   # run_wrapper TARGET [extra args...]
@@ -31,7 +37,7 @@ run_wrapper() {
   node "$PROJECT_ROOT/packages/create-zachflow/index.js" \
     "$tgt" \
     --repo="$BARE_REPO" \
-    --branch="$HEAD_REF" \
+    --branch="$SMOKE_REF" \
     "$@"
 }
 
