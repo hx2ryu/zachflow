@@ -100,7 +100,28 @@ for (const item of STRIP_LIST) {
 console.log('Initializing fresh git repo...');
 execSync('git init -b main', { cwd: targetPath, stdio: 'inherit' });
 execSync('git add .', { cwd: targetPath, stdio: 'inherit' });
-execSync('git commit -m "chore: initial commit from zachflow template"', { cwd: targetPath, stdio: 'inherit' });
+
+// Author identity: prefer the user's git config; fall back to zachflow defaults
+// when neither global nor env identity is present (fresh dev machines, CI runners,
+// users who haven't run `git config --global user.name` yet).
+const commitEnv = { ...process.env };
+const hasGitConfig = (key) => {
+  try { execSync(`git config --get ${key}`, { stdio: 'pipe' }); return true; }
+  catch { return false; }
+};
+if (!commitEnv.GIT_AUTHOR_NAME && !hasGitConfig('user.name')) {
+  commitEnv.GIT_AUTHOR_NAME = 'zachflow init';
+  commitEnv.GIT_COMMITTER_NAME = 'zachflow init';
+}
+if (!commitEnv.GIT_AUTHOR_EMAIL && !hasGitConfig('user.email')) {
+  commitEnv.GIT_AUTHOR_EMAIL = 'init@zachflow.local';
+  commitEnv.GIT_COMMITTER_EMAIL = 'init@zachflow.local';
+}
+execSync('git commit -m "chore: initial commit from zachflow template"', {
+  cwd: targetPath,
+  stdio: 'inherit',
+  env: commitEnv,
+});
 
 // 4. Run wizard (interactive TTY only) or print next steps
 console.log('');

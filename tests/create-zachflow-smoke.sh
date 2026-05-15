@@ -14,6 +14,9 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "create-zachflow smoke at: $PROJECT_ROOT"
+TOTAL_STEPS=4
+step=0
+next_step() { step=$((step + 1)); echo "  [$step/$TOTAL_STEPS] $1"; }
 
 TMPDIR=$(mktemp -d -t zachflow-cz-smoke-XXXXXX)
 trap 'rm -rf "$TMPDIR"' EXIT
@@ -27,7 +30,7 @@ SMOKE_REF="ci-smoke-head"
 # in the bare clone pointing at the current HEAD SHA — works for both detached
 # and attached checkouts.
 HEAD_SHA=$(git -C "$PROJECT_ROOT" rev-parse HEAD)
-echo "  [1/3] Build local bare clone (ref=$SMOKE_REF @ ${HEAD_SHA:0:8})"
+next_step "Build local bare clone (ref=$SMOKE_REF @ ${HEAD_SHA:0:8})"
 git clone --bare --quiet "$PROJECT_ROOT" "$BARE_REPO"
 git -C "$BARE_REPO" update-ref "refs/heads/$SMOKE_REF" "$HEAD_SHA"
 
@@ -42,7 +45,7 @@ run_wrapper() {
 }
 
 # 2. --no-init: wrapper should clone-and-strip but NOT run wizard.
-echo "  [2/3] --no-init skips the wizard"
+next_step "--no-init skips the wizard"
 TARGET1="$TMPDIR/project-no-init"
 # Redirect stdin from /dev/null to also assert non-TTY path works alongside --no-init.
 run_wrapper "$TARGET1" --no-init </dev/null > "$TMPDIR/out1.log" 2>&1 || {
@@ -66,7 +69,7 @@ echo "    --no-init OK (project created, wizard skipped, guidance printed)"
 
 # 3. Non-TTY default (no --no-init): wizard should also skip because stdin
 #    is not a TTY. This is the CI path.
-echo "  [3/3] Non-TTY stdin also skips the wizard (CI path)"
+next_step "Non-TTY stdin also skips the wizard (CI path)"
 TARGET2="$TMPDIR/project-non-tty"
 run_wrapper "$TARGET2" </dev/null > "$TMPDIR/out2.log" 2>&1 || {
   echo "FAIL: wrapper exited non-zero on non-TTY default"
@@ -83,6 +86,34 @@ grep -q "Next steps:" "$TMPDIR/out2.log" || {
   exit 1
 }
 echo "    non-TTY OK (wizard correctly skipped)"
+
+# 4. Fresh machine simulation: no git user.name / user.email anywhere.
+#    HOME is empty so global config is absent; GIT_CONFIG_NOSYSTEM=1 hides
+#    the system config; unsetting GIT_AUTHOR_* / GIT_COMMITTER_* removes the
+#    env override path. The wrapper must inject its own author identity
+#    fallback so the initial commit succeeds.
+next_step "Fresh machine fallback (no global git identity)"
+TARGET3="$TMPDIR/project-no-identity"
+HOME_OVERRIDE="$TMPDIR/empty-home"
+mkdir -p "$HOME_OVERRIDE"
+env -u GIT_AUTHOR_NAME -u GIT_AUTHOR_EMAIL -u GIT_COMMITTER_NAME -u GIT_COMMITTER_EMAIL \
+  HOME="$HOME_OVERRIDE" \
+  XDG_CONFIG_HOME="$HOME_OVERRIDE/.config" \
+  GIT_CONFIG_NOSYSTEM=1 \
+  node "$PROJECT_ROOT/packages/create-zachflow/index.js" \
+    "$TARGET3" \
+    --repo="$BARE_REPO" \
+    --branch="$SMOKE_REF" \
+    --no-init </dev/null > "$TMPDIR/out3.log" 2>&1 || {
+  echo "FAIL: wrapper exited non-zero with no git identity available"
+  cat "$TMPDIR/out3.log"
+  exit 1
+}
+[ -d "$TARGET3/.git" ] || { echo "FAIL: fresh git init missing"; exit 1; }
+# Verify the initial commit actually exists (it would not, if commit had failed).
+LAST_AUTHOR=$(git -C "$TARGET3" log -n1 --pretty=format:'%an <%ae>' 2>/dev/null || echo "")
+[ -n "$LAST_AUTHOR" ] || { echo "FAIL: no commit landed in fresh-machine simulation"; exit 1; }
+echo "    fresh-machine OK (initial commit by: $LAST_AUTHOR)"
 
 echo
 echo "PASS: create-zachflow smoke check"
