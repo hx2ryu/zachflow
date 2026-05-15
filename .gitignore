@@ -23,3 +23,8 @@ firebase-debug.log
 
 # OS
 Thumbs.db
+
+# Python build artifacts
+__pycache__/
+*.pyc
+*.pyo
