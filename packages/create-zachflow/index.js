@@ -36,12 +36,15 @@ const args = process.argv.slice(2);
 let target = null;
 let repoUrl = DEFAULT_REPO;
 let ref = DEFAULT_REF;
+let skipInit = false;
 
 for (const arg of args) {
   if (arg.startsWith('--repo=')) {
     repoUrl = arg.slice('--repo='.length);
   } else if (arg.startsWith('--branch=') || arg.startsWith('--tag=')) {
     ref = arg.slice(arg.indexOf('=') + 1);
+  } else if (arg === '--no-init') {
+    skipInit = true;
   } else if (arg === '--help' || arg === '-h') {
     printHelp();
     process.exit(0);
@@ -99,17 +102,35 @@ execSync('git init -b main', { cwd: targetPath, stdio: 'inherit' });
 execSync('git add .', { cwd: targetPath, stdio: 'inherit' });
 execSync('git commit -m "chore: initial commit from zachflow template"', { cwd: targetPath, stdio: 'inherit' });
 
-// 4. Print next steps
+// 4. Run wizard (interactive TTY only) or print next steps
 console.log('');
 console.log(`✓ zachflow project created at ${target}/`);
 console.log('');
-console.log('Next steps:');
-console.log(`  cd ${target}`);
-console.log('  bash scripts/init-project.sh        # interactive wizard (~5 min)');
-console.log('  # or for CI/scripted:');
-console.log('  cp templates/init.config.template.yaml init.config.yaml');
-console.log('  bash scripts/init-project.sh --from=init.config.yaml --non-interactive');
-console.log('');
+
+const isInteractive = process.stdin.isTTY && process.stdout.isTTY;
+const shouldRunWizard = !skipInit && isInteractive;
+
+if (shouldRunWizard) {
+  console.log('Running init wizard...');
+  console.log('');
+  try {
+    execSync('bash scripts/init-project.sh', { cwd: targetPath, stdio: 'inherit' });
+  } catch (err) {
+    console.error('');
+    console.error('Wizard did not complete. Re-run with:');
+    console.error(`  cd ${target} && bash scripts/init-project.sh`);
+    process.exit(1);
+  }
+} else {
+  // CI / --no-init / non-TTY: print manual next steps.
+  console.log('Next steps:');
+  console.log(`  cd ${target}`);
+  console.log('  bash scripts/init-project.sh        # interactive wizard (~5 min)');
+  console.log('  # or for CI/scripted:');
+  console.log('  cp templates/init.config.template.yaml init.config.yaml');
+  console.log('  bash scripts/init-project.sh --from=init.config.yaml --non-interactive');
+  console.log('');
+}
 
 function printHelp() {
   console.log(`Usage:
@@ -120,6 +141,7 @@ Options:
                      (default: ${DEFAULT_REPO})
   --branch=<name>    Clone a specific branch (e.g. main)
   --tag=<tag>        Clone a specific tag (default: v${PKG_VERSION} — this package's version)
+  --no-init          Skip the init wizard (for CI / scripted setup)
   --help, -h         Show this message
 
 Env vars:

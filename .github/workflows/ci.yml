@@ -78,6 +78,12 @@ jobs:
       - name: init-project.sh non-interactive smoke
         run: bash tests/init-project-smoke.sh
 
+      - name: create-zachflow wrapper syntax check
+        run: node --check packages/create-zachflow/index.js
+
+      - name: create-zachflow wrapper smoke
+        run: bash tests/create-zachflow-smoke.sh
+
       - name: install-plugins.sh syntax check
         run: bash -n scripts/install-plugins.sh
 

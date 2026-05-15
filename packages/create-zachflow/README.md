@@ -12,14 +12,9 @@ This:
 1. Shallow-clones the zachflow repo to `my-project/` at the tag matching this package's version (`create-zachflow@X.Y.Z` → `git clone --branch vX.Y.Z`)
 2. Strips development artifacts (`.git/`, `docs/superpowers/`, etc.)
 3. Re-initializes git with a fresh first commit
-4. Prints next steps (run the wizard)
+4. **Auto-runs `scripts/init-project.sh`** (the interactive wizard) when stdin is a TTY — one command, end-to-end setup.
 
-After completion:
-
-```bash
-cd my-project
-bash scripts/init-project.sh
-```
+In a non-TTY context (CI, redirected stdin) or with `--no-init`, the wizard is skipped and the manual next-step commands are printed instead.
 
 ## Options
 
@@ -28,6 +23,7 @@ bash scripts/init-project.sh
 | `--repo=<url>` | github.com/hx2ryu/zachflow.git | Repo URL |
 | `--branch=<name>` | (none) | Branch to clone (e.g. `main`) |
 | `--tag=<tag>` | `v<pkg-version>` | Tag to clone. Defaults to this package's version, so `create-zachflow@X.Y.Z` clones zachflow at `vX.Y.Z`. |
+| `--no-init` | (off) | Skip auto-running the wizard. Use for CI or when you want to inspect the project before initializing. |
 | `--help`, `-h` | | Show help |
 
 Env vars: `ZACHFLOW_REPO_URL`, `ZACHFLOW_REF` (overrides the default ref).
