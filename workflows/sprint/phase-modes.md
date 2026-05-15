@@ -1,4 +1,4 @@
-# Sprint Modes: --continue, --follow-up, --status
+# Sprint Modes: --continue, --follow-up, --status, --health
 
 For agent role definitions, see `workflows/_shared/agent-team.md` § Sprint Lead.
 For KB sync/search protocol used in `--follow-up` Evaluator calibration, see `workflows/_shared/kb-integration.md`.
@@ -260,6 +260,32 @@ sprint runs found" line.
 
 For deep detail on any one sprint, drop back into the per-sprint mode:
 `/sprint {sprint-id} --status`.
+
+## --health Mode (per-sprint outcome aggregator)
+
+Where `--status` answers "where is the sprint?", `--health` answers "how is the sprint going?". Same per-sprint shape, but the columns are *outcomes* (verdicts, fix-loop counts, guard activity, contributed patterns) instead of *progress* (current phase, group counts).
+
+```bash
+/sprint {sprint-id} --health
+```
+
+Routes to:
+
+```bash
+python3 scripts/lib/sprint-health.py --sprint-dir runs/sprint/{sprint-id}
+# JSON snapshot (for piping into a follow-up tool):
+python3 scripts/lib/sprint-health.py --sprint-dir runs/sprint/{sprint-id} --format json
+```
+
+The helper reads five data sources read-only and prints a single markdown report:
+
+1. `contracts/group-*.md` — group count
+2. `evaluations/group-*.md` and `group-*.adversarial.md` — standard and adversarial verdicts
+3. `logs/evaluator.jsonl` — evaluation rounds per group (proxy for fix-loop count)
+4. **Project-scoped** `logs/guards.jsonl`, filtered by `sprint_id` — the four failure-mode guard buckets (pass / warn / block per guard)
+5. `.zachflow/kb/learning/patterns/*.yaml` filtered by `source_sprint`, plus project-scoped `logs/curator.jsonl` for transitions on those patterns
+
+Suitable for posting verbatim into a Retro note or a PR body. JSON output is suitable for piping into longer-term trend tracking (the script writes nothing on its own — no snapshots are persisted by default).
 
 ### Hook-Based Event Capture
 
