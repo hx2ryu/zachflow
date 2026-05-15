@@ -37,6 +37,12 @@ tampering attempts.
   `logs/curator.jsonl`. This file is **kb-scoped, not sprint-bounded**:
   one chain spans the lifetime of the KB. Rotate it like any other
   chained file if the chain ever breaks.
+- `scripts/lib/guards/{drift,self_deception,context,regression}_guard.py` —
+  the four failure-mode guards each append a `guard.<name>` record to
+  `logs/guards.jsonl`. Like `curator.jsonl`, this file is
+  **project-scoped, not sprint-bounded** — one chain spans the lifetime
+  of the project so longitudinal pattern detection across sprints is
+  trivial.
 - Other workflow scripts can append by shelling out to
   `python3 scripts/lib/jsonl-append.py FILE 'JSON_PAYLOAD'`.
 

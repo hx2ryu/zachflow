@@ -90,6 +90,19 @@ runs/sprint/{sprint-id}/checkpoints/
 3. **Reference priority**: checkpoint → task file → original (only when needed).
 4. **Exception**: When the fix loop must reproduce a prior issue exactly, reading the original evaluation report is allowed.
 
+**Verify after writing each checkpoint** (`context_guard`):
+
+```bash
+python3 scripts/lib/guards/context_guard.py \
+  --sprint-dir runs/sprint/{sprint-id} \
+  --phase-completed {N} [--next-phase {N+1}]
+# or
+python3 scripts/lib/guards/context_guard.py \
+  --sprint-dir runs/sprint/{sprint-id} --group {N}
+```
+
+The guard fails (warn) if the file is missing, anemic (< 100 bytes), or lacks markdown headings. Pass `--next-phase 4+` to also assert that all prior phase checkpoints exist (chain check). Event is appended to `logs/guards.jsonl`. See `docs/design-principles.md` §Failure Modes for the rationale.
+
 ### Progressive File Reading
 
 Read only the parts of files you need:
