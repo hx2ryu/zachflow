@@ -71,6 +71,22 @@ fi
 
 # ─── Demo mode: synthesize a throwaway source repo + config ──────
 
+# Convert an MSYS/Cygwin path (e.g. /tmp/foo) into a mixed-mode Windows path
+# (e.g. C:/.../tmp/foo) when running under git-bash. Both shell builtins and
+# Windows-native tools (python3, node) accept mixed-mode paths, so this is
+# the safest cross-OS shape for paths handed off to non-bash binaries.
+_to_native_path() {
+  case "$(uname -s 2>/dev/null)" in
+    MINGW*|MSYS*|CYGWIN*)
+      if command -v cygpath >/dev/null 2>&1; then
+        cygpath -m "$1"
+        return
+      fi
+      ;;
+  esac
+  echo "$1"
+}
+
 if [ $DEMO -eq 1 ]; then
   if [ ! -d "templates/demo-source" ]; then
     echo "Error: templates/demo-source/ is missing — cannot run --demo" >&2
@@ -81,6 +97,7 @@ if [ $DEMO -eq 1 ]; then
   #    something real to point at. Lives outside the project tree so
   #    cleanup is obvious to the user.
   DEMO_SOURCE_PATH=$(mktemp -d -t zachflow-demo-source-XXXXXX)
+  DEMO_SOURCE_PATH=$(_to_native_path "$DEMO_SOURCE_PATH")
   echo "demo: staging throwaway source repo at $DEMO_SOURCE_PATH"
   (cd templates/demo-source && tar -cf - .) | (cd "$DEMO_SOURCE_PATH" && tar -xf -)
   (
@@ -101,6 +118,7 @@ if [ $DEMO -eq 1 ]; then
   #    --non-interactive path do the rest. Single code path, no
   #    duplicated wizard logic.
   DEMO_CONFIG=$(mktemp -t zachflow-demo-config-XXXXXX)
+  DEMO_CONFIG=$(_to_native_path "$DEMO_CONFIG")
   cat > "$DEMO_CONFIG" <<EOF
 project_name: zachflow-demo
 workflows: both
