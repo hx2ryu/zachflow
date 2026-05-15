@@ -75,6 +75,12 @@ jobs:
       - name: init-project.sh syntax check
         run: bash -n scripts/init-project.sh
 
+      - name: preflight syntax check
+        run: bash -n scripts/lib/preflight.sh
+
+      - name: preflight unit tests
+        run: bash tests/preflight-test.sh
+
       - name: init-project.sh non-interactive smoke
         run: bash tests/init-project-smoke.sh
 

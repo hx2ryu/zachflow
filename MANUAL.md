@@ -32,6 +32,10 @@ bash scripts/init-project.sh --from=init.config.yaml --non-interactive
 
 The shape of `init.config.yaml` is documented inline in `templates/init.config.template.yaml`. After running, compare your generated `sprint-config.yaml` against `examples/nextjs-supabase/sprint-config.example.yaml` to sanity-check the wizard output.
 
+### Prerequisites
+
+Before the wizard runs, `init-project.sh` checks for `git`, `python3 ≥ 3.8`, the `pyyaml` Python module, and (optionally) `node ≥ 18`. Missing items are reported as a batch with platform-aware install hints (macOS PEP 668 paths included). Pass `--skip-preflight` to bypass the check; the wizard will then fail later if something it actually needs is missing, so reach for this only when you know the check itself is wrong about your environment.
+
 ### Re-running the wizard
 
 If you re-run `init-project.sh` and `sprint-config.yaml` exists, the wizard prompts before overwriting. Use `--force` to skip the prompt (with care — overwrites your customizations).

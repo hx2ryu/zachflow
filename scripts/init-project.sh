@@ -5,6 +5,7 @@
 #   bash scripts/init-project.sh                            # interactive (default)
 #   bash scripts/init-project.sh --from=init.config.yaml --non-interactive
 #   bash scripts/init-project.sh --force                    # skip overwrite confirmations
+#   bash scripts/init-project.sh --skip-preflight           # bypass prerequisite check
 #
 # Outputs:
 #   sprint-config.yaml                       (project root)
@@ -28,12 +29,14 @@ cd "$PROJECT_ROOT"
 NON_INTERACTIVE=0
 FROM_CONFIG=""
 FORCE=0
+SKIP_PREFLIGHT=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --non-interactive)        NON_INTERACTIVE=1; shift ;;
     --from=*)                 FROM_CONFIG="${1#*=}"; shift ;;
     --force)                  FORCE=1; shift ;;
+    --skip-preflight)         SKIP_PREFLIGHT=1; shift ;;
     -h|--help)
       grep -E '^#( |$)' "${BASH_SOURCE[0]}" | sed 's/^# \?//'
       exit 0
@@ -47,6 +50,14 @@ done
 if [ ! -f "scripts/install-workflows.sh" ] || [ ! -d "workflows" ] || [ ! -d "templates/teammates" ]; then
   echo "Error: must run from a zachflow project root (scripts/install-workflows.sh, workflows/, and templates/teammates/ required)" >&2
   exit 1
+fi
+
+# ─── Preflight (verify prerequisites before doing anything else) ──
+
+if [ $SKIP_PREFLIGHT -eq 0 ]; then
+  # shellcheck source=scripts/lib/preflight.sh
+  . scripts/lib/preflight.sh
+  run_preflight || exit 1
 fi
 
 # ─── Helpers ─────────────────────────────────────────────────────
