@@ -45,6 +45,7 @@ As Sprint Lead, orchestrate the sprint with a Planner-Generator-Evaluator patter
 /sprint <sprint-id> --follow-up=<prev-sprint-id> # New follow-up sprint based on a previous one
 /sprint <sprint-id> --status                     # Per-sprint status dashboard
 /sprint --status                                 # Cross-sprint fleet dashboard (all in-flight)
+/sprint <sprint-id> --health                     # Per-sprint outcome aggregator (verdicts, guards, patterns)
 /sprint                                          # Auto-detect the most recent sprint
 ```
 
