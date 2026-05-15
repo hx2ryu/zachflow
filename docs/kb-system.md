@@ -46,21 +46,28 @@ Rules:
 | `zachflow-kb:write-reflection` | Record a sprint-end reflection (markdown + frontmatter) at `learning/reflections/{sprint_id}.md`. |
 | `zachflow-kb:promote-rubric` | Append a Promotion Log row to the active rubric. Lightweight bookkeeping. |
 | `zachflow-kb:bump-rubric` | Bump v(N) → v(N+1): consolidate Promotion Log into Clauses, supersede the prior version. |
+| `zachflow-kb:promote-pattern` | Force a pattern's lifecycle state to `stable` (manual override of the curator's use_count threshold). |
+| `zachflow-kb:archive-pattern` | Move a pattern to `state: archived` and relocate the file to `patterns/.archive/`. Refuses pinned patterns. |
+| `zachflow-kb:list-stale` | Read-only dry-run of the pattern curator — print promote/archive candidates without changing anything. |
 | `zachflow-kb:sync` | Embedded mode: no-op. Remote mode (v1.1+): `git pull --ff-only` from KB remote. |
 
 Each skill's `SKILL.md` (under `.claude/skills/zachflow-kb/<op>/SKILL.md`) is the authoritative protocol; agents invoke them via the Skill tool.
 
 ## Schemas reference
 
-### Pattern (`schemas/learning/pattern.schema.json`)
+### Pattern (`schemas/learning/pattern.schema.json`, schema v2)
 
 Required fields: `id`, `title`, `category`, `severity`, `source_sprint`, `discovered_at`, `frequency`, `last_seen`, `description`, `detection`, `prevention`, `contract_clause`, `schema_version`.
+
+Optional lifecycle fields (v2): `state` (`draft | stable | archived`), `pinned` (bool), `created_by` (`human | agent`), `use_count` (int ≥ 0), `last_referenced_at` (ISO 8601 or null). These are managed by `scripts/lib/curator.py` and exposed via the three lifecycle skills above; pattern authors do not set them by hand.
 
 Enums:
 - `category`: `correctness | completeness | integration | edge_case | code_quality | design_proto | design_spec`
 - `severity`: `critical | major | minor`
 
 ID format: `{category}-{NNN}` (zero-padded 3 digits). Example: `correctness-001`, `design_proto-014`.
+
+Projects with pre-v2 patterns (`schema_version: 1`) should run `python3 scripts/lib/migrate-pattern-v1-to-v2.py --kb-path .zachflow/kb` once; the migration is idempotent and seeds existing patterns with `state: stable`.
 
 ### Rubric (`schemas/learning/rubric.schema.json`)
 
@@ -91,7 +98,36 @@ Per zachflow's embedded-mode philosophy, user KB is local to your project — bu
 | 2 (Spec) | `zachflow-kb:read type=pattern` | Load prior patterns to inform task decomposition. |
 | 4.1 (Contract) | `zachflow-kb:read` | Auto-inject critical patterns' contract_clause into Done Criteria. |
 | 4.4 (Evaluate) | `zachflow-kb:read type=rubric` | Load active rubric clauses for evaluation criteria. |
-| 6 (Retro) | `zachflow-kb:write-pattern`, `update-pattern`, `write-reflection`, `promote-rubric`, `bump-rubric` | Record new patterns, bump frequencies, log reflection, promote rubric clauses, and (when the Promotion Log threshold is met) bump the rubric version. |
+| 6 (Retro) | `zachflow-kb:write-pattern`, `update-pattern`, `write-reflection`, `promote-rubric`, `bump-rubric`, `list-stale` | Record new patterns, bump frequencies, log reflection, promote rubric clauses, and (when the Promotion Log threshold is met) bump the rubric version. End of Retro is also when `list-stale` is reviewed to plan curator runs. |
+
+## Pattern Lifecycle (curator)
+
+Patterns progress through three states managed by `scripts/lib/curator.py`:
+
+```
+   write-pattern         use_count ≥ 3         use_count==0 & age>TTL
+    (Retro)         ─────────────────►    ─────────────────────────►
+   ┌──────┐                              ┌────────┐                ┌──────────┐
+   │ draft │                              │ stable │                │ archived │
+   └──────┘                              └────────┘                └──────────┘
+                                              ▲                          │
+                                              │  pinned: true bypasses   │
+                                              └──── all transitions ─────┘
+                                          (manual promote/archive via skill)
+```
+
+**Source of truth.** State lives in the pattern's own yaml frontmatter (`state`, `pinned`, `use_count`, `last_referenced_at`), not a sidecar file. This preserves design-principle §6 (file-based handoff) — one `git log` traces the full lifecycle of a pattern.
+
+**Reference counting.** `use_count` is recomputed by scanning `logs/**/*.jsonl` and `runs/**/*.jsonl` for records with a structured `pattern_id` (string) or `pattern_ids` (list) field. Free-text mentions in record bodies are deliberately ignored — they would inflate counts every time an agent named a pattern in prose. Agents that want to credit a reference must emit a structured field.
+
+**Audit trail.** Every state transition appends a hash-chained record to `logs/curator.jsonl` (`event: pattern.state_changed`, `from_state`, `to_state`, `use_count`, `reason`). `python3 scripts/lib/jsonl-verify.py logs/curator.jsonl` validates the chain. The file is kb-scoped (not sprint-bounded) — see `docs/logs-hash-chain.md`.
+
+**When to run.** The curator is not invoked automatically by any phase. Recommended cadence:
+- **Every Retro (Phase 6)** — run `zachflow-kb:list-stale` to inspect pending transitions.
+- **End of sprint** — `python3 scripts/lib/curator.py --kb-path .zachflow/kb --apply` to materialize them.
+- **Ad-hoc** — `zachflow-kb:promote-pattern` / `archive-pattern` for human overrides between sprints.
+
+**Defaults.** `--ttl-days 90`, `--archive-threshold 0`. Tune per project via the skill input or direct CLI invocation.
 
 ## External integrations (plugins)
 

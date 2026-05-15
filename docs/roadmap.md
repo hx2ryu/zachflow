@@ -12,6 +12,11 @@
 
 ## v1.x (post v1.0)
 
+- [x] Pattern lifecycle automation (Phase 6.7b) — schema v2 + `scripts/lib/curator.py` + `zachflow-kb:{promote,archive,list-stale}` skills (informed by hermes-agent benchmark; see [`docs/benchmarks/2026-05-three-agent-frameworks.md`](benchmarks/2026-05-three-agent-frameworks.md))
+- 4 failure-mode guards — make `docs/design-principles.md` §Failure Modes executable: one script per mode emitting typed events into `logs/*.jsonl` (deer-flow middleware-chain port)
+- Adversarial Evaluator (T2-C) — independent red-team Evaluator teammate that probes edge cases beyond Active Evaluation; build-loop §4.4 gains a second pass
+- KB drift detection completion (T2-F) — add `confidence` + `category` typed-fact fields and threshold-based pruning on top of the curator's TTL archive (deer-flow typed-facts port)
+- Hash-chain ed25519 signing — extend `logs/*.jsonl` with detached ed25519 signatures and a `HASH` redaction bucket for verifiable PII handling (ruflo audit-record port)
 - KB embedded → remote migration wizard
 - External stack adapter examples (community PRs)
 - Multi-LLM platform support (informed by `zzem-orchestrator` Codex experimentation — see [`llm-platform-coupling.md`](llm-platform-coupling.md))

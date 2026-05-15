@@ -32,6 +32,11 @@ tampering attempts.
 - `scripts/hook-handler.sh` — Claude Code hooks (`SubagentStart`,
   `SubagentStop`, `TaskCreated`, `TaskCompleted`) append to the active
   sprint's `logs/events.jsonl`.
+- `scripts/lib/curator.py` — the pattern curator appends a
+  `pattern.state_changed` record per transition to
+  `logs/curator.jsonl`. This file is **kb-scoped, not sprint-bounded**:
+  one chain spans the lifetime of the KB. Rotate it like any other
+  chained file if the chain ever breaks.
 - Other workflow scripts can append by shelling out to
   `python3 scripts/lib/jsonl-append.py FILE 'JSON_PAYLOAD'`.
 
