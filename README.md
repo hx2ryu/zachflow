@@ -3,7 +3,7 @@
 Harness-driven sprint orchestration for AI coding agents.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)]()
 [![npm](https://img.shields.io/npm/v/create-zachflow.svg)](https://www.npmjs.com/package/create-zachflow)
 
 zachflow is a workflow harness that brings explicit phase gates, file-based handoff, and contract-first development to long-running coding sessions on Claude Code's Agent Teams. It implements the **Planner–Generator–Evaluator** pattern with cross-session knowledge accumulation.
@@ -16,7 +16,7 @@ cd my-project
 bash scripts/init-project.sh
 ```
 
-The bootstrap is zero-deps. `create-zachflow@X.Y.Z` clones zachflow at `vX.Y.Z` (currently `v1.3.0`) so CLI version and template version stay in lockstep, strips dev artifacts, and re-inits git. The interactive wizard then takes ~5 minutes. After completion, you have a working sprint runner ready to run `/sprint <run-id>` in Claude Code.
+The bootstrap is zero-deps. `create-zachflow@X.Y.Z` clones zachflow at `vX.Y.Z` (currently `v1.4.0`) so CLI version and template version stay in lockstep, strips dev artifacts, and re-inits git. The interactive wizard then takes ~5 minutes. After completion, you have a working sprint runner ready to run `/sprint <run-id>` in Claude Code.
 
 For non-interactive setup (CI):
 
@@ -64,7 +64,7 @@ See [`ARCHITECTURE.md`](ARCHITECTURE.md) for principles + Build Loop detail, [`M
 
 ## Status
 
-**v1.3.0** — published to npm. Runs on Claude Code Agent Teams. Adds KB validation hardening, rubric lifecycle automation (`zachflow-kb:bump-rubric`), cross-sprint fleet status (`/sprint --status`), and tamper-evident logs (SHA-256 chain on `logs/*.jsonl`). Multi-LLM platform support is on the v1.x roadmap (see [`docs/llm-platform-coupling.md`](docs/llm-platform-coupling.md)).
+**v1.4.0** — published to npm. Runs on Claude Code Agent Teams. Adds pattern lifecycle curator (Phase 6.7b — schema v2 + `zachflow-kb:{promote-pattern, archive-pattern, list-stale}`), Adversarial Evaluator teammate (read-only red-team second pass on standard PASS), and four failure-mode guards (`scripts/lib/guards/*` for drift / self-deception / context / regression) — informed by the three-agent-framework benchmark in [`docs/benchmarks/2026-05-three-agent-frameworks.md`](docs/benchmarks/2026-05-three-agent-frameworks.md). Multi-LLM platform support is on the v1.x roadmap (see [`docs/llm-platform-coupling.md`](docs/llm-platform-coupling.md)).
 
 Track v1.x progress in [`docs/roadmap.md`](docs/roadmap.md).
 
