@@ -84,6 +84,9 @@ jobs:
       - name: init-project.sh non-interactive smoke
         run: bash tests/init-project-smoke.sh
 
+      - name: init-project.sh --demo smoke
+        run: bash tests/demo-mode-test.sh
+
       - name: create-zachflow wrapper syntax check
         run: node --check packages/create-zachflow/index.js
 

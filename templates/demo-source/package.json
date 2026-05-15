@@ -1,0 +1,10 @@
+{
+  "name": "zachflow-demo-source",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Throwaway sample repo used by zachflow's --demo mode.",
+  "scripts": {
+    "build": "echo 'demo build OK'",
+    "test": "node src/index.test.js"
+  }
+}

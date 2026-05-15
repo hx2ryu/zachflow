@@ -6,6 +6,7 @@
 #   bash scripts/init-project.sh --from=init.config.yaml --non-interactive
 #   bash scripts/init-project.sh --force                    # skip overwrite confirmations
 #   bash scripts/init-project.sh --skip-preflight           # bypass prerequisite check
+#   bash scripts/init-project.sh --demo                     # try zachflow with a throwaway sample repo
 #
 # Outputs:
 #   sprint-config.yaml                       (project root)
@@ -30,6 +31,8 @@ NON_INTERACTIVE=0
 FROM_CONFIG=""
 FORCE=0
 SKIP_PREFLIGHT=0
+DEMO=0
+DEMO_SOURCE_PATH=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -37,6 +40,7 @@ while [ $# -gt 0 ]; do
     --from=*)                 FROM_CONFIG="${1#*=}"; shift ;;
     --force)                  FORCE=1; shift ;;
     --skip-preflight)         SKIP_PREFLIGHT=1; shift ;;
+    --demo)                   DEMO=1; shift ;;
     -h|--help)
       grep -E '^#( |$)' "${BASH_SOURCE[0]}" | sed 's/^# \?//'
       exit 0
@@ -44,6 +48,11 @@ while [ $# -gt 0 ]; do
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
+
+if [ $DEMO -eq 1 ] && [ -n "$FROM_CONFIG" ]; then
+  echo "Error: --demo is incompatible with --from=<file> (demo synthesizes its own config)" >&2
+  exit 1
+fi
 
 # ─── Sanity check (must run from zachflow project root) ──────────
 
@@ -58,6 +67,68 @@ if [ $SKIP_PREFLIGHT -eq 0 ]; then
   # shellcheck source=scripts/lib/preflight.sh
   . scripts/lib/preflight.sh
   run_preflight || exit 1
+fi
+
+# ─── Demo mode: synthesize a throwaway source repo + config ──────
+
+if [ $DEMO -eq 1 ]; then
+  if [ ! -d "templates/demo-source" ]; then
+    echo "Error: templates/demo-source/ is missing — cannot run --demo" >&2
+    exit 1
+  fi
+
+  # 1. Materialize a throwaway source repo so the synthesized role has
+  #    something real to point at. Lives outside the project tree so
+  #    cleanup is obvious to the user.
+  DEMO_SOURCE_PATH=$(mktemp -d -t zachflow-demo-source-XXXXXX)
+  echo "demo: staging throwaway source repo at $DEMO_SOURCE_PATH"
+  (cd templates/demo-source && tar -cf - .) | (cd "$DEMO_SOURCE_PATH" && tar -xf -)
+  (
+    cd "$DEMO_SOURCE_PATH"
+    git init -b main >/dev/null
+    # Author identity for this throwaway repo — matches create-zachflow's
+    # fallback so behavior is consistent even on a fresh machine with no
+    # global git config.
+    if ! git config --get user.email >/dev/null 2>&1; then
+      git config user.email "demo@zachflow.local"
+      git config user.name "zachflow demo"
+    fi
+    git add . >/dev/null
+    git commit -m "chore: demo source seed" >/dev/null
+  )
+
+  # 2. Synthesize a non-interactive config and let the existing
+  #    --non-interactive path do the rest. Single code path, no
+  #    duplicated wizard logic.
+  DEMO_CONFIG=$(mktemp -t zachflow-demo-config-XXXXXX)
+  cat > "$DEMO_CONFIG" <<EOF
+project_name: zachflow-demo
+workflows: both
+branch_prefix: demo
+roles:
+  - key: backend
+    source: $DEMO_SOURCE_PATH
+    base: main
+    mode: worktree
+    teammate: be-engineer
+    fill:
+      stack_description: |
+        Node.js demo source — a 3-file scratch repo (src/index.js, src/index.test.js, package.json) seeded by zachflow's --demo mode.
+      repo_layout: |
+        src/      - greet() module + test
+        package.json
+      build_cmd: |
+        npm run build
+        npm test
+      conventions: |
+        - This is a demo scratch project. Anything goes — feel free to break things.
+kb:
+  mode: embedded
+init_kb: true
+EOF
+  NON_INTERACTIVE=1
+  FROM_CONFIG="$DEMO_CONFIG"
+  FORCE=1   # demo always overwrites — there's no user customization to protect
 fi
 
 # ─── Helpers ─────────────────────────────────────────────────────
@@ -523,17 +594,28 @@ echo
 echo "─────────────────────────"
 echo "zachflow init complete."
 echo
-echo "Next:"
-case "$WORKFLOWS" in
-  sprint|both)
-    echo "  /sprint <run-id>                          # start a sprint"
-    ;;
-esac
-case "$WORKFLOWS" in
-  qa-fix|both)
-    echo "  /qa-fix <run-id> --jql=\"...\"             # run QA fix loop"
-    ;;
-esac
-echo
-echo "Edit teammate guides at .claude/teammates/<name>.md to refine stack details."
+if [ $DEMO -eq 1 ]; then
+  echo "Demo mode:"
+  echo "  • Source repo: $DEMO_SOURCE_PATH   (throwaway — delete when done)"
+  echo "  • Open this directory in Claude Code, then try:"
+  echo "        /sprint demo-1"
+  echo
+  echo "  Cleanup when finished:"
+  echo "        rm -rf \"$DEMO_SOURCE_PATH\""
+  echo
+else
+  echo "Next:"
+  case "$WORKFLOWS" in
+    sprint|both)
+      echo "  /sprint <run-id>                          # start a sprint"
+      ;;
+  esac
+  case "$WORKFLOWS" in
+    qa-fix|both)
+      echo "  /qa-fix <run-id> --jql=\"...\"             # run QA fix loop"
+      ;;
+  esac
+  echo
+  echo "Edit teammate guides at .claude/teammates/<name>.md to refine stack details."
+fi
 echo "─────────────────────────"

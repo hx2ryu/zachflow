@@ -18,6 +18,14 @@ That's it. `create-zachflow` clones zachflow at the matching tag (`create-zachfl
 
 To pin a specific zachflow tag, pass `--tag=vX.Y.Z` (defaults to the matching CLI version). To track main, pass `--branch=main`.
 
+**Want to try it without wiring up your own codebase?** After `npx create-zachflow`, run:
+
+```bash
+bash scripts/init-project.sh --demo
+```
+
+Synthesizes a throwaway Node.js source repo + role + KB so you can run `/sprint demo-1` immediately. The wizard prints the cleanup path at the end.
+
 For non-interactive setup (CI), skip the wizard with `--no-init` and feed a config file:
 
 ```bash

@@ -32,6 +32,16 @@ bash scripts/init-project.sh --from=init.config.yaml --non-interactive
 
 The shape of `init.config.yaml` is documented inline in `templates/init.config.template.yaml`. After running, compare your generated `sprint-config.yaml` against `examples/nextjs-supabase/sprint-config.example.yaml` to sanity-check the wizard output.
 
+### Try it without your own repo (`--demo`)
+
+```bash
+bash scripts/init-project.sh --demo
+```
+
+Synthesizes a throwaway Node.js source repo in a temp directory (3 files, one git commit), wires a single backend role at it, initializes the KB, and prints the cleanup path. Zero prompts. Useful for evaluating zachflow before pointing it at real code, or for trying the sprint pipeline end-to-end in a workshop / demo. The wizard prints the throwaway path at the end — delete it with `rm -rf` when you're done.
+
+`--demo` is incompatible with `--from=<file>` (the demo synthesizes its own config).
+
 ### Prerequisites
 
 Before the wizard runs, `init-project.sh` checks for `git`, `python3 ≥ 3.8`, the `pyyaml` Python module, and (optionally) `node ≥ 18`. Missing items are reported as a batch with platform-aware install hints (macOS PEP 668 paths included). Pass `--skip-preflight` to bypass the check; the wizard will then fail later if something it actually needs is missing, so reach for this only when you know the check itself is wrong about your environment.
