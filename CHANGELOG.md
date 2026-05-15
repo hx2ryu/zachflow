@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- **`create-zachflow` auto-runs `scripts/init-project.sh`.** Previously, `npx create-zachflow my-project` cloned and stripped the template, then exited with a "Next steps" message instructing the user to `cd` and run the wizard manually. The wrapper now spawns the wizard directly when stdin is a TTY, collapsing the three-step Quick start (`npx ... && cd ... && bash ...`) into a single command. Non-TTY contexts (CI, piped stdin) and `--no-init` retain the previous "print guidance, exit" behavior. README and MANUAL Quick start sections updated to match; the CI-flow example now uses `npx create-zachflow my-project --no-init` followed by the explicit `--from=init.config.yaml` invocation. New `tests/create-zachflow-smoke.sh` (offline, bare-clone-based) covers both `--no-init` and non-TTY paths and runs in CI alongside a `node --check` syntax gate. Addresses the M-3 friction surfaced in the [install/setup UX review](docs/benchmarks/2026-05-three-agent-frameworks.md) (cd + bash second-step is the most common drop-off).
+
 ## [1.4.0] — 2026-05-15
 
 Minor release. Captures the **three-agent-framework benchmark** (hermes-agent / ruflo / deer-flow) and ships three of the four highest-ROI ports it identified: a data-driven pattern lifecycle (Phase 6.7b), an Adversarial Evaluator (T2-C), and four executable failure-mode guards (deer-flow middleware-chain port). The harness now *materializes* its core design principles — every row of `docs/design-principles.md` §Failure Modes has a named script that runs at a documented phase boundary and emits a hash-chained event.

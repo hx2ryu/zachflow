@@ -8,20 +8,22 @@ Operational guide for zachflow projects. For architecture and design rationale, 
 
 ```bash
 npx create-zachflow my-project
-cd my-project
-bash scripts/init-project.sh
 ```
 
-This bootstraps a new project from the matching tagged release of zachflow, then runs the interactive wizard. Alternative install paths (legacy GitHub Release tarball, repo clone) live in [`packages/create-zachflow/README.md`](packages/create-zachflow/README.md).
+`create-zachflow` clones zachflow at the matching tag, strips dev artifacts, re-inits git, and auto-runs the interactive wizard (when stdin is a TTY). End-to-end setup takes ~5 minutes. Alternative install paths (legacy GitHub Release tarball, repo clone) live in [`packages/create-zachflow/README.md`](packages/create-zachflow/README.md).
 
-The wizard takes ~5 minutes. After completion:
+After completion:
 - `sprint-config.yaml` defines your project's roles and base branches
 - `.claude/teammates/*.md` are filled with your stack specifics
 - `.zachflow/kb/` is initialized (embedded mode)
 
+If you'd rather inspect the project before initializing, pass `--no-init` and run `bash scripts/init-project.sh` yourself.
+
 ### Non-interactive setup (for CI)
 
 ```bash
+npx create-zachflow my-project --no-init
+cd my-project
 cp templates/init.config.template.yaml init.config.yaml
 # Edit init.config.yaml — see examples/nextjs-supabase/init.config.yaml for a
 # working reference (one role, fe-engineer teammate, fill block populated).

@@ -12,23 +12,23 @@ zachflow is a workflow harness that brings explicit phase gates, file-based hand
 
 ```bash
 npx create-zachflow my-project
-cd my-project
-bash scripts/init-project.sh
 ```
 
-The bootstrap is zero-deps. `create-zachflow@X.Y.Z` clones zachflow at `vX.Y.Z` (currently `v1.4.0`) so CLI version and template version stay in lockstep, strips dev artifacts, and re-inits git. The interactive wizard then takes ~5 minutes. After completion, you have a working sprint runner ready to run `/sprint <run-id>` in Claude Code.
+That's it. `create-zachflow` clones zachflow at the matching tag (`create-zachflow@X.Y.Z` → `vX.Y.Z`, currently `v1.4.0`), strips dev artifacts, re-inits git, and then **auto-runs the interactive wizard** when stdin is a TTY. End-to-end setup takes ~5 minutes. After it completes, open the project in Claude Code and run `/sprint <run-id>`.
 
-For non-interactive setup (CI):
+To pin a specific zachflow tag, pass `--tag=vX.Y.Z` (defaults to the matching CLI version). To track main, pass `--branch=main`.
+
+For non-interactive setup (CI), skip the wizard with `--no-init` and feed a config file:
 
 ```bash
-npx create-zachflow my-project
+npx create-zachflow my-project --no-init
 cd my-project
 cp templates/init.config.template.yaml init.config.yaml
 # Edit init.config.yaml
 bash scripts/init-project.sh --from=init.config.yaml --non-interactive
 ```
 
-To pin a specific zachflow tag, pass `--tag=vX.Y.Z` (defaults to the matching CLI version). To track main, pass `--branch=main`. The legacy GitHub Release tarball one-liner — `npx https://github.com/hx2ryu/zachflow/releases/download/vX.Y.Z/create-zachflow-X.Y.Z.tgz my-project --tag=vX.Y.Z` — still works as a backup install path.
+The legacy GitHub Release tarball one-liner — `npx https://github.com/hx2ryu/zachflow/releases/download/vX.Y.Z/create-zachflow-X.Y.Z.tgz my-project --tag=vX.Y.Z` — still works as a backup install path.
 
 ## Features
 
