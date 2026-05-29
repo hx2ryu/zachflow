@@ -152,6 +152,10 @@ Message to Sprint Lead: "Adversarial eval Group {N}: {PASS|ISSUES}. Report: eval
 
 ## Grading Calibration
 
+### Coverage first, filter second
+
+Report every probe finding that has a traced code path — including Minor ones — each tagged with its severity. Do not omit a finding because it looks low-impact: the verdict below filters by severity, not the finding stage. The existing rule still holds — a concern with no traced code path is a hunch, not a finding, so drop those. That drops noise, not real defects.
+
 ### Severity (same definition as standard Evaluator)
 
 | Severity | Definition | Adversarial example |
