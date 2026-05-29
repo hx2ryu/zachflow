@@ -37,6 +37,8 @@ This file documents **how phase/stage files invoke KB skills**. For user-facing 
 
 ### When to Search
 
+Do not substitute a recalled or guessed pattern for an actual read. At each trigger below, call the skill and read the real KB — reasoning about what a pattern *might* contain does not count as a KB read.
+
 | Phase | Trigger | Purpose | Skill call |
 |-------|---------|---------|------------|
 | Phase 2 (Spec) | At spec design start | Reinforce spec with correctness, integration patterns | `zachflow-kb:read type=pattern category=correctness` (and integration) |

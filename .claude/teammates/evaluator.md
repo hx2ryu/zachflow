@@ -167,6 +167,10 @@ Message to Sprint Lead: "Evaluation Group {N}: {PASS|ISSUES|FAIL}. Report: evalu
 
 ## Grading Calibration
 
+### Coverage first, filter second
+
+Report **every** issue you find — including Minor ones and ones you are uncertain about — each tagged with its severity. Do not omit a finding because it seems unimportant: the PASS/ISSUES/FAIL verdict below is where severity filtering happens, not the finding stage. It is better to surface an issue the verdict later discounts than to silently drop a real one. (This reinforces "When uncertain, report ISSUE" in Constraints.)
+
 ### Severity
 
 | Severity | Definition | Example |

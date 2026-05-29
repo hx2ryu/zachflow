@@ -117,6 +117,10 @@ TaskCreate(
 
 The `description` field is short (used for tracking). The `prompt` field contains the full task assignment — including the Frozen Snapshot block, so the agent does not need to Read reference files separately.
 
+### Parallel Dispatch
+
+When several dispatches are independent — no shared state and no sequential dependency — issue them in the same turn rather than one at a time. Examples: prototype variants A/B/C (see `workflows/sprint/phase-prototype.md` §3.2), or per-task engineers within a group whose files do not overlap. Dispatch sequentially only when a task depends on a prior task's output — e.g. evaluation waits for the merged group, a Fix Engineer waits for the Evaluator verdict.
+
 ### Subject Naming Convention
 
 | Phase/Stage | Subject pattern | Owner |
