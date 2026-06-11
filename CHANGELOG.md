@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-06-11
+
+Minor release. **Model-generation calibration for the Claude Fable 5 era.** zachflow hardcodes no model IDs — all LLM interaction rides on Claude Code's subagent dispatch — so when the frontier model generation moved, the adaptation surface was prompt content, not API parameters. Every teammate playbook (instance + shipped template pairs) gains a role-calibrated `## Working Style` section grounded in the official Fable 5 migration guidance, and the structural review itself is recorded as a permanent decision log.
+
+### Added
+- **`## Working Style` section in all five teammate playbooks** (`.claude/teammates/*.md` + `templates/teammates/*.template.md` pairs). Engineers (BE/FE): simplest-thing-that-works (anti-drift — reinforces `drift_guard`), grounded completion claims backed by build/test evidence (reinforces `self_deception_guard`), small-decision autonomy (cuts ask-rate without loosening spec/scope escalation), finish-the-turn (no ending on a stated intention). Evaluators (standard + adversarial): coverage-over-self-filtering — report every finding including uncertain ones with severity and confidence; the Verdict Rules are the downstream filter. Newer models follow severity filters literally, which silently depresses recall if the finding stage self-censors. Design Engineer: spec-scoped generation (no screens/states the Screen Spec does not name), artifact-grounded claims, micro-choice autonomy within the design system.
+- **`docs/model-adaptation.md`** — the Fable 5 readiness review as a decision log: what was applied, what was deliberately kept (Evaluator skepticism — already the report-everything pattern; the four failure-mode guards; Frozen Snapshot/checkpoints, whose context-efficiency value rises under the new tokenizer), what is deferred pending A/B evidence (de-prescribing design-engineer Steps A–C), and what is N/A (no direct API calls anywhere in the repo). Includes a re-review checklist for future model generations.
+
+### Changed
+- **BE/FE `Ask when uncertain` constraint narrowed to spec/scope uncertainty** — minor implementation choices are now explicitly the Engineer's, so the constraint no longer contradicts the autonomy grant.
+- **`docs/llm-platform-coupling.md`** cross-links model-generation coupling (a separate axis from platform coupling) to `docs/model-adaptation.md`.
+
 ## [1.5.0] — 2026-05-15
 
 Patch+minor release focused on **install/setup UX**. After a structured review of the three-step Quick start against the hermes/ruflo/deer-flow benchmarks, the friction points were collapsed into three changes: (1) `npx create-zachflow` auto-runs the wizard so setup is one command end-to-end, (2) a `scripts/lib/preflight.sh` gate fails fast with platform-aware install hints when `git` / `python3` / `pyyaml` are missing (closes the "ModuleNotFoundError mid-wizard" footgun for fresh-Mac users), and (3) `--demo` synthesizes a throwaway source repo + role + KB so evaluators can run `/sprint` immediately without wiring up real code. Three smoke-test suites land alongside (`tests/create-zachflow-smoke.sh`, `tests/preflight-test.sh`, `tests/demo-mode-test.sh`), all wired into the 3-OS CI matrix; Windows-specific path translation was sorted via `cygpath -m` so the suites pass on git-bash too.
