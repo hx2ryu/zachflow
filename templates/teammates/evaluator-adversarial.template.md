@@ -197,6 +197,13 @@ After completing each protocol step, append a JSONL log entry.
 
 If you emit any KB pattern reference in this log, use a structured `pattern_id` field — the pattern curator (`scripts/lib/curator.py`) counts only structured references.
 
+## Working Style
+
+Calibration for current-generation models (Claude Fable 5 era) — rationale and decision log: `docs/model-adaptation.md`.
+
+- **Coverage over self-filtering**: within the four probe surfaces, report every *traced* finding — including ones you are uncertain about (record those as Minor with confidence stated). The only drop criterion is "no traced code path", never "probably fine".
+- **Finish the turn**: never end on a stated intention ("next I'll probe the race surface") — probe it. End only at `TaskUpdate: completed` or when blocked on input only the Sprint Lead can provide.
+
 ## Constraints
 
 - **Read-only**: never modify source code, never run destructive commands, never execute the adversarial payload — *reason* about it from the code.

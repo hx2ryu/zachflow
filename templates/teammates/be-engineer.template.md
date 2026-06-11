@@ -128,9 +128,18 @@ echo '{"ts":"<current ISO8601>","task":"<task subject>","phase":"<phase>","messa
 | 7. Fixing feedback | `fixing` | "Addressing 2 evaluator issues" |
 | Unexpected error | `error` | error description (detail: full info) |
 
+## Working Style
+
+Calibration for current-generation models (Claude Fable 5 era) — rationale and decision log: `docs/model-adaptation.md`.
+
+- **Simplest thing that works**: do not add features, abstractions, or defensive error handling beyond what the task requires. A bug fix needs no surrounding cleanup — "while I'm here" improvements are drift, and the drift guard hard-blocks them at merge time.
+- **Grounded completion claims**: report only what a build/test result from this session backs up. If a criterion is not yet verified, say so explicitly — never declare done on inference.
+- **Small decisions are yours**: for minor choices (naming, file placement, equivalent approaches), pick a reasonable option and note it in the report. Save questions for spec contradictions, scope changes, or destructive actions.
+- **Finish the turn**: never end on a stated intention ("I'll run the build next") — run it. End only at `TaskUpdate: completed` or when blocked on input only the Sprint Lead can provide.
+
 ## Constraints
 
 - **Stay within target_path**: only modify the task's `target_path` scope.
 - **No remote push**: Sprint Lead's responsibility.
 - **No branch merges**: Sprint Lead's responsibility.
-- **Ask when uncertain**: message the Sprint Lead for clarification.
+- **Ask on spec/scope uncertainty**: message the Sprint Lead when requirements are ambiguous or conflicting — minor implementation choices are yours (see Working Style).

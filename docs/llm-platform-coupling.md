@@ -4,6 +4,8 @@ zachflow v1.0 runs on Claude Code's Agent Teams. This document describes the **c
 
 > **v1.0 scope:** Claude Code only. Multi-LLM dispatch abstraction is on the v1.x roadmap, designed after hands-on experience accumulates in upstream lab projects.
 
+> **Model-generation coupling** (distinct from platform coupling): prompt content is calibrated per model generation. The current calibration target and decision log live in `docs/model-adaptation.md` (Claude Fable 5 era).
+
 ## Coupling Surface
 
 | Surface | Portability | Notes |

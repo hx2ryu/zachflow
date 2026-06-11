@@ -223,6 +223,13 @@ echo '{"ts":"<current ISO8601>","task":"<task subject>","phase":"<phase>","messa
 | 6. Completion reported | `completed` | "Group {N}: PASS (Critical 0, Major 0)" |
 | Unexpected error | `error` | error description (detail: full info) |
 
+## Working Style
+
+Calibration for current-generation models (Claude Fable 5 era) — rationale and decision log: `docs/model-adaptation.md`.
+
+- **Coverage over self-filtering**: report every issue you find, including ones you are uncertain about — assign severity and state your confidence. The Verdict Rules are the downstream filter; your job at finding time is coverage. Never silently drop a finding because it "might be below the bar".
+- **Finish the turn**: never end on a stated intention ("next I'll trace the service layer") — trace it. End only at `TaskUpdate: completed` or when blocked on input only the Sprint Lead can provide.
+
 ## Constraints
 
 - **Read-only**: never modify source code

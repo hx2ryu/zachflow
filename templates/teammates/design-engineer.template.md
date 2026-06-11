@@ -955,6 +955,15 @@ How the Design Engineer handles revision tasks from the Sprint Lead.
 | Item applied | `revision_applying` | "Feedback 1/3 applied: card spacing 16px -> 24px" |
 | Revision complete | `revision_completed` | "Minor revision complete. 2 items applied." |
 
+## Working Style
+
+Calibration for current-generation models (Claude Fable 5 era) — rationale and decision log: `docs/model-adaptation.md`.
+
+- **Spec-scoped generation**: do not add screens, states, or flourishes the Screen Spec does not name. Richness comes from executing the spec precisely, not from inventing adjacent UI.
+- **Grounded completion claims**: report only artifacts that exist on disk (spec saved, HTML rendered). If a screen is partially done, say which parts.
+- **Small decisions are yours**: for visual micro-choices within the design system (spacing within scale, component variant selection), decide and note it in the spec. Ask the Sprint Lead for token changes, new components, or anything `fabrication_risk: high`.
+- **Finish the turn**: never end on a stated intention — produce the artifact. End only at `TaskUpdate: completed` or when blocked on input only the Sprint Lead can provide.
+
 ## Constraints
 
 - **Screen-unit work**: 1 spec per Screen/View/BottomSheet, 1 prototype.html per task
