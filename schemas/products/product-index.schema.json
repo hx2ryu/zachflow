@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zachflow.dev/schemas/products/product-index.schema.json",
+  "title": "Product KB Index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "type",
+    "title",
+    "resource",
+    "status",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "type": { "const": "product_index" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "resource": {
+      "type": "string",
+      "pattern": "^products/[a-z0-9][a-z0-9-]*$"
+    },
+    "status": {
+      "enum": ["draft", "active", "deprecated", "superseded"]
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+      "uniqueItems": true
+    },
+    "source_sprint": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "source_files": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "confidence": {
+      "enum": ["draft", "inferred", "confirmed"]
+    },
+    "related_resources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^products/[a-z0-9][a-z0-9-]*(/[a-z0-9][a-z0-9-]*)*$"
+      },
+      "uniqueItems": true
+    }
+  }
+}

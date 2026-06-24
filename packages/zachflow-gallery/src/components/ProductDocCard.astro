@@ -1,0 +1,87 @@
+---
+import { labelForType, type ProductDoc } from '../lib/productKb';
+
+interface Props {
+  doc: ProductDoc;
+}
+
+const { doc } = Astro.props;
+---
+
+<a href={doc.route} class="product-card">
+  <div class="product-card__topline">
+    <span class={`status status--${doc.status || 'unknown'}`}>{doc.status || 'unknown'}</span>
+    <span>{labelForType(doc.type)}</span>
+  </div>
+  <strong>{doc.title}</strong>
+  <code>{doc.resource}</code>
+  {doc.sourceSprint && <span class="source">Source: {doc.sourceSprint}</span>}
+  {doc.summary && <p>{doc.summary}</p>}
+  {doc.tags.length > 0 && (
+    <div class="tags">
+      {doc.tags.map((tag) => <span>{tag}</span>)}
+    </div>
+  )}
+</a>
+
+<style>
+  .product-card {
+    display: flex;
+    min-height: 190px;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    color: inherit;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+  }
+  .product-card:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+  .product-card__topline,
+  .tags {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+  .status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.35rem;
+    padding: 0 0.45rem;
+    border-radius: 999px;
+    background: #24242c;
+    color: #e8e8ea;
+  }
+  .status--active { background: #10372c; color: #b6f2dc; }
+  .status--draft { background: #342e13; color: #f4dfa4; }
+  .status--deprecated,
+  .status--superseded { background: #3a2026; color: #f0b9c3; }
+  strong {
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+  code {
+    word-break: break-word;
+  }
+  p {
+    margin: 0;
+    color: var(--muted);
+  }
+  .source {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .tags span {
+    color: var(--fg);
+    background: #20202a;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    padding: 0.1rem 0.45rem;
+  }
+</style>

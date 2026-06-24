@@ -12,7 +12,7 @@ This file documents **how phase/stage files invoke KB skills**. For user-facing 
 - **Local clone**: `$KB_PATH` (default `~/.zachflow/kb`) — the SessionStart hook auto-clones/pulls.
 - **Content layout** (two axes):
   - Axis 1 (self-improving): `learning/patterns/*.yaml`, `learning/rubrics/*.md`, `learning/reflections/*.md`
-  - Axis 2 (product specs): `products/<product-slug>/prd.md` + `events.yaml`
+  - Axis 2 (product/domain memory): `products/<product-slug>/index.md`, `features/*.md`, `apis/*.md`, `decisions/*.md`, `policies/*.md`, `glossary/*.md`
 
 ---
 
@@ -21,13 +21,14 @@ This file documents **how phase/stage files invoke KB skills**. For user-facing 
 | Skill | Purpose |
 |-------|---------|
 | `zachflow-kb:sync` | Fast-forward pull on entry to each Phase (before first KB access in Phase 2/3/4, before writes in Phase 6) |
-| `zachflow-kb:read` | Read (type=pattern\|rubric\|reflection\|prd\|events, filters: category/domain/status/limit/product) |
+| `zachflow-kb:read` | Read (type=pattern\|rubric\|reflection\|product\|feature\|api\|decision\|policy\|glossary\|prd, filters: category/domain/product/tag/status/limit) |
 | `zachflow-kb:write-pattern` | Create a new pattern |
 | `zachflow-kb:update-pattern` | Update an existing pattern's frequency/severity |
 | `zachflow-kb:write-reflection` | Record retrospective at the end of a sprint |
+| `zachflow-kb:upsert-product-doc` | Create/update product KB docs by stable resource with schema validation |
 | `zachflow-kb:promote-rubric` | Promote a pattern → evaluator rubric clause (Phase 6 §6.7a) |
-| `zachflow-kb:sync-prds-from-notion` | Sync a Notion database → `products/notion-prds.yaml` (requires an external integration plugin — not part of zachflow core) |
-| `zachflow-kb:sync-active-prds` | Mirror in-progress feature PRD bodies → `products/active-prds/{notion-id}.md` (requires an external integration plugin — not part of zachflow core) |
+| `zachflow-kb:sync-prds-from-notion` | Sync a Notion database into product KB PRD docs (requires an external integration plugin — not part of zachflow core) |
+| `zachflow-kb:sync-active-prds` | Mirror in-progress feature PRD bodies into product KB PRD docs (requires an external integration plugin — not part of zachflow core) |
 
 > **Sync timing**: The SessionStart hook (`scripts/kb-bootstrap.sh`) attempts ff-only at bootstrap, but upstream may update during a long-running sprint. Call `zachflow-kb:sync` before the first KB access in each phase to ensure freshness.
 
@@ -40,6 +41,7 @@ This file documents **how phase/stage files invoke KB skills**. For user-facing 
 | Phase | Trigger | Purpose | Skill call |
 |-------|---------|---------|------------|
 | Phase 2 (Spec) | At spec design start | Reinforce spec with correctness, integration patterns | `zachflow-kb:read type=pattern category=correctness` (and integration) |
+| Phase 2 (Spec) | Product context | Load existing active product facts without direct filesystem scans | `zachflow-kb:read type=feature product=<slug> status=active limit=5`, plus `api`, `policy`, `glossary` as relevant |
 | Phase 2 (Spec) | Domain learning | Reference past retrospectives | `zachflow-kb:read type=reflection domain=<domain> limit=3` |
 | Phase 3 (Prototype) | At prototyping start | design_proto, design_spec patterns | `zachflow-kb:read type=pattern category=design_proto` |
 | Phase 4.1 (Contract) | When drafting Done Criteria | Reflect every relevant pattern's contract_clause into Criteria | `zachflow-kb:read type=pattern category=<relevant>` |
@@ -77,6 +79,20 @@ Injection criteria (consistent with sprint-contract.template.md):
 - `severity: major` + `frequency >= 2` → inject
 - `severity: minor` → do not inject
 
+### Product Context Search
+
+Product docs must be loaded through `zachflow-kb:read`; workflow phase files should not scan `.zachflow/kb/products/` directly.
+
+Recommended Phase 2 order:
+
+1. `zachflow-kb:read type=product product=<slug>` to get the product index when a slug is known.
+2. `zachflow-kb:read type=feature product=<slug> status=active limit=5`
+3. `zachflow-kb:read type=api product=<slug> status=active limit=5`
+4. `zachflow-kb:read type=policy product=<slug> status=active limit=5`
+5. `zachflow-kb:read type=glossary product=<slug> status=active limit=10`
+
+When no product slug is known, use tags derived from the PRD/spec title and section headings, for example `zachflow-kb:read type=feature tag=billing status=active limit=5`. If no product docs match, continue normally with learning KB context only.
+
 ---
 
 ## KB Write Protocol
@@ -89,6 +105,7 @@ Injection criteria (consistent with sprint-contract.template.md):
 | Phase 6 (Retro) | Existing pattern re-observed | frequency/severity update | `zachflow-kb:update-pattern` |
 | Phase 6 (Retro) | At sprint close | Domain learning record | `zachflow-kb:write-reflection` |
 | Phase 6 (Retro) | quality-report fabrication_risk detected | Design pattern | `zachflow-kb:write-pattern category=design_proto` |
+| Phase 6 (Retro) | Confirmed product fact extracted from sprint artifacts | Product KB doc | `zachflow-kb:upsert-product-doc` |
 
 ### How to Write
 
@@ -108,6 +125,24 @@ Call `zachflow-kb:update-pattern id=<pattern-id>`. The skill applies frequency+1
 #### Step 2b: Create New Pattern
 
 Call `zachflow-kb:write-pattern` with the category only; the skill auto-numbers the next ID ({category}-{NNN+1}) + schema validation + commit/push. Conflicts handled via rebase-retry.
+
+### Product KB Write Protocol
+
+Product facts are written only after candidate extraction and matching:
+
+1. Use `zachflow-kb:read type=<feature|api|decision|policy|glossary|prd> product=<slug>` to find existing docs.
+2. Compare candidates by stable `resource`.
+3. If a matching `resource` exists, call `zachflow-kb:upsert-product-doc` with the same resource fields; the helper updates the existing file in place.
+4. If no matching `resource` exists and the fact is supported by sprint artifacts, call `zachflow-kb:upsert-product-doc` to create it.
+
+Required product write metadata:
+
+- `source_sprint`
+- `source_files` with at least one sprint artifact path
+- `confidence`, defaulting to `inferred` unless explicitly confirmed
+- `status`; use `active` only for facts accepted as current product behavior
+
+Direct agent writes to `.zachflow/kb/products/` are forbidden. Manual human edits are allowed, but must pass `bash tests/kb-smoke.sh`.
 
 ### Design Pattern Recording
 

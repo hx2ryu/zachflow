@@ -19,6 +19,21 @@ For KB sync/search/write protocol used here (`zachflow-kb:read`, etc.), see `wor
    - Extract only each reflection's **Lesson** section and inject into the Spec context.
    - `zachflow-kb:read type=pattern min_frequency=2` → identify patterns relevant to the new PRD's domain (combining a category filter is recommended).
    - After analyzing the PRD, explicitly adopt or reject each lesson/pattern in the Spec (record a one-line rejection rationale).
+0.6. **Product Context load** (OKF-compatible product KB):
+   - Determine relevance:
+     - Prefer product slug from sprint config, PRD metadata, or PRD path.
+     - Derive fallback tags from the PRD title and section headings.
+     - If neither is clear, load only `zachflow-kb:read type=product limit=3` and continue with learning context if empty.
+   - Query through the KB skill only; do not scan `.zachflow/kb/products/` directly:
+     - `zachflow-kb:read type=product product=<slug> limit=1`
+     - `zachflow-kb:read type=feature product=<slug> status=active limit=5`
+     - `zachflow-kb:read type=api product=<slug> status=active limit=5`
+     - `zachflow-kb:read type=policy product=<slug> status=active limit=5`
+     - `zachflow-kb:read type=glossary product=<slug> status=active limit=10`
+   - If no product slug is known, substitute `tag=<tag>` for each relevant tag and keep the same per-type limits.
+   - Read only returned paths. Extract stable `resource`, `status`, `confidence`, `updated_at`, and the body summary.
+   - Add a `Product Context Used` section to spec outputs and cite resource IDs wherever product facts influence tasks, API contract, policies, glossary, or evaluation criteria.
+   - No product docs found is not a failure; continue normally.
 1. **PRD analysis**: Extract User Stories + AC, capture business goals.
 2. **Codebase pattern survey**:
    - Backend: `backend/apps/<example api>/src/`
@@ -84,6 +99,11 @@ Create `checkpoints/phase-2-summary.md`:
 ## Key Decisions
 - {Major decision 1 made while interpreting the PRD}
 - {Major decision 2 made while interpreting the PRD}
+
+## Product Context Used
+| Resource | Type | Status | Applied To | Notes |
+|----------|------|--------|------------|-------|
+| `products/{product}/{type}/{slug}` | feature/api/policy/glossary/product | active | {task/api/criteria id} | {how it shaped the spec, or "reviewed but not applied"} |
 
 ## Group Plan
 - Group 001: {task-ids} — {feature summary}

@@ -1,6 +1,8 @@
 ---
 import Layout from '../components/Layout.astro';
 import PrototypeCard from '../components/PrototypeCard.astro';
+import ProductDocCard from '../components/ProductDocCard.astro';
+import { labelForType, loadProductDocs } from '../lib/productKb';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -8,6 +10,16 @@ import path from 'node:path';
 // (this Astro app lives at packages/zachflow-gallery/, so project root is ../..)
 const projectRoot = path.resolve('../..');
 const runsDir = path.join(projectRoot, 'runs', 'sprint');
+const productDocs = loadProductDocs(projectRoot);
+const productGroups = Array.from(
+  productDocs.reduce((groups, doc) => {
+    const key = doc.type;
+    const group = groups.get(key) ?? [];
+    group.push(doc);
+    groups.set(key, group);
+    return groups;
+  }, new Map<string, typeof productDocs>()),
+).sort(([a], [b]) => labelForType(a).localeCompare(labelForType(b)));
 
 let prototypes: { run: string; prototype: string }[] = [];
 
@@ -59,9 +71,42 @@ prototypes.sort((a, b) => {
       </div>
     </>
   )}
+
+  <section class="section" id="product-kb">
+    <div class="section-heading">
+      <div>
+        <h2>Product KB</h2>
+        <p>OKF-compatible product docs from <code>.zachflow/kb/products/</code>.</p>
+      </div>
+      <span>{productDocs.length} doc{productDocs.length === 1 ? '' : 's'}</span>
+    </div>
+
+    {productDocs.length === 0 ? (
+      <p>
+        No product KB docs found. Run <code>bash scripts/kb-bootstrap.sh --demo</code> or add
+        validated product docs under <code>.zachflow/kb/products/&lt;product&gt;/</code>.
+      </p>
+    ) : (
+      <div class="product-groups">
+        {productGroups.map(([type, docs]) => (
+          <section class="product-group">
+            <h3>{labelForType(type)}</h3>
+            <div class="product-grid">
+              {docs.map((doc) => <ProductDocCard doc={doc} />)}
+            </div>
+          </section>
+        ))}
+      </div>
+    )}
+  </section>
 </Layout>
 
 <style>
+  h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -70,5 +115,48 @@ prototypes.sort((a, b) => {
   .count {
     color: var(--muted);
     margin-bottom: 1.5rem;
+  }
+  .section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--card-border);
+  }
+  .section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .section-heading p {
+    color: var(--muted);
+    margin: 0.25rem 0 0;
+  }
+  .section-heading span {
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .product-groups,
+  .product-group {
+    display: grid;
+    gap: 1rem;
+  }
+  .product-group h3 {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  @media (max-width: 640px) {
+    .section-heading {
+      align-items: flex-start;
+      flex-direction: column;
+    }
   }
 </style>

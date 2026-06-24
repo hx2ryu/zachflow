@@ -11,6 +11,14 @@
   - `{task-id-2}`: {objective}
 - **API Endpoints**: {related endpoints from api-contract.yaml}
 
+## Product KB Resource Constraints
+
+When Phase 2 loaded product context, list every product KB resource that shapes this group's contract. Do not include uncited product facts.
+
+| Resource | Constraint / Fact | Contract Impact |
+|----------|-------------------|-----------------|
+| `products/{product}/features/{feature}` | {fact from product KB} | {Done Criteria / API / policy implication} |
+
 ## Done Criteria
 
 Each criterion must be verifiable in code. Ambiguous criteria are not allowed.

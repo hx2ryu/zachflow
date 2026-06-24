@@ -598,7 +598,11 @@ done
 
 if [ "$INIT_KB" = "true" ] || [ "$INIT_KB" = "y" ]; then
   echo
-  bash scripts/kb-bootstrap.sh
+  if [ $DEMO -eq 1 ]; then
+    bash scripts/kb-bootstrap.sh --demo
+  else
+    bash scripts/kb-bootstrap.sh
+  fi
 fi
 
 # ─── Install workflow symlinks ────────────────────────────────────

@@ -1,0 +1,128 @@
+---
+import Layout from '../../../../components/Layout.astro';
+import { labelForType, loadProductDocs, type ProductDoc } from '../../../../lib/productKb';
+
+export function getStaticPaths() {
+  const docs = loadProductDocs();
+  return docs
+    .filter((doc) => doc.type !== 'product_index')
+    .map((doc) => {
+      const parts = doc.resource.split('/');
+      return {
+        params: {
+          product: parts[1],
+          type: parts[2],
+          slug: parts[3],
+        },
+        props: {
+          doc,
+          relatedDocs: doc.relatedResources
+            .map((resource) => docs.find((candidate) => candidate.resource === resource))
+            .filter(Boolean),
+        },
+      };
+    });
+}
+
+interface Props {
+  doc: ProductDoc;
+  relatedDocs: ProductDoc[];
+}
+
+const { doc, relatedDocs } = Astro.props;
+---
+
+<Layout title={`${doc.title} - Product KB`}>
+  <a class="back" href="/">Back to gallery</a>
+  <article class="doc">
+    <header class="doc-header">
+      <div>
+        <p>{labelForType(doc.type)} / {doc.status}</p>
+        <h1>{doc.title}</h1>
+        <code>{doc.resource}</code>
+      </div>
+      {doc.updatedAt && <span>Updated {doc.updatedAt}</span>}
+    </header>
+
+    <dl class="meta">
+      <div>
+        <dt>Source sprint</dt>
+        <dd>{doc.sourceSprint || 'none'}</dd>
+      </div>
+      <div>
+        <dt>Tags</dt>
+        <dd>{doc.tags.length ? doc.tags.join(', ') : 'none'}</dd>
+      </div>
+      <div>
+        <dt>Related</dt>
+        <dd>
+          {relatedDocs.length ? (
+            <ul>
+              {relatedDocs.map((related) => <li><a href={related.route}>{related.resource}</a></li>)}
+            </ul>
+          ) : (
+            'none'
+          )}
+        </dd>
+      </div>
+    </dl>
+
+    <pre>{doc.body}</pre>
+  </article>
+</Layout>
+
+<style>
+  .back {
+    display: inline-flex;
+    margin-bottom: 1rem;
+    color: var(--muted);
+  }
+  .doc {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .doc-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .doc-header p,
+  .doc-header span {
+    color: var(--muted);
+    margin: 0 0 0.35rem;
+  }
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }
+  .meta div {
+    padding: 0.75rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+  }
+  dt {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+  dd {
+    margin: 0.25rem 0 0;
+  }
+  ul {
+    margin: 0.25rem 0 0;
+    padding-left: 1.1rem;
+  }
+  pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin: 0;
+  }
+</style>

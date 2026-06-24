@@ -1,6 +1,6 @@
 # Knowledge Base
 
-zachflow's KB is the cross-session memory layer used by the Sprint workflow's evaluation and retrospective phases. It accumulates **patterns** (defect signatures), **rubrics** (Evaluator clauses), and **reflections** (per-sprint outcomes) — and feeds them forward into future Sprint Contracts.
+zachflow's KB is the cross-session memory layer used by the Sprint workflow's evaluation and retrospective phases. It accumulates **patterns** (defect signatures), **rubrics** (Evaluator clauses), **reflections** (per-sprint outcomes), and optional **product knowledge** (features, APIs, policies, decisions, terminology) — and feeds them forward into future Sprint Contracts.
 
 ## Modes
 
@@ -18,10 +18,21 @@ zachflow's KB supports two modes:
 │   ├── patterns/{category}-{NNN}.yaml
 │   ├── rubrics/v{N}.md     # active rubric is the latest with status: active
 │   └── reflections/{sprint-id}.md
-└── products/               # post-v1.0 (not used yet)
+└── products/               # optional OKF-compatible product/domain memory
+    └── {product-slug}/
+        ├── index.md
+        ├── features/{feature-slug}.md
+        ├── apis/{api-slug}.md
+        ├── decisions/{decision-slug}.md
+        ├── policies/{policy-slug}.md
+        └── glossary/{term-slug}.md
 ```
 
-Schemas (zachflow core, not in user KB) live at `<git-root>/schemas/learning/`.
+Schemas (zachflow core, not in user KB) live at `<git-root>/schemas/learning/` and `<git-root>/schemas/products/`.
+
+Product KB content is optional. Empty or absent product directories are valid; present Markdown files under `.zachflow/kb/products/` must use YAML frontmatter that matches the product schemas.
+
+`bash scripts/kb-bootstrap.sh` creates `.zachflow/kb/products/README.md` as a root marker but does not create a product bundle for real projects. That root README is not a product document and is skipped by product frontmatter validation. `bash scripts/kb-bootstrap.sh --demo` seeds a `zachflow-demo` bundle used by demo mode.
 
 ## KB_PATH resolution
 
@@ -40,10 +51,11 @@ Rules:
 
 | Skill | Purpose |
 |-------|---------|
-| `zachflow-kb:read` | Query patterns / rubrics / reflections by filters. Returns paths; caller reads content. |
+| `zachflow-kb:read` | Query learning docs and product docs by filters. Returns paths; caller reads content. |
 | `zachflow-kb:write-pattern` | Create a new pattern YAML at `learning/patterns/{category}-{NNN}.yaml`. Auto-numbers within category. |
 | `zachflow-kb:update-pattern` | Increment `frequency`, refresh `last_seen` on an existing pattern. |
 | `zachflow-kb:write-reflection` | Record a sprint-end reflection (markdown + frontmatter) at `learning/reflections/{sprint_id}.md`. |
+| `zachflow-kb:upsert-product-doc` | Create or update a product KB Markdown doc by stable `resource` with schema validation and sprint source citations. |
 | `zachflow-kb:promote-rubric` | Append a Promotion Log row to the active rubric. Lightweight bookkeeping. |
 | `zachflow-kb:bump-rubric` | Bump v(N) → v(N+1): consolidate Promotion Log into Clauses, supersede the prior version. |
 | `zachflow-kb:promote-pattern` | Force a pattern's lifecycle state to `stable` (manual override of the curator's use_count threshold). |
@@ -79,15 +91,66 @@ Required frontmatter fields: `sprint_id`, `domain`, `completed_at`, `outcome` (`
 
 `domain` is a free string matching `^[a-z][a-z0-9-]*$` — use whatever identifier makes sense for your project (e.g., `auth`, `payments`, `mobile-app`).
 
+### Product KB (`schemas/products/*.schema.json`, schema v1)
+
+Product KB documents are OKF-compatible Markdown files with YAML frontmatter and a Markdown body. zachflow adopts the local file-format subset only: Markdown body, YAML frontmatter, `index.md`, stable `resource`, `tags`, source sprint citations, source file citations, and cross-links. It does not require Google Cloud Knowledge Catalog or any cloud enrichment service.
+
+Common required frontmatter fields:
+
+- `schema_version`: `1`
+- `type`: `product_index | feature | api | decision | policy | glossary | prd`
+- `title`: human-readable title
+- `resource`: stable path-like ID, for example `products/billing/features/csv-export`
+- `status`: `draft | active | deprecated | superseded`
+- `updated_at`: ISO 8601 date-time
+
+Optional frontmatter fields:
+
+- `confidence`: `draft | inferred | confirmed`
+- `tags`: array of lowercase slug tags
+- `source_sprint`: sprint ID that produced or last confirmed the document
+- `source_files`: sprint artifact paths that support the fact
+- `related_resources`: other product resource IDs
+- `superseded_by`: replacement resource ID for superseded docs
+
+`index.md` files validate against `product-index.schema.json` and use root resources such as `products/billing`. Non-index product docs validate against `product-doc.schema.json`, with type-aware resource paths such as `products/billing/apis/invoices-v1` or `products/billing/policies/export-permissions`.
+
+Agents must use `zachflow-kb:upsert-product-doc` for product KB writes. Direct writes to `.zachflow/kb/products/` are reserved for manual human edits and must still pass `bash tests/kb-smoke.sh`.
+
+Example:
+
+```markdown
+---
+schema_version: 1
+type: feature
+title: Billing CSV export
+resource: products/billing/features/csv-export
+status: active
+tags: [billing, export]
+source_sprint: sprint-042
+source_files:
+  - runs/sprint/sprint-042/PRD.md
+updated_at: "2026-06-24T00:00:00Z"
+confidence: confirmed
+---
+
+# Billing CSV export
+
+Users with finance access can export billing history as CSV.
+```
+
 ## Validation
 
 zachflow runs **two layers** of validation:
 
 1. **Skill-inline** — each KB skill's protocol includes a `python3` snippet that parses the file post-write and verifies required keys + basic patterns. Catches malformed output before commit.
 
-2. **CI smoke** (`tests/kb-smoke.sh`) — runs in CI on every push. Six steps:
-   - Steps 1–3 (always): schemas in `schemas/learning/` are valid JSON, declare draft 2020-12, KB SKILL.md frontmatter is correct.
+2. **CI smoke** (`tests/kb-smoke.sh`) — runs in CI on every push. Seven steps:
+   - Steps 1–3 (always): schemas in `schemas/learning/` and `schemas/products/` are valid JSON, declare draft 2020-12, KB SKILL.md frontmatter is correct.
    - Steps 4–6 (when `.zachflow/kb/` is present): user KB content under `learning/{patterns,rubrics,reflections}/` is validated against the corresponding schema via `jsonschema`. Empty subdirs and absent KB directories are skipped — only present files are checked.
+   - Step 7 (when `.zachflow/kb/products/` is present): Markdown product docs are validated against `product-index.schema.json` for `index.md` and `product-doc.schema.json` for other product documents. Empty product KBs are skipped.
+
+The focused fixture test `tests/product-schema-test.sh` verifies that a valid product index and feature doc pass, while a product doc missing `resource` fails.
 
 Per zachflow's embedded-mode philosophy, user KB is local to your project — but a broken KB file silently breaks Sprint Contracts and the Evaluator's rubric injection, so the CI catch is worth the cost.
 
@@ -96,9 +159,11 @@ Per zachflow's embedded-mode philosophy, user KB is local to your project — bu
 | Phase | KB skill | Purpose |
 |-------|----------|---------|
 | 2 (Spec) | `zachflow-kb:read type=pattern` | Load prior patterns to inform task decomposition. |
+| 2 (Spec) | `zachflow-kb:read type=product\|feature\|api\|policy\|glossary` | Load active product facts through the KB skill path with source resource IDs. |
 | 4.1 (Contract) | `zachflow-kb:read` | Auto-inject critical patterns' contract_clause into Done Criteria. |
 | 4.4 (Evaluate) | `zachflow-kb:read type=rubric` | Load active rubric clauses for evaluation criteria. |
-| 6 (Retro) | `zachflow-kb:write-pattern`, `update-pattern`, `write-reflection`, `promote-rubric`, `bump-rubric`, `list-stale` | Record new patterns, bump frequencies, log reflection, promote rubric clauses, and (when the Promotion Log threshold is met) bump the rubric version. End of Retro is also when `list-stale` is reviewed to plan curator runs. |
+| 6 (Retro) | `zachflow-kb:write-pattern`, `update-pattern`, `write-reflection`, `promote-rubric`, `bump-rubric`, `list-stale` | Record new patterns, bump frequencies, log reflection, promote rubric clauses, and (when the Promotion Log threshold is met) bump the rubric version. End of Retro is also when `list-stale` is reviewed to plan curator runs. Product KB candidate/write integration is planned on top of the product schemas. |
+| 6 (Retro) | `zachflow-kb:upsert-product-doc` | Write or update confirmed product facts after candidate extraction and resource matching. |
 
 ## Pattern Lifecycle (curator)
 
