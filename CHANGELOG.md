@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-06-24
+
+Minor release. Adds an **OKF-compatible Product KB** layer to zachflow's embedded Knowledge Base so product/domain context can travel with the same file-based harness as sprint learnings. Projects now get a local product knowledge bundle, product-aware workflow handoff, gallery browsing for product docs, recall sourcing, and an OKF import/export plugin path without requiring an external KB repository.
+
+### Added
+- **Product KB bundle under `.zachflow/kb/products/`.** New product README plus first-party seed docs for overview, personas, journeys, constraints, metrics, and decisions. `scripts/init-project.sh --demo` now bootstraps an example product KB alongside the throwaway source repo so demo projects show both learning memory and product context from the first run.
+- **JSON Schemas for product knowledge.** `schemas/products/*.schema.json` validates overview, personas, journeys, constraints, metrics, and decisions with the same explicit-contract style used by learning KB content. `tests/product-schema-test.sh` and the broader KB smoke suite cover the schema set.
+- **Product KB skills and helpers.** `zachflow-kb:read-product` reads and validates local product docs; `zachflow-kb:upsert-product` creates or updates product docs through schema-backed helpers under `scripts/lib/kb/`. Dedicated tests cover read, upsert, bootstrap, and workflow-doc integration.
+- **Product-aware workflow handoff.** Sprint workflow docs now carry product context through Phase 2 and Phase 6: contracts can cite relevant product docs, candidate learnings can include product-derived evidence, and the retro path preserves product decisions separately from implementation patterns.
+- **Recall and gallery integration.** The recall plugin can source product KB documents, and the Astro gallery now renders product KB pages alongside prototype outputs for local browsing.
+- **`plugins/okf/` local import/export plugin.** Adds a first-party OKF-compatible plugin for moving product KB docs in and out of zachflow's local product bundle, with import/export tests.
+
+### Changed
+- **README architecture and feature list** now name product/domain docs as part of the embedded KB surface.
+- **Demo setup** now presents product knowledge as a first-class sample artifact instead of only showing implementation learning memory.
+
 ## [1.6.0] — 2026-06-11
 
 Minor release. **Model-generation calibration for the Claude Fable 5 era.** zachflow hardcodes no model IDs — all LLM interaction rides on Claude Code's subagent dispatch — so when the frontier model generation moved, the adaptation surface was prompt content, not API parameters. Every teammate playbook (instance + shipped template pairs) gains a role-calibrated `## Working Style` section grounded in the official Fable 5 migration guidance, and the structural review itself is recorded as a permanent decision log.

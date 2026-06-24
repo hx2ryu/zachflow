@@ -3,7 +3,7 @@
 Harness-driven sprint orchestration for AI coding agents.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.6.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-1.7.0-blue.svg)]()
 [![npm](https://img.shields.io/npm/v/create-zachflow.svg)](https://www.npmjs.com/package/create-zachflow)
 
 zachflow is a workflow harness that brings explicit phase gates, file-based handoff, and contract-first development to long-running coding sessions on Claude Code's Agent Teams. It implements the **Planner–Generator–Evaluator** pattern with cross-session knowledge accumulation.
@@ -14,7 +14,7 @@ zachflow is a workflow harness that brings explicit phase gates, file-based hand
 npx create-zachflow my-project
 ```
 
-That's it. `create-zachflow` clones zachflow at the matching tag (`create-zachflow@X.Y.Z` → `vX.Y.Z`, currently `v1.6.0`), strips dev artifacts, re-inits git, and then **auto-runs the interactive wizard** when stdin is a TTY. End-to-end setup takes ~5 minutes. After it completes, open the project in Claude Code and run `/sprint <run-id>`.
+That's it. `create-zachflow` clones zachflow at the matching tag (`create-zachflow@X.Y.Z` → `vX.Y.Z`, currently `v1.7.0`), strips dev artifacts, re-inits git, and then **auto-runs the interactive wizard** when stdin is a TTY. End-to-end setup takes ~5 minutes. After it completes, open the project in Claude Code and run `/sprint <run-id>`.
 
 To pin a specific zachflow tag, pass `--tag=vX.Y.Z` (defaults to the matching CLI version). To track main, pass `--branch=main`.
 
@@ -73,7 +73,7 @@ See [`ARCHITECTURE.md`](ARCHITECTURE.md) for principles + Build Loop detail, [`M
 
 ## Status
 
-**v1.6.0** — runs on Claude Code Agent Teams. Model-generation calibration for the Claude Fable 5 era: every teammate playbook now carries a role-calibrated Working Style section (grounded completion claims, anti-drift scoping, small-decision autonomy, evaluator coverage-over-self-filtering), with the full review and decision log in [`docs/model-adaptation.md`](docs/model-adaptation.md). Builds on v1.5.0's install/setup UX overhaul (one-command `npx` wizard, prerequisite preflight, `--demo` mode). Multi-LLM platform support is on the v1.x roadmap (see [`docs/llm-platform-coupling.md`](docs/llm-platform-coupling.md)).
+**v1.7.0** — runs on Claude Code Agent Teams. Adds the OKF-compatible Product KB layer: product/domain docs under `.zachflow/kb/products/`, product-aware workflow handoff, local OKF import/export, recall integration, and gallery pages for browsing product knowledge beside sprint prototypes. Builds on v1.6.0's model-generation calibration and v1.5.0's install/setup UX overhaul (one-command `npx` wizard, prerequisite preflight, `--demo` mode). Multi-LLM platform support is on the v1.x roadmap (see [`docs/llm-platform-coupling.md`](docs/llm-platform-coupling.md)).
 
 Track v1.x progress in [`docs/roadmap.md`](docs/roadmap.md).
 
