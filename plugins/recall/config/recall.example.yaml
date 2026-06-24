@@ -27,6 +27,11 @@ sources:
     # ^[a-z][a-z0-9-]*$ (matches reflection schema in schemas/learning/).
     # No hardcoded enum.
 
+  products:
+    # Optional OKF-compatible product/domain memory.
+    path: "${KB_PATH:-./.zachflow/kb}/products"
+    layout: okf-product-kb
+
 session:
   # User-level session state (shared across projects on the same machine).
   state_file: ~/.recall/session.yaml

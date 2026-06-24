@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zachflow.dev/plugins/okf/okf.schema.json",
+  "title": "zachflow OKF plugin config",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "kb_path": { "type": "string" },
+    "default_product": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "import": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string" },
+        "force": { "type": "boolean" }
+      }
+    },
+    "export": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "destination": { "type": "string" },
+        "force": { "type": "boolean" }
+      }
+    }
+  }
+}

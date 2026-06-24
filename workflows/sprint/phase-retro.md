@@ -127,6 +127,61 @@ improvements:
     priority: "{high | medium | low}"
 ```
 
+### 6.3a Product KB Candidate Extraction
+
+Extract durable product facts after pattern digest and before final report finalization. Product facts are not failure patterns; they are current or proposed knowledge about features, APIs, decisions, policies, PRDs, and glossary terms.
+
+Sources to inspect:
+
+- `PRD.md`
+- Phase 2 spec outputs and task files
+- `api-contract.yaml`
+- prototype amendments
+- evaluation reports
+- deferred items
+
+Save: `runs/sprint/{sprint-id}/retrospective/product-kb-candidates.yaml`
+
+Use `templates/product-kb-candidate.template.yaml` as the shape:
+
+```yaml
+items:
+  - type: feature
+    title: Billing CSV export
+    resource: products/billing/features/csv-export
+    status: active
+    confidence: inferred
+    source_sprint: "{sprint-id}"
+    source_files:
+      - runs/sprint/{sprint-id}/PRD.md
+      - runs/sprint/{sprint-id}/api-contract.yaml
+    summary: Users with finance access can export billing history as CSV.
+    action: create
+```
+
+Candidate classification:
+
+- `feature`: user-visible behavior or product capability
+- `api`: API endpoint/contract that should remain stable across sprints
+- `decision`: durable product decision or accepted trade-off
+- `policy`: permission, compliance, lifecycle, pricing, or operational rule
+- `glossary`: domain term with product-specific meaning
+- `prd`: PRD-level product artifact worth preserving as product memory
+
+Matching and write rules:
+
+1. For each candidate, match existing docs by `resource` using `zachflow-kb:read type=<type> product=<slug>` and Read returned paths.
+2. Set `action` to `create`, `update`, `deprecate`, or `none`.
+3. Every candidate must include `source_sprint` and non-empty `source_files`.
+4. Use `confidence=inferred` for facts derived by the agent. Use `confirmed` only when the sprint artifact or human review makes the fact explicit.
+5. Apply `zachflow-kb:upsert-product-doc` only when:
+   - `confidence=confirmed`, or
+   - the fact is directly evidenced by accepted PRD/API contract text and no conflicting existing doc exists.
+6. Keep uncertain inferred candidates in `product-kb-candidates.yaml`; do not silently promote them to active confirmed knowledge.
+7. Existing docs with the same `resource` must be updated, not duplicated.
+
+Each `zachflow-kb:upsert-product-doc` call must pass `source_sprint`, `source_files`, `type`, `product`, `slug`, `title`, `status`, `confidence`, `tags` when available, and `summary`.
+
 ### 6.4 Sprint Report
 
 Integrate all retrospective artifacts and generate `REPORT.md`.
@@ -404,6 +459,7 @@ Sprint Retrospective: {sprint-id}
     Issues found:        {N} (C:{N} M:{N} m:{N})
 
   Patterns detected:     {N} systemic patterns
+  Product KB candidates: {N} ({M} written/updated, {K} retained for review)
   Deferred items:        {N} ({N} critical, {N} high)
 
   Retrospective saved: runs/sprint/{sprint-id}/retrospective/

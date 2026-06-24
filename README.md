@@ -42,10 +42,10 @@ The legacy GitHub Release tarball one-liner — `npx https://github.com/hx2ryu/z
 
 - **Two first-class workflows**: `/sprint` (PRD → Spec → Prototype → Build → PR → Retro) and `/qa-fix` (Jira ticket triage and fix orchestration)
 - **Build Loop primitive** (Contract → Implement → Evaluate → Fix) shared across workflows
-- **Embedded Knowledge Base** (`zachflow-kb:*` skills) — patterns/rubrics/reflections in `.zachflow/kb/`, no external repo required
+- **Embedded Knowledge Base** (`zachflow-kb:*` skills) — learning memory plus optional OKF-compatible product/domain docs in `.zachflow/kb/`, no external repo required
 - **Stack-agnostic teammate templates** — placeholder-based BE/FE/Design/Evaluator role guides, filled by interactive wizard
-- **Plugin system** — optional, user-installable extensions (v1.0 ships `recall:ask` for interactive sprint/KB recall)
-- **Auto-indexed gallery** — Astro shell that renders `runs/sprint/<id>/prototypes/` outputs (`packages/zachflow-gallery/`)
+- **Plugin system** — optional, user-installable extensions (`recall:ask`, local OKF import/export)
+- **Auto-indexed gallery** — Astro shell that renders `runs/sprint/<id>/prototypes/` outputs and product KB docs (`packages/zachflow-gallery/`)
 - **Worktree-isolated sprints** — each sprint runs in dedicated git worktrees, no cross-sprint contamination
 - **Active Evaluation** — independent Evaluator agent traces logic + probes edge cases (not just static checks)
 
@@ -58,12 +58,13 @@ workflows/              # platform-agnostic workflow content
   ├── qa-fix/           # 5-stage QA fix pipeline
   └── _shared/          # Build Loop, agent dispatch, worktree, KB integration primitives
 plugins/                # optional user-installable extensions
-  └── recall/           # interactive sprint/KB recall (reference plugin)
+  ├── recall/           # interactive sprint/KB recall (reference plugin)
+  └── okf/              # local OKF-compatible product KB import/export
 packages/               # monorepo workspaces
   ├── zachflow-gallery/ # Astro auto-indexed prototype gallery
   └── create-zachflow/  # npm bootstrap wrapper
 templates/              # init wizard templates + sprint artifact templates
-schemas/                # JSON Schema for KB content (pattern, rubric, reflection)
+schemas/                # JSON Schema for KB content (learning + products)
 runs/                   # sprint instance directories (sprint/, qa-fix/)
 .zachflow/kb/           # embedded Knowledge Base (per-project)
 ```

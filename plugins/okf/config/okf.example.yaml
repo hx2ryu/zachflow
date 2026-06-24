@@ -1,0 +1,11 @@
+# plugins/okf/config/okf.example.yaml
+kb_path: "${KB_PATH:-./.zachflow/kb}"
+default_product: billing
+
+import:
+  source: ./external-okf/billing
+  force: false
+
+export:
+  destination: ./out-okf
+  force: false

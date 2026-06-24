@@ -42,6 +42,15 @@
             "path":   { "type": "string" },
             "layout": { "const": "zachflow-kb" }
           }
+        },
+        "products": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "layout"],
+          "properties": {
+            "path":   { "type": "string" },
+            "layout": { "const": "okf-product-kb" }
+          }
         }
       }
     },

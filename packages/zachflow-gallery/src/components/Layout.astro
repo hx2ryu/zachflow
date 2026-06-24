@@ -33,8 +33,17 @@ const { title = 'zachflow gallery' } = Astro.props;
       a { color: var(--accent); text-decoration: none; }
       a:hover { text-decoration: underline; }
       header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
         padding: 1rem 2rem;
         border-bottom: 1px solid var(--card-border);
+      }
+      nav {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
       }
       main { padding: 2rem; max-width: 1200px; margin: 0 auto; }
       h1 { margin: 0 0 1rem; font-size: 1.5rem; font-weight: 600; }
@@ -44,11 +53,24 @@ const { title = 'zachflow gallery' } = Astro.props;
         border-radius: 3px;
         font-size: 0.9em;
       }
+      @media (max-width: 640px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        main {
+          padding: 1.25rem;
+        }
+      }
     </style>
   </head>
   <body>
     <header>
       <strong>zachflow gallery</strong>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/#product-kb">Product KB</a>
+      </nav>
     </header>
     <main>
       <slot />

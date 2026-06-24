@@ -5,7 +5,7 @@ description: Interactive recall over workflow run artifacts and knowledge-base. 
 
 # recall:ask
 
-Interactive recall over workflow run artifacts + knowledge base. Enters a stateful interview mode the user can continue across multiple turns.
+Interactive recall over workflow run artifacts, learning KB, and optional product KB. Enters a stateful interview mode the user can continue across multiple turns.
 
 ## Invocation
 
@@ -37,7 +37,7 @@ When `/recall:ask` is invoked, follow exactly this sequence:
    ```
    source ~/.claude/skills/recall/scripts/load-config.sh && load_config_path
    ```
-   If output is empty, use built-in defaults: `sources.runs.path = ./runs`, `sources.runs.workflows = [sprint, qa-fix]`, no KB, `session.state_file = ~/.recall/session.yaml`. Otherwise Read the resolved YAML path and parse.
+   If output is empty, use built-in defaults: `sources.runs.path = ./runs`, `sources.runs.workflows = [sprint, qa-fix]`, no KB, no product KB, `session.state_file = ~/.recall/session.yaml`. Otherwise Read the resolved YAML path and parse.
 
 2. **Inspect session state**
 
@@ -125,7 +125,14 @@ If `sources.kb.path` is set (the resolved value of `${KB_PATH:-./.zachflow/kb}`)
 3. Glob `${kb.path}/learning/patterns/*.yaml`. Match against `name` / `tags` / `category`.
 4. Pick top **K=3** of each. Stage 2 will full-read them.
 
-Track B never blocks Track A's clarification — KB matches accompany the answer, they don't decide run focus.
+If `sources.products.path` is set and `sources.products.layout == okf-product-kb`:
+
+1. Glob `${products.path}/**/*.md`, excluding `${products.path}/README.md`.
+2. Read YAML frontmatter + first 20 lines of each product doc.
+3. Lexical-match the question keywords against `title`, `resource`, `type`, `tags`, and the first heading/body lines.
+4. Prefer `status: active`, then newer `updated_at`, then score. Pick top **K=5** product docs.
+
+Track B never blocks Track A's clarification — KB/product matches accompany the answer, they don't decide run focus.
 
 ## Stage 2 — Targeted retrieval (full)
 
@@ -144,7 +151,7 @@ For the confirmed `run_focus` (i.e., `${sources.runs.path}/<workflow>/<run-id>/`
 
 The `always_read` / `conditional_read` / `skip_by_default` lists in `sources.runs.artifact_layout` (when present in config) override this default mapping.
 
-For KB Track B candidates from Stage 1: full-Read them (they were already filtered to top K).
+For KB Track B candidates from Stage 1, including product KB candidates: full-Read them (they were already filtered to top K).
 
 After Reads, synthesize the answer.
 
@@ -196,7 +203,8 @@ EOF
 | 0 run candidates after Track A | Reply: `Not found. Want me to list all available runs?` Show top-level dir list across configured workflows. |
 | State file parse error | Run `session_backup_corrupt`, start fresh session silently. |
 | Individual file Read fails (Stage 1 or 2) | Skip + log a one-liner; never abort. |
-| KB path missing or `layout` not `zachflow-kb` | Skip Track B silently. |
+| KB path missing or `layout` not `zachflow-kb` | Skip learning KB Track B silently. |
+| Product KB path missing or `layout` not `okf-product-kb` | Skip product KB matching silently. |
 | `sprint-config.yaml` (or workflow-equivalent) missing | Use dir name + retrospective only for that candidate. |
 | `--status` with no active session | Reply: `No active session.` |
 | Session stale (> 7 days) | `session_active` returns INACTIVE; Entry Flow starts a fresh session silently. |

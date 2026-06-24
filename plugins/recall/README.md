@@ -6,9 +6,10 @@ Interactive recall over project artifacts. Ask Claude about past sprint work, de
 
 `/recall:ask` enters a stateful interview mode. Successive `/recall:ask` calls within 30 minutes continue the same session — same sprint focus, accumulating context. Idle past 30 minutes or call `--reset` to start fresh.
 
-It searches two sources:
+It searches three sources:
 1. **Sprint artifacts** — your sprint output tree (`PRD.md`, `retrospective/`, `evaluations/`, `contracts/`, `tasks/`)
-2. **Knowledge base** (optional) — reflections and patterns
+2. **Learning knowledge base** (optional) — reflections and patterns
+3. **Product knowledge base** (optional) — OKF-compatible product docs by title, tags, resource, and type
 
 ## Install
 
@@ -26,11 +27,15 @@ Create `.recall.yaml` (CWD or `~/`):
 
 ```yaml
 sources:
-  sprints:
+  runs:
     path: ./runs                     # required
+    workflows: [sprint, qa-fix]
   kb:
     path: ${KB_PATH:-./.zachflow/kb} # optional
     layout: zachflow-kb              # zachflow-kb | none
+  products:
+    path: ${KB_PATH:-./.zachflow/kb}/products # optional
+    layout: okf-product-kb
 ```
 
 See `plugins/recall/config/recall.example.yaml` for the full schema.
@@ -47,6 +52,7 @@ See `plugins/recall/config/recall.example.yaml` for the full schema.
 Examples:
 - `/recall:ask how did the unblock toast issue end up being resolved?`
 - `/recall:ask which sprints touched feature X so far?`
+- `/recall:ask what is the current billing export policy?`
 - `/recall:ask --reset`
 
 Every answer ends with a **Sources** block listing the files Claude read — so you can verify.

@@ -37,4 +37,52 @@ out=$(cd "$TEST_TMPDIR" && HOME="$TEST_TMPDIR/home" load_config_path)
 [[ -z "$out" ]] || fail "should return empty when no config found, got: $out"
 pass "empty when no config found"
 
+# Test 5: example config validates and includes optional product KB source
+python3 - <<'PY'
+import json
+import pathlib
+import sys
+
+import jsonschema
+import yaml
+
+schema = json.load(open("config/recall.schema.json", encoding="utf-8"))
+example = yaml.safe_load(open("config/recall.example.yaml", encoding="utf-8"))
+jsonschema.validate(example, schema)
+
+products = example["sources"].get("products")
+if not products:
+    sys.exit("example config missing sources.products")
+if products.get("layout") != "okf-product-kb":
+    sys.exit("sources.products.layout must be okf-product-kb")
+
+minimal_without_products = {
+    "sources": {
+        "runs": {"path": "./runs", "workflows": ["sprint"]},
+        "kb": {"path": "./.zachflow/kb", "layout": "zachflow-kb"},
+    },
+    "session": {
+        "state_file": "~/.recall/session.yaml",
+        "idle_timeout_minutes": 30,
+        "stale_days": 7,
+    },
+}
+jsonschema.validate(minimal_without_products, schema)
+
+invalid_products = {
+    **minimal_without_products,
+    "sources": {
+        **minimal_without_products["sources"],
+        "products": {"path": "./.zachflow/kb/products", "layout": "wrong"},
+    },
+}
+try:
+    jsonschema.validate(invalid_products, schema)
+except jsonschema.ValidationError:
+    pass
+else:
+    sys.exit("invalid products layout should fail schema validation")
+PY
+pass "example config schema validates with optional products source"
+
 echo "All config tests passed"

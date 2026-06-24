@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zachflow.dev/schemas/products/product-doc.schema.json",
+  "title": "Product KB Document",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "type",
+    "title",
+    "resource",
+    "status",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "type": {
+      "enum": [
+        "product_index",
+        "feature",
+        "api",
+        "decision",
+        "policy",
+        "glossary",
+        "prd"
+      ]
+    },
+    "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "resource": { "type": "string" },
+    "status": {
+      "enum": ["draft", "active", "deprecated", "superseded"]
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+      "uniqueItems": true
+    },
+    "source_sprint": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "source_files": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "confidence": {
+      "enum": ["draft", "inferred", "confirmed"]
+    },
+    "superseded_by": {
+      "type": "string",
+      "pattern": "^products/[a-z0-9][a-z0-9-]*(/[a-z0-9][a-z0-9-]*)*$"
+    },
+    "related_resources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^products/[a-z0-9][a-z0-9-]*(/[a-z0-9][a-z0-9-]*)*$"
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "type": { "const": "product_index" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "resource": {
+            "pattern": "^products/[a-z0-9][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "type": { "const": "feature" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "resource": {
+            "pattern": "^products/[a-z0-9][a-z0-9-]*/features/[a-z0-9][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "type": { "const": "api" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "resource": {
+            "pattern": "^products/[a-z0-9][a-z0-9-]*/apis/[a-z0-9][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "type": { "const": "decision" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "resource": {
+            "pattern": "^products/[a-z0-9][a-z0-9-]*/decisions/[a-z0-9][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "type": { "const": "policy" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "resource": {
+            "pattern": "^products/[a-z0-9][a-z0-9-]*/policies/[a-z0-9][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "type": { "const": "glossary" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "resource": {
+            "pattern": "^products/[a-z0-9][a-z0-9-]*/glossary/[a-z0-9][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "type": { "const": "prd" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "resource": {
+            "pattern": "^products/[a-z0-9][a-z0-9-]*/prds/[a-z0-9][a-z0-9-]*$"
+          }
+        }
+      }
+    }
+  ]
+}

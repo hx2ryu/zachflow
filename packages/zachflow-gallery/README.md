@@ -1,6 +1,6 @@
 # zachflow-gallery
 
-Auto-indexed Astro shell for zachflow sprint prototype outputs.
+Auto-indexed Astro shell for zachflow sprint prototype outputs and optional product KB docs.
 
 ## Quick start
 
@@ -16,12 +16,16 @@ Open http://localhost:4321 to see your prototypes.
 
 ## What it does
 
-The gallery scans `runs/sprint/<run-id>/prototypes/**/*.html` from your zachflow project root and renders:
+The gallery scans `runs/sprint/<run-id>/prototypes/**/*.html` and `.zachflow/kb/products/**/*.md` from your zachflow project root and renders:
 
 - **Home page** (`/`) — grid of all prototype cards
 - **Detail page** (`/<run>/<prototype>/`) — full-size iframe view of each prototype
+- **Product KB section** (`/#product-kb`) — grouped cards for OKF-compatible product docs
+- **Product KB detail pages** (`/kb/<product>/...`) — product doc metadata and Markdown body
 
 Discovery happens at build time via Astro's `getStaticPaths` — no runtime indexing, no database. Add a prototype HTML file to `runs/sprint/<id>/prototypes/`, rebuild, and it appears.
+
+Product KB docs must pass `bash tests/kb-smoke.sh` before gallery render. The gallery parser intentionally supports only the validated product-frontmatter subset.
 
 ## Build for production
 
@@ -50,6 +54,7 @@ The gallery is intentionally minimal. To extend:
 
 - **Theme**: edit `src/components/Layout.astro` style block (CSS variables in `:root`)
 - **Card style**: edit `src/components/PrototypeCard.astro`
+- **Product KB cards**: edit `src/components/ProductDocCard.astro`
 - **Add filters / search / archetypes**: extend `src/pages/index.astro` or add new page components
 - **Per-run metadata**: parse your `sprint-config.yaml` or run-level docs in the page's frontmatter
 
@@ -65,6 +70,7 @@ Prototype iframes use `sandbox="allow-same-origin"` — this blocks JavaScript e
 - No screenshot capture / visual baseline / test integration.
 - No exemplar/archetype taxonomy.
 - No theme toggle / mobile-optimized navigation.
+- Product KB Markdown body rendering is intentionally plain text; richer Markdown rendering can be added later.
 - Iframe thumbnail uses CSS `transform: scale(0.5)` — visual artifacts possible in some browsers; trade-off for zero-JS thumbnails.
 
 These are intentional v1.0 boundaries — the shell is meant to be extended, not all-in-one. See zachflow's main `docs/roadmap.md` for v1.x plans.

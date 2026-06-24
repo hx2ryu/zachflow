@@ -61,8 +61,10 @@ out=$(cd "$STAGE" && bash scripts/init-project.sh --demo 2>&1 </dev/null) || {
 [ -f "$STAGE/sprint-config.yaml" ] || { echo "FAIL: sprint-config.yaml not produced"; exit 1; }
 [ -f "$STAGE/.claude/teammates/be-engineer.md" ] || { echo "FAIL: teammate fill missing"; exit 1; }
 [ -d "$STAGE/.zachflow/kb" ] || { echo "FAIL: KB not initialized"; exit 1; }
+[ -f "$STAGE/.zachflow/kb/products/zachflow-demo/index.md" ] || { echo "FAIL: demo product index missing"; exit 1; }
+[ -f "$STAGE/.zachflow/kb/products/zachflow-demo/features/greeting-function.md" ] || { echo "FAIL: demo product feature missing"; exit 1; }
 [ -L "$STAGE/.claude/skills/sprint" ] || { echo "FAIL: sprint symlink missing"; exit 1; }
-echo "    OK (config + teammate + KB + symlinks all present)"
+echo "    OK (config + teammate + KB + demo product docs + symlinks all present)"
 
 # ─── Case 2: throwaway source is a real git repo with one commit ────
 

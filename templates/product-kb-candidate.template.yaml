@@ -1,0 +1,22 @@
+# product-kb-candidate.template.yaml
+# Copy to runs/sprint/<sprint-id>/retrospective/product-kb-candidates.yaml.
+
+items:
+  - type: feature                         # feature | api | decision | policy | glossary | prd
+    title: Billing CSV export
+    resource: products/billing/features/csv-export
+    status: active                        # draft | active | deprecated | superseded
+    confidence: inferred                  # draft | inferred | confirmed
+    source_sprint: sprint-042
+    source_files:
+      - runs/sprint/sprint-042/PRD.md
+      - runs/sprint/sprint-042/api-contract.yaml
+    tags:
+      - billing
+      - export
+    related_resources: []
+    superseded_by: null
+    summary: Users with finance access can export billing history as CSV.
+    action: create                        # create | update | deprecate | none
+    rationale: Directly stated in PRD and API contract.
+    write_result: null                    # path written by zachflow-kb:upsert-product-doc, or null

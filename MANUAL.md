@@ -15,7 +15,7 @@ npx create-zachflow my-project
 After completion:
 - `sprint-config.yaml` defines your project's roles and base branches
 - `.claude/teammates/*.md` are filled with your stack specifics
-- `.zachflow/kb/` is initialized (embedded mode)
+- `.zachflow/kb/` is initialized (embedded mode), including an optional product KB root marker at `.zachflow/kb/products/README.md`
 
 If you'd rather inspect the project before initializing, pass `--no-init` and run `bash scripts/init-project.sh` yourself.
 
@@ -38,7 +38,7 @@ The shape of `init.config.yaml` is documented inline in `templates/init.config.t
 bash scripts/init-project.sh --demo
 ```
 
-Synthesizes a throwaway Node.js source repo in a temp directory (3 files, one git commit), wires a single backend role at it, initializes the KB, and prints the cleanup path. Zero prompts. Useful for evaluating zachflow before pointing it at real code, or for trying the sprint pipeline end-to-end in a workshop / demo. The wizard prints the throwaway path at the end — delete it with `rm -rf` when you're done.
+Synthesizes a throwaway Node.js source repo in a temp directory (3 files, one git commit), wires a single backend role at it, initializes the KB, seeds a demo product KB bundle under `.zachflow/kb/products/zachflow-demo/`, and prints the cleanup path. Zero prompts. Useful for evaluating zachflow before pointing it at real code, or for trying the sprint pipeline end-to-end in a workshop / demo. The wizard prints the throwaway path at the end — delete it with `rm -rf` when you're done.
 
 `--demo` is incompatible with `--from=<file>` (the demo synthesizes its own config).
 
@@ -49,6 +49,20 @@ Before the wizard runs, `init-project.sh` checks for `git`, `python3 ≥ 3.8`, t
 ### Re-running the wizard
 
 If you re-run `init-project.sh` and `sprint-config.yaml` exists, the wizard prompts before overwriting. Use `--force` to skip the prompt (with care — overwrites your customizations).
+
+### KB bootstrap behavior
+
+```bash
+bash scripts/kb-bootstrap.sh
+```
+
+The default bootstrap is conservative and idempotent. It creates learning KB directories, seeds the baseline rubric if absent, and creates `.zachflow/kb/products/README.md` as a marker only. It does not invent a product slug or product docs for real projects.
+
+```bash
+bash scripts/kb-bootstrap.sh --demo
+```
+
+Demo bootstrap additionally creates `.zachflow/kb/products/zachflow-demo/index.md` and a sample feature doc. These files are validated by `bash tests/kb-smoke.sh`.
 
 ### Skipping placeholder fills
 
